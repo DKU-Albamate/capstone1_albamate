@@ -1,0 +1,67 @@
+{
+  "main_library": {
+    "exported_symbols": [
+      {
+        "data": {
+          "global": [
+            "_GoogleUtilitiesVersionNumber",
+            "_kGULKeychainUtilsErrorDomain",
+            "_kGULLogSubsystem",
+            "_GoogleUtilitiesVersionString",
+            "_GULNSDataZlibRemainingBytesKey",
+            "_GULNSDataZlibErrorDomain",
+            "_GULNSDataZlibErrorKey"
+          ],
+          "objc_class": [
+            "GULKeychainUtils",
+            "GULAppEnvironmentUtil",
+            "PodsDummy_GoogleUtilities",
+            "GULKeychainStorage",
+            "GULLoggerWrapper",
+            "GULNetworkInfo"
+          ]
+        },
+        "text": {
+          "global": [
+            "_GULLoggerForceDebug",
+            "_GULOSLogBasic",
+            "_GULOSLogError",
+            "_GULOSLogDebug",
+            "_GULOSLogInfo",
+            "_GULLoggerLevelToOSLogType",
+            "_GULIsLoggableLevel",
+            "_GULSetLoggerLevel",
+            "_GULOSLogWarning",
+            "_IsAppEncrypted",
+            "_GULResetLogger",
+            "_GULGetLoggerLevel",
+            "_getGULClientQueue",
+            "_getGULLoggerDebugMode",
+            "_GULOSLogNotice",
+            "_GULLoggerInitialize",
+            "_GULLoggerRegisterVersion"
+          ]
+        }
+      }
+    ],
+    "flags": [
+      {
+        "attributes": [
+          "not_app_extension_safe"
+        ]
+      }
+    ],
+    "install_names": [
+      {
+        "name": "@rpath/GoogleUtilities.framework/Versions/A/GoogleUtilities"
+      }
+    ],
+    "target_info": [
+      {
+        "min_deployment": "11",
+        "target": "arm64-macos"
+      }
+    ]
+  },
+  "tapi_tbd_version": 5
+}
