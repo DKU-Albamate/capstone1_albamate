@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "167852024232",
+    "project_id": "albamate-capstone-01",
+    "storage_bucket": "albamate-capstone-01.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:167852024232:android:a6dfde8c59d01d9e7efd9d",
+        "android_client_info": {
+          "package_name": "com.example.albamate_sample"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDuXiZf4-2-klcKa336-QAadcvM5nl-_rY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
