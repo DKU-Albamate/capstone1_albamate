@@ -1,6 +1,8 @@
 // onboarding.dart
-import 'package:albamate_sample/screen/auth.dart';
+// 앱을 처음 실행했을 때, 사용자에게 보여지는 화면
+import 'package:albamate_sample/screen/signup_step1.dart'; // SignupStep1 import 추가
 import 'package:flutter/material.dart';
+import 'package:albamate_sample/screen/login_step1.dart'; // 로그인 화면 import 추가
 
 class OnboardingScreen extends StatelessWidget {
   const OnboardingScreen({super.key});
@@ -34,7 +36,9 @@ class OnboardingScreen extends StatelessWidget {
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => const AuthScreen()),
+                    MaterialPageRoute(
+                      builder: (context) => const SignupStep1(email: ''),
+                    ),
                   );
                 },
                 child: const Text(
@@ -49,19 +53,18 @@ class OnboardingScreen extends StatelessWidget {
             children: [
               const Text(
                 '이미 계정이 있으신가요? ',
-                style: TextStyle(color: Colors.grey), // 회색 글씨
+                style: TextStyle(color: Colors.grey),
               ),
               TextButton(
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => const AuthScreen()),
+                    MaterialPageRoute(
+                      builder: (context) => const LoginScreen(),
+                    ), // 로그인 화면으로 이동
                   );
                 },
-                child: const Text(
-                  '로그인',
-                  style: TextStyle(color: Colors.blue), // 파란색 글씨
-                ),
+                child: const Text('로그인', style: TextStyle(color: Colors.blue)),
               ),
             ],
           ),
