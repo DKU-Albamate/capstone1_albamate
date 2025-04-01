@@ -128,10 +128,22 @@
       "languageVersion": "3.7"
     },
     {
+      "name": "http",
+      "rootUri": "file:///Users/imminji/.pub-cache/hosted/pub.dev/http-1.3.0",
+      "packageUri": "lib/",
+      "languageVersion": "3.4"
+    },
+    {
       "name": "http_parser",
       "rootUri": "file:///Users/imminji/.pub-cache/hosted/pub.dev/http_parser-4.1.2",
       "packageUri": "lib/",
       "languageVersion": "3.4"
+    },
+    {
+      "name": "intl",
+      "rootUri": "file:///Users/imminji/.pub-cache/hosted/pub.dev/intl-0.20.2",
+      "packageUri": "lib/",
+      "languageVersion": "3.3"
     },
     {
       "name": "leak_tracker",
@@ -218,6 +230,24 @@
       "languageVersion": "3.1"
     },
     {
+      "name": "syncfusion_flutter_calendar",
+      "rootUri": "file:///Users/imminji/.pub-cache/hosted/pub.dev/syncfusion_flutter_calendar-29.1.35",
+      "packageUri": "lib/",
+      "languageVersion": "3.4"
+    },
+    {
+      "name": "syncfusion_flutter_core",
+      "rootUri": "file:///Users/imminji/.pub-cache/hosted/pub.dev/syncfusion_flutter_core-29.1.35",
+      "packageUri": "lib/",
+      "languageVersion": "3.4"
+    },
+    {
+      "name": "syncfusion_flutter_datepicker",
+      "rootUri": "file:///Users/imminji/.pub-cache/hosted/pub.dev/syncfusion_flutter_datepicker-29.1.35",
+      "packageUri": "lib/",
+      "languageVersion": "3.4"
+    },
+    {
       "name": "term_glyph",
       "rootUri": "file:///Users/imminji/.pub-cache/hosted/pub.dev/term_glyph-1.2.2",
       "packageUri": "lib/",
@@ -228,6 +258,12 @@
       "rootUri": "file:///Users/imminji/.pub-cache/hosted/pub.dev/test_api-0.7.4",
       "packageUri": "lib/",
       "languageVersion": "3.5"
+    },
+    {
+      "name": "timezone",
+      "rootUri": "file:///Users/imminji/.pub-cache/hosted/pub.dev/timezone-0.10.0",
+      "packageUri": "lib/",
+      "languageVersion": "2.19"
     },
     {
       "name": "typed_data",
@@ -260,7 +296,7 @@
       "languageVersion": "3.7"
     }
   ],
-  "generated": "2025-03-31T10:41:49.555666Z",
+  "generated": "2025-04-01T05:26:02.008511Z",
   "generator": "pub",
   "generatorVersion": "3.7.0",
   "flutterRoot": "file:///opt/homebrew/Caskroom/flutter/3.29.1/flutter",
