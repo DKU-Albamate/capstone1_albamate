@@ -1,8 +1,8 @@
 // onboarding.dart
 // 앱을 처음 실행했을 때, 사용자에게 보여지는 화면
-import 'package:albamate_sample/screen/signup_step1.dart'; // SignupStep1 import 추가
+import 'package:albamate_sample/screen/signup/signup_step1.dart'; // SignupStep1 import 추가
 import 'package:flutter/material.dart';
-import 'package:albamate_sample/screen/login_step1.dart'; // 로그인 화면 import 추가
+import 'package:albamate_sample/screen/login/login_step1.dart'; // 로그인 화면 import 추가
 
 class OnboardingScreen extends StatelessWidget {
   const OnboardingScreen({super.key});

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'boss_home.dart';
-import 'worker_home.dart';
+import '../homePage/boss/boss_homeCalendar.dart';
+import '../homePage/worker/worker_homecalendar.dart';
 
 class LoginPasswordScreen extends StatefulWidget {
   final String email;
@@ -42,7 +42,7 @@ class _LoginPasswordScreenState extends State<LoginPasswordScreen> {
         if (role == '사장님') {
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (context) => BossPage()),
+            MaterialPageRoute(builder: (context) => BossHomecalendar()),
           );
         } else if (role == '알바생') {
           Navigator.pushReplacement(
