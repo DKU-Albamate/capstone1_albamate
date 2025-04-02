@@ -42,12 +42,12 @@ class _LoginPasswordScreenState extends State<LoginPasswordScreen> {
         if (role == '사장님') {
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (context) => const BossPage()),
+            MaterialPageRoute(builder: (context) => BossPage()),
           );
         } else if (role == '알바생') {
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (context) => const WorkerPage()),
+            MaterialPageRoute(builder: (context) => WorkerPage()),
           );
         } else {
           setState(() {
