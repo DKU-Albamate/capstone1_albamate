@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'signup_step2.dart'; // 수정된 부분 (step2로 이동)
-import 'login_step1.dart';
+import '../login/login_step1.dart';
 
 class SignupStep1 extends StatefulWidget {
   const SignupStep1({super.key, required String email});

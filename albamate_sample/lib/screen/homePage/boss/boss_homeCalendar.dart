@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
+import '/component/home_navigation.dart';
 
-class BossPage extends StatefulWidget {
+class BossHomecalendar extends StatefulWidget {
   @override
-  _CalendarScreenState createState() => _CalendarScreenState();
+  _BossHomecalendarState createState() => _BossHomecalendarState();
 }
 
-class _CalendarScreenState extends State<BossPage> {
+class _BossHomecalendarState extends State<BossHomecalendar> {
   CalendarView _calendarView = CalendarView.month; // 기본: 월간 보기
 
   @override
@@ -44,6 +45,7 @@ class _CalendarScreenState extends State<BossPage> {
           timeInterval: Duration(hours: 1),
         ),
       ),
+      bottomNavigationBar: HomeNavigation(currentIndex: 1), // 캘린더는 index 1
     );
   }
 
