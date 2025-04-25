@@ -26,5 +26,7 @@
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
 	<string>1:167852024232:ios:e02afdd9f2f1257e7efd9d</string>
+	<key>DATABASE_URL</key>
+	<string>https://albamate-capstone-01-default-rtdb.asia-southeast1.firebasedatabase.app</string>
 </dict>
 </plist>

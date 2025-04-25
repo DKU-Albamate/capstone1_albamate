@@ -1,6 +1,7 @@
 {
   "project_info": {
     "project_number": "167852024232",
+    "firebase_url": "https://albamate-capstone-01-default-rtdb.asia-southeast1.firebasedatabase.app",
     "project_id": "albamate-capstone-01",
     "storage_bucket": "albamate-capstone-01.firebasestorage.app"
   },
@@ -10,6 +11,63 @@
         "mobilesdk_app_id": "1:167852024232:android:a6dfde8c59d01d9e7efd9d",
         "android_client_info": {
           "package_name": "com.example.albamate_sample"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDuXiZf4-2-klcKa336-QAadcvM5nl-_rY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:167852024232:android:253ce8b0bb6267a77efd9d",
+        "android_client_info": {
+          "package_name": "com.example.capstone1_albamate"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDuXiZf4-2-klcKa336-QAadcvM5nl-_rY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:167852024232:android:e6c7faa9fd9d254f7efd9d",
+        "android_client_info": {
+          "package_name": "com.example.hello_flutter"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDuXiZf4-2-klcKa336-QAadcvM5nl-_rY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:167852024232:android:dcfe2e07bf5af8687efd9d",
+        "android_client_info": {
+          "package_name": "com.example.my_project"
         }
       },
       "oauth_client": [],

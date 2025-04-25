@@ -33,10 +33,7 @@ class DefaultFirebaseOptions {
           'you can reconfigure this by running the FlutterFire CLI again.',
         );
       case TargetPlatform.windows:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for windows - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+        return windows;
       case TargetPlatform.linux:
         throw UnsupportedError(
           'DefaultFirebaseOptions have not been configured for linux - '
@@ -54,6 +51,7 @@ class DefaultFirebaseOptions {
     appId: '1:167852024232:android:a6dfde8c59d01d9e7efd9d',
     messagingSenderId: '167852024232',
     projectId: 'albamate-capstone-01',
+    databaseURL: 'https://albamate-capstone-01-default-rtdb.asia-southeast1.firebasedatabase.app',
     storageBucket: 'albamate-capstone-01.firebasestorage.app',
   );
 
@@ -65,4 +63,16 @@ class DefaultFirebaseOptions {
     storageBucket: 'albamate-capstone-01.firebasestorage.app',
     iosBundleId: 'com.example.albamateSample',
   );
+
+  static const FirebaseOptions windows = FirebaseOptions(
+    apiKey: 'AIzaSyA4owGs8te_N8Hb-sfZV7XthVWJNcoE-AI',
+    appId: '1:167852024232:web:05ef53a6a20b8e537efd9d',
+    messagingSenderId: '167852024232',
+    projectId: 'albamate-capstone-01',
+    authDomain: 'albamate-capstone-01.firebaseapp.com',
+    databaseURL: 'https://albamate-capstone-01-default-rtdb.asia-southeast1.firebasedatabase.app',
+    storageBucket: 'albamate-capstone-01.firebasestorage.app',
+    measurementId: 'G-6L665FG1HF',
+  );
+
 }

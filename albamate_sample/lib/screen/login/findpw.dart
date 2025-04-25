@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 import 'login_step2.dart';
 
 class FindPWScreen extends StatefulWidget {
@@ -47,14 +49,40 @@ class _FindPWScreenState extends State<FindPWScreen> {
       return;
     }
 
-    // ↓ 백엔드에서 Firestore 정보(email, name, role) 확인 후 비밀번호 변경
-    // 1. Firestore에서 해당 정보로 유저 조회
-    // 2. Firebase Authentication에서 해당 계정의 비밀번호를 newPassword로 변경
-    // 3. 성공/실패에 따라 아래 메시지 표시
+    try {
+      // 백엔드 API 호출
+      final response = await http.post(
+        Uri.parse('http://localhost:3000/auth/reset-password'),
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode({
+          'email': email,
+          'name': name,
+          'role': role,
+          'newPassword': newPassword,
+        }),
+      );
 
-    setState(() {
-      resultMessage = '※ 백엔드에서 정보 확인 후 비밀번호를 변경할 예정입니다.';
-    });
+      if (response.statusCode == 200) {
+        setState(() {
+          resultMessage = '비밀번호가 성공적으로 변경되었습니다.';
+        });
+        
+        // 성공 시 로그인 화면으로 이동
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => LoginPasswordScreen(email: email)),
+        );
+      } else {
+        final error = json.decode(response.body);
+        setState(() {
+          resultMessage = error['message'] ?? '비밀번호 변경에 실패했습니다.';
+        });
+      }
+    } catch (e) {
+      setState(() {
+        resultMessage = '서버 연결에 실패했습니다. 다시 시도해주세요.';
+      });
+    }
   }
 
   @override
