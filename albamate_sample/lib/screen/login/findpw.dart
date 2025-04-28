@@ -52,7 +52,7 @@ class _FindPWScreenState extends State<FindPWScreen> {
     try {
       // 백엔드 API 호출
       final response = await http.post(
-        Uri.parse('http://localhost:3000/auth/reset-password'),
+        Uri.parse('https://backend-vgbf.onrender.com:3000/auth/reset-password'), // 로컬에서 테스트 하려면 http://localhost:3000/auth/reset-password 넣으시면 됩니다.
         headers: {'Content-Type': 'application/json'},
         body: json.encode({
           'email': email,
@@ -79,6 +79,7 @@ class _FindPWScreenState extends State<FindPWScreen> {
         });
       }
     } catch (e) {
+      print(e);
       setState(() {
         resultMessage = '서버 연결에 실패했습니다. 다시 시도해주세요.';
       });
