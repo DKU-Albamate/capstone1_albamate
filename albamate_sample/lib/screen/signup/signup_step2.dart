@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'signup_step3.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 class SignupStep2 extends StatefulWidget {
   final String email;
@@ -16,13 +18,30 @@ class _SignupStep2State extends State<SignupStep2> {
       TextEditingController();
   String statusMessage = '';
 
-  void _proceedToNextStep() {
+  Future<void> _proceedToNextStep() async {
     String password = passwordController.text.trim();
     String confirmPassword = confirmPasswordController.text.trim();
 
     if (password.isEmpty || confirmPassword.isEmpty) {
       setState(() {
         statusMessage = '비밀번호를 입력해주세요.';
+      });
+      return;
+    }
+
+    // ✅ Node.js 서버에 비밀번호 형식 검사 요청
+    final response = await http.post(
+      Uri.parse('http://localhost:3000/auth/check-password'), // 🟡 여기에 Render 서버 주소 입력
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'password': password}),
+    );
+
+    final result = jsonDecode(response.body);
+
+    // ✅ 서버 응답 기반으로 검사
+    if (!result['valid']) {
+      setState(() {
+        statusMessage = result['message'] ?? '비밀번호 형식이 올바르지 않습니다.';
       });
       return;
     }

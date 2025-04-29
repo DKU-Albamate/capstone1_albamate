@@ -52,9 +52,12 @@ class _FindPWScreenState extends State<FindPWScreen> {
     try {
       // 백엔드 API 호출
       final response = await http.post(
-        Uri.parse('https://backend-vgbf.onrender.com:3000/auth/reset-password'), // 로컬에서 테스트 하려면 http://localhost:3000/auth/reset-password 넣으시면 됩니다.
-        headers: {'Content-Type': 'application/json'},
-        body: json.encode({
+        Uri.parse('http://localhost:3000/auth/reset-password'), // 로컬에서 테스트 하려면 http://localhost:3000/auth/reset-password 넣으시면 됩니다. 배포용은 https://backend-vgbf.onrender.com:3000/auth/reset-password, VSCode에서 Android Studio로 테스트 할려면 http://10.0.2.2:3000/auth/reset-password로 변경
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: jsonEncode({
           'email': email,
           'name': name,
           'role': role,
