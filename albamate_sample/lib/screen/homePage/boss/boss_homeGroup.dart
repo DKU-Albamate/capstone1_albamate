@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import '/component/home_navigation.dart';
 
 class BossHomegroup extends StatelessWidget {
+  const BossHomegroup({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

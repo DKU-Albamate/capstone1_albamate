@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 
 class WorkerPage extends StatefulWidget {
+  const WorkerPage({super.key});
+
   @override
   _CalendarScreenState createState() => _CalendarScreenState();
 }
