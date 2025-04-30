@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'signup_step3.dart';
-import 'dart:convert';
-import 'package:http/http.dart' as http;
+import 'dart:convert'; // ✅ 추가
+import 'package:http/http.dart' as http; // ✅ 추가
+
 
 class SignupStep2 extends StatefulWidget {
   final String email;
@@ -15,7 +16,7 @@ class SignupStep2 extends StatefulWidget {
 class _SignupStep2State extends State<SignupStep2> {
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController confirmPasswordController =
-      TextEditingController();
+  TextEditingController();
   String statusMessage = '';
 
   Future<void> _proceedToNextStep() async {
@@ -25,6 +26,22 @@ class _SignupStep2State extends State<SignupStep2> {
     if (password.isEmpty || confirmPassword.isEmpty) {
       setState(() {
         statusMessage = '비밀번호를 입력해주세요.';
+      });
+      return;
+    }
+    // ✅ Node.js 서버에 비밀번호 형식 검사 요청
+    final response = await http.post(
+      Uri.parse('https://backend-vgbf.onrender.com/auth/check-password'), // 🟡 여기에 Render 서버 주소 입력
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'password': password}),
+    );
+
+    final result = jsonDecode(response.body);
+
+    // ✅ 서버 응답 기반으로 검사
+    if (!result['valid']) {
+      setState(() {
+        statusMessage = result['message'] ?? '비밀번호 형식이 올바르지 않습니다.';
       });
       return;
     }
@@ -84,7 +101,7 @@ class _SignupStep2State extends State<SignupStep2> {
             ),
             const SizedBox(height: 12),
             ElevatedButton(
-              onPressed: _proceedToNextStep,
+              onPressed: () => _proceedToNextStep(),
               child: const Text('다음 단계'),
             ),
             const SizedBox(height: 10),
