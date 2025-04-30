@@ -58,7 +58,7 @@ class _LoginPasswordScreenState extends State<LoginPasswordScreen> {
         else if (role == '알바생') {
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (context) => WorkerPage()),
+            MaterialPageRoute(builder: (context) => WorkerHomecalendar()),
           );
         } else {
           // 직책이 비정상일 때

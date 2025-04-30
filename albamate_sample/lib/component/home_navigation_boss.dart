@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../screen/homePage/boss/boss_homecalendar.dart';
 import '../screen/homePage/boss/boss_mypage.dart';
-import '../screen/homePage/boss/boss_homegroup.dart';
+import '../screen/homePage/boss/boss_group.dart';
 
 class HomeNavigation extends StatelessWidget {
   final int currentIndex; // 현재 선택된 페이지 인덱스

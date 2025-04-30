@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
-import '/component/home_navigation.dart';
+import '/component/home_navigation_boss.dart';
 
 class BossHomecalendar extends StatefulWidget {
   const BossHomecalendar({super.key});

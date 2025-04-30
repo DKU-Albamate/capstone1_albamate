@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '/component/home_navigation.dart';
+import '/component/home_navigation_boss.dart';
 
 class BossMypage extends StatelessWidget {
   const BossMypage({super.key});
