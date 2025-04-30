@@ -85,7 +85,6 @@ class _LoginPasswordScreenState extends State<LoginPasswordScreen> {
 
   // UI 빌드
   @override
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text("비밀번호 입력")),
