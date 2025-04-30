@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'login_step2.dart';
 import '../signup/signup_step1.dart';
 
+// 로그인 첫 단계 - 이메일 입력 화면
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
@@ -15,6 +16,7 @@ class _LoginScreenState extends State<LoginScreen> {
   TextEditingController emailController = TextEditingController();
   String statusMessage = '';
 
+  // 이메일 존재 여부 확인 함수
   void _checkEmail() async {
     String email = emailController.text.trim();
     if (email.isEmpty) {
@@ -65,17 +67,20 @@ class _LoginScreenState extends State<LoginScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
+                  // 이메일 입력 필드
                   TextField(
                     controller: emailController,
                     keyboardType: TextInputType.emailAddress,
                     decoration: const InputDecoration(labelText: "이메일 입력"),
                   ),
                   const SizedBox(height: 12),
+                  // 다음 버튼
                   ElevatedButton(
                     onPressed: _checkEmail,
                     child: const Text("다음"),
                   ),
                   const SizedBox(height: 10),
+                  // 상태 메시지 표시
                   Text(
                     statusMessage,
                     style: const TextStyle(color: Colors.red),
@@ -83,6 +88,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ],
               ),
             ),
+            // 회원가입 링크 섹션
             if (statusMessage == '등록되지 않은 이메일입니다.')
               Align(
                 alignment: Alignment.bottomCenter,

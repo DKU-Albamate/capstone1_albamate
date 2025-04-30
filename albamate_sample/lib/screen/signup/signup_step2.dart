@@ -31,7 +31,7 @@ class _SignupStep2State extends State<SignupStep2> {
 
     // ✅ Node.js 서버에 비밀번호 형식 검사 요청
     final response = await http.post(
-      Uri.parse('http://localhost:3000/auth/check-password'), // 🟡 여기에 Render 서버 주소 입력
+      Uri.parse('https://backend-vgbf.onrender.com/auth/check-password'), // 🟡 여기에 Render 서버 주소 입력
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({'password': password}),
     );

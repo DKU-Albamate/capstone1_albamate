@@ -52,10 +52,12 @@ class _FindPWScreenState extends State<FindPWScreen> {
     try {
       // 백엔드 API 호출
       final response = await http.post(
-        Uri.parse('http://localhost:3000/auth/reset-password'), // 로컬에서 테스트 하려면 http://localhost:3000/auth/reset-password 넣으시면 됩니다. 배포용은 https://backend-vgbf.onrender.com:3000/auth/reset-password, VSCode에서 Android Studio로 테스트 할려면 http://10.0.2.2:3000/auth/reset-password로 변경
+        Uri.parse('https://backend-vgbf.onrender.com/auth/reset-password'), 
+        // 로컬에서 테스트 하려면 http://localhost:3000/auth/reset-password 넣으시면 됩니다. 
+        // 배포용은 https://backend-vgbf.onrender.com/auth/reset-password, 
+        // VSCode에서 Android Studio로 테스트 할려면 http://10.0.2.2:3000/auth/reset-password로 변경
         headers: {
           'Content-Type': 'application/json',
-          'Accept': 'application/json',
         },
         body: jsonEncode({
           'email': email,
@@ -65,9 +67,13 @@ class _FindPWScreenState extends State<FindPWScreen> {
         }),
       );
 
+      print('Response status: ${response.statusCode}');
+      print('Response body: ${response.body}');
+
       if (response.statusCode == 200) {
+        final responseData = json.decode(response.body);
         setState(() {
-          resultMessage = '비밀번호가 성공적으로 변경되었습니다.';
+          resultMessage = responseData['message'] ?? '비밀번호가 성공적으로 변경되었습니다.';
         });
         
         // 성공 시 로그인 화면으로 이동
@@ -76,13 +82,19 @@ class _FindPWScreenState extends State<FindPWScreen> {
           MaterialPageRoute(builder: (context) => LoginPasswordScreen(email: email)),
         );
       } else {
-        final error = json.decode(response.body);
-        setState(() {
-          resultMessage = error['message'] ?? '비밀번호 변경에 실패했습니다.';
-        });
+        try {
+          final error = json.decode(response.body);
+          setState(() {
+            resultMessage = error['message'] ?? '비밀번호 변경에 실패했습니다.';
+          });
+        } catch (e) {
+          setState(() {
+            resultMessage = '서버 응답 형식이 올바르지 않습니다. 다시 시도해주세요.';
+          });
+        }
       }
     } catch (e) {
-      print(e);
+      print('Error: $e');
       setState(() {
         resultMessage = '서버 연결에 실패했습니다. 다시 시도해주세요.';
       });

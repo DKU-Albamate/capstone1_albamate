@@ -5,7 +5,7 @@ import '../homePage/boss/boss_homeCalendar.dart'; // 사장님 홈 캘린더
 import '../homePage/worker/worker_homecalendar.dart'; // 알바생 홈 캘린더
 import 'findpw.dart';
 
-// Stateful 위젯으로 로그인 비밀번호 화면 정의
+// 로그인 두 번째 단계 - 비밀번호 입력 화면
 class LoginPasswordScreen extends StatefulWidget {
   final String email; // 이전 화면에서 전달된 이메일
 
@@ -21,7 +21,7 @@ class _LoginPasswordScreenState extends State<LoginPasswordScreen> {
 
   // 상태 메시지와 비밀번호 실패 여부를 위한 변수
   String statusMessage = '';
-  bool loginFailed = false; // ❗ 비밀번호 실패 여부 저장
+  bool loginFailed = false; // 비밀번호 실패 여부 저장
 
   // 로그인 로직 함수
   void _login() async {
@@ -97,14 +97,17 @@ class _LoginPasswordScreenState extends State<LoginPasswordScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
+                  // 비밀번호 입력 필드
                   TextField(
                     controller: passwordController,
                     obscureText: true,
                     decoration: const InputDecoration(labelText: "비밀번호 입력"),
                   ),
                   const SizedBox(height: 20),
+                  // 로그인 버튼
                   ElevatedButton(onPressed: _login, child: const Text("로그인")),
                   const SizedBox(height: 10),
+                  // 상태 메시지 표시
                   Text(
                     statusMessage,
                     style: const TextStyle(color: Colors.red),
@@ -112,7 +115,8 @@ class _LoginPasswordScreenState extends State<LoginPasswordScreen> {
                 ],
               ),
             ),
-            if (statusMessage.contains('비밀번호')) // "비밀번호"가 포함된 경우만 표시
+            // 비밀번호 재설정 링크 섹션
+            if (statusMessage.contains('비밀번호'))
               Align(
                 alignment: Alignment.bottomCenter,
                 child: Padding(
