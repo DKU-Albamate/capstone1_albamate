@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '/component/home_navigation_boss.dart';
 import 'create_group.dart';
-import 'edit_group.dart';
+// import 'edit_group.dart';
 import 'group_card.dart';
 
 class BossHomegroup extends StatelessWidget {
