@@ -1,20 +1,23 @@
 // WorkerPage.dart
+import 'package:albamate_sample/component/home_navigation_worker.dart';
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 
-class WorkerPage extends StatefulWidget {
+class WorkerHomecalendar extends StatefulWidget {
+  const WorkerHomecalendar({super.key});
+
   @override
   _CalendarScreenState createState() => _CalendarScreenState();
 }
 
-class _CalendarScreenState extends State<WorkerPage> {
+class _CalendarScreenState extends State<WorkerHomecalendar> {
   CalendarView _calendarView = CalendarView.month; // 기본: 월간 보기
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("캘린더"),
+        title: const Text("캘린더"),
         actions: [
           PopupMenuButton<CalendarView>(
             onSelected: (CalendarView value) {
@@ -23,7 +26,7 @@ class _CalendarScreenState extends State<WorkerPage> {
               });
             },
             itemBuilder:
-                (context) => [
+                (context) => const [
                   PopupMenuItem(value: CalendarView.day, child: Text("일간 보기")),
                   PopupMenuItem(value: CalendarView.week, child: Text("주간 보기")),
                   PopupMenuItem(
@@ -39,12 +42,13 @@ class _CalendarScreenState extends State<WorkerPage> {
         firstDayOfWeek: 1,
         dataSource: MeetingDataSource(getAppointments()),
         todayHighlightColor: Colors.red,
-        timeSlotViewSettings: TimeSlotViewSettings(
+        timeSlotViewSettings: const TimeSlotViewSettings(
           timeIntervalHeight: 60,
           timeFormat: 'HH:mm',
           timeInterval: Duration(hours: 1),
         ),
       ),
+      bottomNavigationBar: const HomeNavigationWorker(currentIndex: 1), // ✅ 추가
     );
   }
 
