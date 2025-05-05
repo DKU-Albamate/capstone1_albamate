@@ -17,11 +17,9 @@ import 'package:flutter/foundation.dart'
 class DefaultFirebaseOptions {
   static FirebaseOptions get currentPlatform {
     if (kIsWeb) {
-      throw UnsupportedError(
-        'DefaultFirebaseOptions have not been configured for web - '
-        'you can reconfigure this by running the FlutterFire CLI again.',
-      );
+      return web;
     }
+
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
         return android;
@@ -65,4 +63,15 @@ class DefaultFirebaseOptions {
     storageBucket: 'albamate-capstone-01.firebasestorage.app',
     iosBundleId: 'com.example.albamateSample',
   );
+
+  static const FirebaseOptions web = FirebaseOptions(
+      apiKey: 'AIzaSyDCorV_7J4rkyYHC7yDiQnWkNAcj35hQtI',
+      appId: '1:167852024232:ios:e02afdd9f2f1257e7efd9d',
+      messagingSenderId: '167852024232',
+      projectId: 'albamate-capstone-01',
+      storageBucket: 'albamate-capstone-01.firebasestorage.app',
+      iosBundleId: 'com.example.albamateSample',
+  );
+
+
 }

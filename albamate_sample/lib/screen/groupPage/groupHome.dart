@@ -1,48 +1,131 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
-class GroupHomePage extends StatelessWidget {
+class GroupHomePage extends StatefulWidget {
   final String groupId;
 
   const GroupHomePage({super.key, required this.groupId});
 
   @override
+  State<GroupHomePage> createState() => _GroupHomePageState();
+}
+
+class _GroupHomePageState extends State<GroupHomePage> {
+  late String formattedDate;
+  List<String> tasks = [];
+  TextEditingController taskController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    formattedDate = DateFormat('yyyy년 MM월 dd일 EEEE', 'ko_KR').format(DateTime.now());
+  }
+
+  // 오늘 할 일 추가
+  void addTask() {
+    if (taskController.text.isNotEmpty) {
+      setState(() {
+        tasks.add(taskController.text);
+        taskController.clear();
+      });
+    }
+  }
+
+  // 할 일 삭제
+  void removeTask(int index) {
+    setState(() {
+      tasks.removeAt(index);
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('그룹 홈')),
+      appBar: AppBar(
+        title: const Text('그룹 홈'),
+        centerTitle: true,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.close),
+            onPressed: () => Navigator.pop(context),
+          )
+        ],
+      ),
       body: Padding(
         padding: const EdgeInsets.all(20.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            Text(
+              formattedDate,
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 16),
             const Text(
               '오늘 근무자',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
-            const SizedBox(height: 10),
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.grey.shade100,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: const Text('알바생 A, 알바생 B'), // 추후 API 연동
+            const SizedBox(height: 8),
+            Column(
+              children: List.generate(3, (index) => const EmployeeCard()),
             ),
-            const SizedBox(height: 30),
+            const SizedBox(height: 24),
             const Text(
               '오늘 할 일',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
-            const SizedBox(height: 10),
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.grey.shade100,
-                borderRadius: BorderRadius.circular(12),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: taskController,
+                    decoration: const InputDecoration(
+                      hintText: "할 일을 입력하세요",
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                ElevatedButton(
+                  onPressed: addTask,
+                  child: const Text("추가"),
+                )
+              ],
+            ),
+            const SizedBox(height: 8),
+            Expanded(
+              child: ListView.builder(
+                itemCount: tasks.length,
+                itemBuilder: (context, index) {
+                  return ListTile(
+                    title: Text(tasks[index]),
+                    trailing: IconButton(
+                      icon: const Icon(Icons.delete),
+                      onPressed: () => removeTask(index),
+                    ),
+                  );
+                },
               ),
-              child: const Text('- 청소- 커피머신 청결 점검- 신메뉴 연습'), // 추후 API 연동
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+// 각 직원 카드 위젯
+class EmployeeCard extends StatelessWidget {
+  const EmployeeCard({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: ListTile(
+        title: const Text("000 직원"),
+        subtitle: const Text("8:00 ~ 15:00"),
+        trailing: const Icon(Icons.phone),
       ),
     );
   }
