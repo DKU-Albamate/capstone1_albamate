@@ -398,9 +398,25 @@ class _BossHomecalendarState extends State<BossHomecalendar> {
                   );
 
                   if (response.statusCode == 201) {
+                    final json = jsonDecode(response.body);
+                    final id = json[0]['id']; // ✅ 리스트에서 첫 번째 요소의 id 꺼냄
+
+                    final newAppointment = Appointment(
+                      startTime: DateTime(
+                        selectedDate.year, selectedDate.month, selectedDate.day, start.hour, start.minute,
+                      ),
+                      endTime: DateTime(
+                        selectedDate.year, selectedDate.month, selectedDate.day, end.hour, end.minute,
+                      ),
+                      subject: title,
+                      color: Colors.orange,
+                      notes: id, // ✅ 이거 꼭 저장해야 나중에 수정/삭제 가능
+                    );
+
                     setState(() => _appointments.add(newAppointment));
+                    Navigator.pop(context);
                   }
-                  Navigator.pop(context);
+
                 },
               ),
             ],
@@ -453,6 +469,7 @@ class _BossHomecalendarState extends State<BossHomecalendar> {
                     ),
                     subject: title,
                     color: oldAppointment.color,
+                    notes: oldAppointment.notes,
                   );
 
                   final response = await http.patch(
