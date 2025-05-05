@@ -413,9 +413,24 @@ class _WorkerHomecalendarState extends State<WorkerHomecalendar> {
                   );
 
                   if (response.statusCode == 201) {
+                    final json = jsonDecode(response.body);
+                    final id = json[0]['id']; // ⬅ 여기서 ID 꺼냄
+
+                    final newAppointment = Appointment(
+                      startTime: DateTime(
+                        selectedDate.year, selectedDate.month, selectedDate.day, start.hour, start.minute,
+                      ),
+                      endTime: DateTime(
+                        selectedDate.year, selectedDate.month, selectedDate.day, end.hour, end.minute,
+                      ),
+                      subject: title,
+                      color: Colors.orange,
+                      notes: id, // ⬅ notes에 id 저장!!
+                    );
+
                     setState(() => _appointments.add(newAppointment));
+                    Navigator.pop(context);
                   }
-                  Navigator.pop(context);
                 },
               ),
             ],
@@ -468,6 +483,7 @@ class _WorkerHomecalendarState extends State<WorkerHomecalendar> {
                     ),
                     subject: title,
                     color: oldAppointment.color,
+                    notes: oldAppointment.notes,
                   );
 
                   final response = await http.patch(
