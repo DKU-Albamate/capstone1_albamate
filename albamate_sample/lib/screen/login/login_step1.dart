@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'login_step2.dart';
 import '../signup/signup_step1.dart';
@@ -34,27 +33,13 @@ class _LoginScreenState extends State<LoginScreen> {
               .get();
 
       if (querySnapshot.docs.isNotEmpty) {
-        User? user = FirebaseAuth.instance.currentUser;
-
-        if (user != null) {
-          await user.reload(); // 인증 상태 최신화
-          if (user.emailVerified) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => LoginPasswordScreen(email: email),
-              ),
-            );
-          } else {
-            setState(() {
-              statusMessage = '이메일 인증이 필요합니다.';
-            });
-          }
-        } else {
-          setState(() {
-            statusMessage = '로그인이 필요합니다.';
-          });
-        }
+        // ✅ Firestore에 있으면 비밀번호 입력 화면으로 이동
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => LoginPasswordScreen(email: email),
+          ),
+        );
       } else {
         setState(() {
           statusMessage = '등록되지 않은 이메일입니다.';
