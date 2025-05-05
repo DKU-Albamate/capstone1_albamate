@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 import '/component/home_navigation_boss.dart';
+// 벡엔드 필요한 패키지 추가
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:firebase_auth/firebase_auth.dart'; // user UID 가져오기 위해
 
 class BossHomecalendar extends StatefulWidget {
   const BossHomecalendar({super.key});
@@ -20,11 +24,45 @@ class _BossHomecalendarState extends State<BossHomecalendar> {
   @override
   void initState() {
     super.initState();
-    _appointments = getAppointments();
+    _fetchAppointments(); // 서버에서 일정 불러오기
     final now = DateTime.now();
     _controller.displayDate = now;
     _displayYear = now.year;
     _displayMonth = now.month;
+  }
+  Future<void> _fetchAppointments() async {
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+    if (uid == null) return;
+
+    final response = await http.get(Uri.parse(
+      'https://backend-vgbf.onrender.com/appointments?user_uid=$uid',
+    ));
+
+    if (response.statusCode == 200) {
+      final List<dynamic> jsonList = jsonDecode(response.body);
+
+      final List<Appointment> fetched = jsonList
+          .where((item) =>
+      item['start_time'] != null &&
+          item['end_time'] != null &&
+          DateTime.parse(item['start_time'])
+              .isBefore(DateTime.parse(item['end_time'])))
+          .map((item) => Appointment(
+        startTime: DateTime.parse(item['start_time']),
+        endTime: DateTime.parse(item['end_time']),
+        subject: item['title'],
+        color: Color(_hexToColor(item['color'] ?? '#FF9900')),
+        notes: item['id'],
+      ))
+      .toList();
+
+      setState(() => _appointments = fetched);
+    }
+  }
+
+  int _hexToColor(String hex) {
+    hex = hex.replaceFirst('#', '');
+    return int.parse('FF$hex', radix: 16);
   }
 
   @override
@@ -293,11 +331,11 @@ class _BossHomecalendarState extends State<BossHomecalendar> {
                             ),
                             IconButton(
                               icon: Icon(Icons.delete, color: Colors.red),
-                              onPressed: () {
-                                setState(() {
-                                  _appointments.remove(appt);
-                                });
-                                // 📡 백엔드 연동: DELETE /appointments/:id
+                              onPressed: () async {
+                                final response = await http.delete(Uri.parse('https://backend-vgbf.onrender.com/appointments/${appt.notes}'));
+                                if (response.statusCode == 204) {
+                                  setState(() => _appointments.remove(appt));
+                                }
                                 Navigator.pop(context);
                                 _showDayDetailSheet(date);
                               },
@@ -333,29 +371,35 @@ class _BossHomecalendarState extends State<BossHomecalendar> {
               SizedBox(height: 10),
               ElevatedButton(
                 child: Text("추가"),
-                onPressed: () {
+                onPressed: () async {
+                  final uid = FirebaseAuth.instance.currentUser?.uid;
+                  if (uid == null) return;
+
                   final newAppointment = Appointment(
                     startTime: DateTime(
-                      selectedDate.year,
-                      selectedDate.month,
-                      selectedDate.day,
-                      start.hour,
-                      start.minute,
+                      selectedDate.year, selectedDate.month, selectedDate.day, start.hour, start.minute,
                     ),
                     endTime: DateTime(
-                      selectedDate.year,
-                      selectedDate.month,
-                      selectedDate.day,
-                      end.hour,
-                      end.minute,
+                      selectedDate.year, selectedDate.month, selectedDate.day, end.hour, end.minute,
                     ),
                     subject: title,
                     color: Colors.orange,
                   );
-                  setState(() {
-                    _appointments.add(newAppointment);
-                  });
-                  // 📡 백엔드 연동: POST /appointments
+                  final response = await http.post(
+                    Uri.parse('https://backend-vgbf.onrender.com/appointments'),
+                    headers: {'Content-Type': 'application/json'},
+                    body: jsonEncode({
+                      'user_uid': uid,
+                      'title': title,
+                      'start_time': newAppointment.startTime.toIso8601String(),
+                      'end_time': newAppointment.endTime.toIso8601String(),
+                      'color': '#FF9900',
+                    }),
+                  );
+
+                  if (response.statusCode == 201) {
+                    setState(() => _appointments.add(newAppointment));
+                  }
                   Navigator.pop(context);
                 },
               ),
@@ -388,7 +432,7 @@ class _BossHomecalendarState extends State<BossHomecalendar> {
               SizedBox(height: 10),
               ElevatedButton(
                 child: Text("수정"),
-                onPressed: () {
+                onPressed: () async {
                   final index = _appointments.indexOf(oldAppointment);
                   if (index == -1) return;
 
@@ -411,10 +455,23 @@ class _BossHomecalendarState extends State<BossHomecalendar> {
                     color: oldAppointment.color,
                   );
 
-                  setState(() {
-                    _appointments[index] = updated;
-                  });
-                  // 📡 백엔드 연동: PATCH /appointments/:id
+                  final response = await http.patch(
+                    Uri.parse('https://backend-vgbf.onrender.com/appointments/${oldAppointment.notes}'),
+                    headers: {'Content-Type': 'application/json'},
+                    body: jsonEncode({
+                      'title': updated.subject,
+                      'start_time': updated.startTime.toIso8601String(),
+                      'end_time': updated.endTime.toIso8601String(),
+                      'color': '#FF9900',
+                    }),
+                  );
+
+                  if (response.statusCode == 200) {
+                    final index = _appointments.indexOf(oldAppointment);
+                    if (index != -1) {
+                      setState(() => _appointments[index] = updated);
+                    }
+                  }
                   Navigator.pop(context);
                 },
               ),
