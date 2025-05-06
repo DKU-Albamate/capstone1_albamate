@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'edit_group.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import '../../groupPage/groupHome.dart';
+// import '../../groupPage/groupHome.dart';
 
 class GroupCard extends StatelessWidget {
   final String groupId;
