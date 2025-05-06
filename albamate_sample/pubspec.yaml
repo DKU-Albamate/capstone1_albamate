@@ -41,6 +41,8 @@ dependencies:
   syncfusion_flutter_calendar: ^29.1.40
   intl: ^0.20.2
   msh_checkbox: ^2.0.1
+  firebase_dynamic_links: ^6.1.5
+
 
 dev_dependencies:
   flutter_test:
