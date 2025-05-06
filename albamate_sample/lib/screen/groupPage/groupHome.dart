@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import '../../component/groupHome_navigation.dart';
 
 class GroupHomePage extends StatefulWidget {
   final String groupId;
@@ -18,7 +19,10 @@ class _GroupHomePageState extends State<GroupHomePage> {
   @override
   void initState() {
     super.initState();
-    formattedDate = DateFormat('yyyy년 MM월 dd일 EEEE', 'ko_KR').format(DateTime.now());
+    formattedDate = DateFormat(
+      'yyyy년 MM월 dd일 EEEE',
+      'ko_KR',
+    ).format(DateTime.now());
   }
 
   // 오늘 할 일 추가
@@ -48,10 +52,10 @@ class _GroupHomePageState extends State<GroupHomePage> {
           IconButton(
             icon: const Icon(Icons.close),
             onPressed: () => Navigator.pop(context),
-          )
+          ),
         ],
       ),
-      body: Padding(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(20.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -66,9 +70,7 @@ class _GroupHomePageState extends State<GroupHomePage> {
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
-            Column(
-              children: List.generate(3, (index) => const EmployeeCard()),
-            ),
+            Column(children: List.generate(3, (index) => const EmployeeCard())),
             const SizedBox(height: 24),
             const Text(
               '오늘 할 일',
@@ -87,26 +89,23 @@ class _GroupHomePageState extends State<GroupHomePage> {
                   ),
                 ),
                 const SizedBox(width: 8),
-                ElevatedButton(
-                  onPressed: addTask,
-                  child: const Text("추가"),
-                )
+                ElevatedButton(onPressed: addTask, child: const Text("추가")),
               ],
             ),
             const SizedBox(height: 8),
-            Expanded(
-              child: ListView.builder(
-                itemCount: tasks.length,
-                itemBuilder: (context, index) {
-                  return ListTile(
-                    title: Text(tasks[index]),
-                    trailing: IconButton(
-                      icon: const Icon(Icons.delete),
-                      onPressed: () => removeTask(index),
-                    ),
-                  );
-                },
-              ),
+            ListView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: tasks.length,
+              itemBuilder: (context, index) {
+                return ListTile(
+                  title: Text(tasks[index]),
+                  trailing: IconButton(
+                    icon: const Icon(Icons.delete),
+                    onPressed: () => removeTask(index),
+                  ),
+                );
+              },
             ),
           ],
         ),
