@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../../component/home_navigation_worker.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 class WorkerMyPage extends StatefulWidget {
   const WorkerMyPage({super.key});
@@ -46,21 +48,122 @@ class _WorkerMyPageState extends State<WorkerMyPage> {
   }
 
   void saveProfileChanges() async {
-    String newEmail = emailController.text.trim();
+    final user = FirebaseAuth.instance.currentUser;
+    final newEmail = emailController.text.trim();
 
-    // ✅ 백엔드 작업 필요:
-    // 1. Firebase Authentication 이메일 업데이트
-    // 2. Firestore에서 해당 사용자의 email 필드 업데이트
-    // ⚠️ 재로그인 요구될 수 있음
+    if (user == null) return;
 
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(const SnackBar(content: Text('이메일 변경 요청 완료 (백엔드 작업 필요)')));
+    try {
+      // 인증 상태 새로고침
+      await user.reload();
 
-    setState(() {
-      isEditing = false;
-    });
+
+      // ✅ 새로고침 후 최신 사용자 객체 다시 참조
+      final refreshedUser = FirebaseAuth.instance.currentUser;
+      print('[디버그] 현재 이메일: ${refreshedUser?.email}');
+      print('[디버그] 인증 여부: ${refreshedUser?.emailVerified}');
+
+      if (refreshedUser == null || !refreshedUser.emailVerified) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('이메일 인증이 완료되지 않았습니다.')),
+        );
+        return;
+      }
+
+      // 이메일 변경 시도
+      await refreshedUser.verifyBeforeUpdateEmail(newEmail);
+
+      // Firestore에서도 이메일 동기화
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(refreshedUser.uid)
+          .update({'email': newEmail});
+
+      //새 이메일 인증 완료 전까지는 기존 이메일 그대로 유지됨
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('새 이메일로 인증 메일을 보냈습니다. 인증 후 변경이 완료됩니다.')),
+      );
+
+      setState(() => isEditing = false);
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'requires-recent-login') {
+        // 재인증이 필요한 경우 다이얼로그 띄움
+        showReauthDialog(newEmail);
+      } else {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('에러: ${e.message}')),
+        );
+      }
+    }
   }
+
+
+
+  void showReauthDialog(String newEmail) {
+    final passwordController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: Text('재인증 필요'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text('보안을 위해 비밀번호를 다시 입력해주세요.'),
+            SizedBox(height: 10),
+            TextField(
+              controller: passwordController,
+              obscureText: true,
+              decoration: InputDecoration(
+                labelText: '비밀번호',
+                border: OutlineInputBorder(),
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text('취소'),
+          ),
+          TextButton(
+            onPressed: () async {
+              Navigator.pop(context);
+              final password = passwordController.text.trim();
+              final user = FirebaseAuth.instance.currentUser;
+
+              if (user != null && password.isNotEmpty) {
+                final credential = EmailAuthProvider.credential(
+                  email: user.email!,
+                  password: password,
+                );
+
+                try {
+                  // 재인증 시도
+                  await user.reauthenticateWithCredential(credential);
+
+                  // 재인증 성공 시 이메일 변경 재시도
+                  emailController.text = newEmail;
+                  saveProfileChanges(); // 자동 재시도
+
+                } catch (e) {
+                  if (!mounted) return; //
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('재인증 실패: ${e.toString()}')),
+                  );
+                }
+              }
+            },
+            child: Text('확인'),
+          ),
+        ],
+      ),
+    );
+  }
+
 
   void confirmLogout() {
     showDialog(
@@ -92,15 +195,65 @@ class _WorkerMyPageState extends State<WorkerMyPage> {
   }
 
   void withdrawAccount() {
-    // ✅ 백엔드 작업 필요:
-    // 1. Firebase Authentication 사용자 삭제
-    // 2. Firestore users 문서 삭제
-    // ⚠️ 재로그인 요구될 수 있음
+    final safeContext = context; //  context 미리 저장
 
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(const SnackBar(content: Text('탈퇴 기능은 백엔드 구현 후 연결 예정입니다')));
+    showDialog(
+      context: safeContext,
+      builder: (_) => AlertDialog(
+        title: Text('정말 탈퇴하시겠어요?'),
+        content: Text('탈퇴 시 모든 정보가 삭제되며 복구할 수 없습니다.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(safeContext).pop(),
+            child: Text('취소'),
+          ),
+          TextButton(
+            onPressed: () async {
+              Navigator.of(safeContext).pop(); // 다이얼로그 먼저 닫음
+
+              try {
+                final user = FirebaseAuth.instance.currentUser;
+                final idToken = await user?.getIdToken();
+
+                final response = await http.post(
+                  Uri.parse('https://backend-vgbf.onrender.com/delete-account'),
+                  headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer $idToken',
+                  },
+                  body: jsonEncode({'uid': user?.uid}),
+                );
+
+                if (response.statusCode == 200) {
+                  await FirebaseAuth.instance.signOut();
+
+                  // ✅ 탈퇴 후 온보딩으로 이동
+                  if (!safeContext.mounted) return;
+                  Navigator.of(safeContext).pushAndRemoveUntil(
+                    MaterialPageRoute(builder: (_) => OnboardingScreen()),
+                        (route) => false,
+                  );
+                } else {
+                  final msg = jsonDecode(response.body)['message'] ?? '알 수 없는 오류';
+                  if (!safeContext.mounted) return;
+                  ScaffoldMessenger.of(safeContext).showSnackBar(
+                    SnackBar(content: Text('탈퇴 실패: $msg')),
+                  );
+                }
+              } catch (e) {
+                if (!safeContext.mounted) return;
+                ScaffoldMessenger.of(safeContext).showSnackBar(
+                  SnackBar(content: Text('탈퇴 중 오류 발생: $e')),
+                );
+              }
+            },
+            child: Text('탈퇴하기', style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
   }
+
 
   @override
   Widget build(BuildContext context) {
