@@ -15,26 +15,23 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _descController = TextEditingController();
   bool useAutoSchedule = false;
+  bool isLoading = false;
 
   bool get isFormValid =>
       _nameController.text.isNotEmpty && _descController.text.isNotEmpty;
 
-  Future<void> _createGroup() async {
+  Future<void> _submitGroup() async {
     final user = FirebaseAuth.instance.currentUser;
-    final token = await user?.getIdToken();
+    if (user == null) return;
 
-    if (token == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("로그인이 필요합니다.")),
-      );
-      return;
-    }
+    setState(() => isLoading = true);
+    final idToken = await user.getIdToken();
 
     final response = await http.post(
       Uri.parse('https://backend-vgbf.onrender.com/api/groups'),
       headers: {
+        'Authorization': 'Bearer $idToken',
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer $token',
       },
       body: jsonEncode({
         'name': _nameController.text.trim(),
@@ -43,45 +40,70 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
       }),
     );
 
+    setState(() => isLoading = false);
+
     if (response.statusCode == 201) {
+      final groupData = jsonDecode(response.body)['data'];
+      final groupId = groupData['id'];
+      _showInviteCodeDialog(groupId);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('그룹 생성에 실패했습니다.')),
+      );
+    }
+  }
+
+  Future<void> _showInviteCodeDialog(String groupId) async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+
+    final idToken = await user.getIdToken();
+
+    final response = await http.post(
+      Uri.parse('https://backend-vgbf.onrender.com/api/groups/$groupId/invite-code'),
+      headers: {
+        'Authorization': 'Bearer $idToken',
+        'Content-Type': 'application/json',
+      },
+    );
+
+    if (response.statusCode == 200) {
       final data = jsonDecode(response.body)['data'];
       final code = data['inviteCode'];
       final expiresAt = data['inviteCodeExpiresAt'];
 
+      if (!mounted) return;
+
       showDialog(
         context: context,
-        builder: (_) => AlertDialog(
+        builder: (context) => AlertDialog(
           title: const Text('초대 코드 발급 완료'),
-          content: Text('코드: $code\n유효 기간: $expiresAt'),
+          content: Text('초대 코드: $code\n만료: $expiresAt'),
           actions: [
             TextButton(
               onPressed: () {
                 Clipboard.setData(ClipboardData(text: code));
-                Navigator.pop(context);
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(content: Text('초대 코드가 복사되었습니다.')),
                 );
+                Navigator.of(context)
+                  ..pop()
+                  ..pop(true); // 그룹 생성 성공 후 true 반환
               },
-              child: const Text('복사하기'),
-            ),
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('닫기'),
+              child: const Text('복사 후 닫기'),
             ),
           ],
         ),
       );
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("그룹 생성에 실패했습니다.")),
-      );
+      Navigator.pop(context, true); // 코드 발급 실패해도 그룹 생성 성공 처리
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("그룹 생성")),
+      appBar: AppBar(title: const Text('그룹 생성 및 초대 코드 발급')),
       body: Padding(
         padding: const EdgeInsets.all(20.0),
         child: Column(
@@ -89,20 +111,20 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
           children: [
             TextField(
               controller: _nameController,
-              decoration: const InputDecoration(labelText: "그룹 이름"),
+              decoration: const InputDecoration(labelText: '그룹 이름'),
               onChanged: (_) => setState(() {}),
             ),
             const SizedBox(height: 16),
             TextField(
               controller: _descController,
               maxLines: 3,
-              decoration: const InputDecoration(labelText: "그룹 설명"),
+              decoration: const InputDecoration(labelText: '그룹 설명'),
               onChanged: (_) => setState(() {}),
             ),
             const SizedBox(height: 16),
             Row(
               children: [
-                const Text("자동 스케줄 사용 여부"),
+                const Text('자동 스케줄 사용 여부'),
                 const SizedBox(width: 12),
                 Radio<bool>(
                   value: true,
@@ -110,22 +132,24 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
                   onChanged: (value) =>
                       setState(() => useAutoSchedule = value!),
                 ),
-                const Text("사용함"),
+                const Text('사용함'),
                 Radio<bool>(
                   value: false,
                   groupValue: useAutoSchedule,
                   onChanged: (value) =>
                       setState(() => useAutoSchedule = value!),
                 ),
-                const Text("사용 안함"),
+                const Text('사용 안함'),
               ],
             ),
             const Spacer(),
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: isFormValid ? _createGroup : null,
-                child: const Text("그룹 생성 및 초대 코드 발급"),
+                onPressed: isFormValid && !isLoading ? _submitGroup : null,
+                child: isLoading
+                    ? const CircularProgressIndicator()
+                    : const Text('그룹 생성 및 초대 코드 발급'),
               ),
             ),
           ],

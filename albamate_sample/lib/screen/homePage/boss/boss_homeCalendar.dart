@@ -180,7 +180,7 @@ class _BossHomecalendarState extends State<BossHomecalendar> {
           ),
         ],
       ),
-      bottomNavigationBar: HomeNavigation(currentIndex: 1),
+      bottomNavigationBar: HomeNavigationBoss(currentIndex: 1),
     );
   }
 

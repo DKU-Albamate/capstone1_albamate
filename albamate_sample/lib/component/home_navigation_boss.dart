@@ -3,10 +3,10 @@ import '../screen/homePage/boss/boss_homecalendar.dart';
 import '../screen/homePage/boss/boss_mypage.dart';
 import '../screen/homePage/boss/boss_group.dart';
 
-class HomeNavigation extends StatelessWidget {
+class HomeNavigationBoss extends StatelessWidget {
   final int currentIndex; // 현재 선택된 페이지 인덱스
 
-  const HomeNavigation({super.key, required this.currentIndex});
+  const HomeNavigationBoss({super.key, required this.currentIndex});
 
   void _onItemTapped(BuildContext context, int index) {
     if (index == currentIndex) return; // 현재 페이지와 같은 경우 다시 로드하지 않음
@@ -14,7 +14,7 @@ class HomeNavigation extends StatelessWidget {
     Widget nextScreen;
     switch (index) {
       case 0:
-        nextScreen = BossHomegroup(); // 그룹 관리 페이지
+        nextScreen = BossGroup(); // 그룹 관리 페이지
         break;
       case 1:
         nextScreen = BossHomecalendar(); // 캘린더 페이지
