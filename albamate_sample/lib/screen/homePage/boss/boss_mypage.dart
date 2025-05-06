@@ -48,7 +48,7 @@ class _BossMypageState extends State<BossMypage> {
   void saveProfileChanges() async {
     String newEmail = emailController.text.trim();
 
-    // ✅ 백엔드가 해야 할 일:
+    // 백엔드가 해야 할 일:
     // 1. Firebase Authentication에서 현재 사용자의 이메일 업데이트:
     //    await FirebaseAuth.instance.currentUser?.updateEmail(newEmail);
     //

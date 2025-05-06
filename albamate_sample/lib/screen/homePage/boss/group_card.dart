@@ -1,3 +1,4 @@
+import 'package:albamate_sample/component/groupHome_navigation.dart';
 import 'package:flutter/material.dart';
 import 'edit_group.dart';
 import 'package:http/http.dart' as http;
@@ -61,9 +62,7 @@ class GroupCard extends StatelessWidget {
         onTap: () {
           Navigator.push(
             context,
-            MaterialPageRoute(
-              builder: (context) => GroupHomePage(groupId: groupId),
-            ),
+            MaterialPageRoute(builder: (context) => GroupNav(groupId: groupId)),
           );
         },
       ),
