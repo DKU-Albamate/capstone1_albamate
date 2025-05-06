@@ -3,6 +3,8 @@ import 'package:albamate_sample/screen/groupPage/groupMypage.dart';
 import 'package:flutter/material.dart';
 import 'package:albamate_sample/screen/groupPage/groupHome.dart';
 import 'groupNotice_navigation.dart';
+import 'package:albamate_sample/component/schedule_tab_bar.dart';
+import 'package:albamate_sample/screen/groupPage/schedule/boss_schdule_home.dart';
 
 // 그룹 홈페이지 네비게이션
 class GroupNav extends StatefulWidget {
@@ -27,7 +29,7 @@ class _GroupNav extends State<GroupNav> {
   Widget build(BuildContext context) {
     // 각 탭에 해당하는 페이지 리스트
     final List<Widget> _pages = [
-      Center(child: Text('스케줄 화면', style: TextStyle(fontSize: 24))),
+      BossScheduleHomePage(),
       NoticePageNav(
         groupId: widget.groupId,
       ), // ✅ '공지사항' 버튼을 누르면 NewDrinkPage가 보이게 설정
