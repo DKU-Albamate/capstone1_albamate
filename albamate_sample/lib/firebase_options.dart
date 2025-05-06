@@ -19,7 +19,7 @@ class DefaultFirebaseOptions {
     if (kIsWeb) {
       throw UnsupportedError(
         'DefaultFirebaseOptions have not been configured for web - '
-        'you can reconfigure this by running the FlutterFire CLI again.',
+            'you can reconfigure this by running the FlutterFire CLI again.',
       );
     }
     switch (defaultTargetPlatform) {
@@ -65,4 +65,5 @@ class DefaultFirebaseOptions {
     storageBucket: 'albamate-capstone-01.firebasestorage.app',
     iosBundleId: 'com.example.albamateSample',
   );
+
 }

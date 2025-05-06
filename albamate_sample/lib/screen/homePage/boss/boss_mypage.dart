@@ -49,6 +49,7 @@ class _BossMypageState extends State<BossMypage> {
   }
 
   void saveProfileChanges() async {
+
     final user = FirebaseAuth.instance.currentUser;
     final newEmail = emailController.text.trim();
 

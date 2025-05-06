@@ -19,7 +19,7 @@ class BossHomegroup extends StatelessWidget {
               GroupCard(
                 groupName: "예제 카페",
                 groupDescription: "이것은 예제 그룹 설명입니다.",
-                groupId: '',
+                groupId: 'dummy-group-id', // 더미값
               ),
             ],
           ),
