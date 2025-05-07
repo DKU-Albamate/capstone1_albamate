@@ -21,7 +21,20 @@ class _BossGroupState extends State<BossGroup> {
   @override
   void initState() {
     super.initState();
+    printIdToken(); // ID 토큰 출력
     _fetchGroups();
+  }
+
+  /// ✅ Firebase ID 토큰 출력
+  Future<void> printIdToken() async {
+    final user = FirebaseAuth.instance.currentUser;
+
+    if (user != null) {
+      final idToken = await user.getIdToken();
+      print('[DEBUG] idToken: $idToken'); // 👉 Postman Authorization에서 사용
+    } else {
+      print('로그인된 사용자가 없습니다.');
+    }
   }
 
   Future<void> _fetchGroups() async {
