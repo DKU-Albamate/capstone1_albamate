@@ -47,10 +47,10 @@ class _GroupMyPageState extends State<GroupMyPage> {
   void saveProfileChanges() async {
     String newEmail = emailController.text.trim();
 
-    // ✅ 백엔드 작업 필요:
+    // 백엔드 작업 필요:
     // 1. Firebase Authentication 이메일 업데이트
     // 2. Firestore에서 해당 사용자의 email 필드 업데이트
-    // ⚠️ 재로그인 요구될 수 있음
+    // 재로그인 요구될 수 있음
 
     ScaffoldMessenger.of(
       context,
@@ -91,7 +91,7 @@ class _GroupMyPageState extends State<GroupMyPage> {
   }
 
   void withdrawAccount() {
-    // ✅ 백엔드 작업 필요:
+    // 백엔드 작업 필요:
     // 1. Firebase Authentication 사용자 삭제
     // 2. Firestore users 문서 삭제
     // ⚠️ 재로그인 요구될 수 있음
