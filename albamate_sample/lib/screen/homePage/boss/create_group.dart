@@ -72,31 +72,30 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
       final code = data['inviteCode'];
       final expiresAt = data['inviteCodeExpiresAt'];
 
+      // ✅ 클립보드 자동 복사
+      await Clipboard.setData(ClipboardData(text: code));
+
       if (!mounted) return;
 
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
-          title: const Text('초대 코드 발급 완료'),
-          content: Text('초대 코드: $code\n만료: $expiresAt'),
+          title: const Text('초대 코드 복사 완료'),
+          content: Text('초대 코드가 자동 복사되었습니다.\n\n📎 $code\n🕒 유효 기간: $expiresAt'),
           actions: [
             TextButton(
               onPressed: () {
-                Clipboard.setData(ClipboardData(text: code));
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('초대 코드가 복사되었습니다.')),
-                );
                 Navigator.of(context)
                   ..pop()
                   ..pop(true); // 그룹 생성 성공 후 true 반환
               },
-              child: const Text('복사 후 닫기'),
+              child: const Text('확인'),
             ),
           ],
         ),
       );
     } else {
-      Navigator.pop(context, true); // 코드 발급 실패해도 그룹 생성 성공 처리
+      Navigator.pop(context, true); // 실패해도 그룹 생성은 성공 처리
     }
   }
 

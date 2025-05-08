@@ -79,22 +79,16 @@ class GroupCard extends StatelessWidget {
         final code = data['data']['inviteCode'];
         final expiresAt = data['data']['inviteCodeExpiresAt'];
 
+        // ✅ 코드 자동 클립보드 복사
+        await Clipboard.setData(ClipboardData(text: code));
+
+        // ✅ 다이얼로그는 복사 완료 메시지로만
         showDialog(
           context: context,
           builder: (context) => AlertDialog(
-            title: const Text('초대 코드 재발급'),
-            content: Text('코드: $code\n유효 기간: $expiresAt'),
+            title: const Text('초대 코드 복사 완료'),
+            content: Text('초대 코드가 자동 복사되었습니다.\n\n📎 $code\n🕒 유효 기간: $expiresAt'),
             actions: [
-              TextButton(
-                onPressed: () {
-                  Clipboard.setData(ClipboardData(text: code));
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('초대 코드가 복사되었습니다.')),
-                  );
-                  Navigator.pop(context);
-                },
-                child: const Text('복사하기'),
-              ),
               TextButton(
                 onPressed: () => Navigator.pop(context),
                 child: const Text('닫기'),
