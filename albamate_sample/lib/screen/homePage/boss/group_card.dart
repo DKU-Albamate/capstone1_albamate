@@ -37,6 +37,7 @@ class GroupCard extends StatelessWidget {
                 context,
                 MaterialPageRoute(
                   builder: (context) => EditGroupPage(
+                    groupId: groupId,
                     groupName: groupName,
                     groupDescription: groupDescription,
                   ),
@@ -51,7 +52,7 @@ class GroupCard extends StatelessWidget {
           itemBuilder: (BuildContext context) => const [
             PopupMenuItem(value: 'edit', child: Text('수정')),
             PopupMenuItem(value: 'delete', child: Text('삭제')),
-            PopupMenuItem(value: 'invite', child: Text('초대 코드 재발급')),
+            PopupMenuItem(value: 'invite', child: Text('초대 코드 보기')), // ✅ 문구 변경
           ],
         ),
         onTap: () {
@@ -66,11 +67,11 @@ class GroupCard extends StatelessWidget {
 
   Future<void> _showInviteCodeDialog(BuildContext context) async {
     try {
-      final response = await http.post(
+      final response = await http.get( // ✅ GET 요청으로 변경
         Uri.parse('https://backend-vgbf.onrender.com/api/groups/$groupId/invite-code'),
         headers: {
           'Content-Type': 'application/json',
-          // 'Authorization': 'Bearer yourToken', // 필요한 경우 추가
+          // 'Authorization': 'Bearer yourToken', // 필요시 추가
         },
       );
 
@@ -79,14 +80,14 @@ class GroupCard extends StatelessWidget {
         final code = data['data']['inviteCode'];
         final expiresAt = data['data']['inviteCodeExpiresAt'];
 
-        // ✅ 코드 자동 클립보드 복사
+        // ✅ 코드 자동 복사
         await Clipboard.setData(ClipboardData(text: code));
 
-        // ✅ 다이얼로그는 복사 완료 메시지로만
+        // ✅ 복사 완료 메시지
         showDialog(
           context: context,
           builder: (context) => AlertDialog(
-            title: const Text('초대 코드 복사 완료'),
+            title: const Text('초대 코드 확인'),
             content: Text('초대 코드가 자동 복사되었습니다.\n\n📎 $code\n🕒 유효 기간: $expiresAt'),
             actions: [
               TextButton(
@@ -97,11 +98,11 @@ class GroupCard extends StatelessWidget {
           ),
         );
       } else {
-        throw Exception('재발급 실패');
+        throw Exception('초대 코드 조회 실패');
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('초대 코드 재발급에 실패했습니다.')),
+        const SnackBar(content: Text('초대 코드를 불러오는 데 실패했습니다.')),
       );
     }
   }

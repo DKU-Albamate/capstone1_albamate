@@ -107,12 +107,12 @@ class _BossGroupState extends State<BossGroup> {
             heroTag: 'createGroupBtn',
           ),
           const SizedBox(height: 10),
-          //  FloatingActionButton(
-          //    onPressed: _printIdToken,
-          //    child: const Icon(Icons.vpn_key),
-          //    backgroundColor: Colors.green,
-          //    heroTag: 'tokenDebugBtn',
-          //  ),
+          //           FloatingActionButton(
+          //             onPressed: _printIdToken,
+          //             child: const Icon(Icons.vpn_key),
+          //             backgroundColor: Colors.green,
+          //             heroTag: 'tokenDebugBtn',
+          //           ),
         ],
       ),
       bottomNavigationBar: const HomeNavigationBoss(currentIndex: 0),
