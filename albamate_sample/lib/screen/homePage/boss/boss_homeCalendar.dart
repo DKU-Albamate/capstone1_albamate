@@ -14,6 +14,7 @@ class BossHomecalendar extends StatefulWidget {
 }
 
 class _BossHomecalendarState extends State<BossHomecalendar> {
+  bool _isMounted = false; // 위젯이 활성 상태인지 추적
 
   DateTime _focusedDay = DateTime.now();
   Map<DateTime, List<Appointment>> _events = {}; // 날짜별 일정 목록 저장
@@ -22,8 +23,16 @@ class _BossHomecalendarState extends State<BossHomecalendar> {
   @override
   void initState() {
     super.initState();
+    _isMounted = true; // 위젯 활성화됨
     _fetchAppointments();
   }
+
+  @override
+  void dispose() {
+    _isMounted = false; // 위젯 dispose 상태로 표시
+    super.dispose();
+  }
+
 
   //서버에서 일정 데이터 불러오기
   Future<void> _fetchAppointments() async {
@@ -60,11 +69,12 @@ class _BossHomecalendarState extends State<BossHomecalendar> {
         if (!grouped.containsKey(date)) grouped[date] = [];
         grouped[date]!.add(appt);
       }
-
-      setState(() {
-        _appointments = fetched;
-        _events = grouped;
-      });
+      if (_isMounted) {
+        setState(() {
+          _appointments = fetched;
+          _events = grouped;
+        });
+      }
     }
   }
 
@@ -422,7 +432,7 @@ class _BossHomecalendarState extends State<BossHomecalendar> {
   }
 
 
-  // ✏️ 일정 수정 다이얼로그
+  // 일정 수정 다이얼로그
   void _showEditDialog(Appointment oldAppointment) {
     String title = oldAppointment.subject;
     Color selectedColor = oldAppointment.color;
