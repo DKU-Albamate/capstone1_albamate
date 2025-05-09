@@ -35,9 +35,7 @@ class _BossGroupState extends State<BossGroup> {
 
       final response = await http.get(
         Uri.parse('https://backend-vgbf.onrender.com/api/groups'),
-        headers: {
-          'Authorization': 'Bearer $idToken',
-        },
+        headers: {'Authorization': 'Bearer $idToken'},
       );
 
       if (response.statusCode == 200) {
@@ -69,7 +67,7 @@ class _BossGroupState extends State<BossGroup> {
     }
   }
 
-  // ✅ 디버그용: ID 토큰 출력 함수 
+  // ✅ 디버그용: ID 토큰 출력 함수
   Future<void> _printIdToken() async {
     final user = FirebaseAuth.instance.currentUser;
     if (user != null) {
@@ -84,37 +82,38 @@ class _BossGroupState extends State<BossGroup> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('사장님 그룹 관리')),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : _groups.isEmpty
+      body:
+          _isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : _groups.isEmpty
               ? const Center(child: Text("그룹이 없습니다."))
               : ListView.builder(
-                  itemCount: _groups.length,
-                  itemBuilder: (context, index) {
-                    final group = _groups[index];
-                    return GroupCard(
-                      groupId: group.id,
-                      groupName: group.name,
-                      groupDescription: group.description,
-                      onGroupUpdated: _fetchGroups,
-                    );
-                  },
-                ),
+                itemCount: _groups.length,
+                itemBuilder: (context, index) {
+                  final group = _groups[index];
+                  return GroupCard(
+                    groupId: group.id,
+                    groupName: group.name,
+                    groupDescription: group.description,
+                    onGroupUpdated: _fetchGroups,
+                  );
+                },
+              ),
       floatingActionButton: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           FloatingActionButton(
             onPressed: _goToCreateGroup,
-            child: const Icon(Icons.add),
             heroTag: 'createGroupBtn',
+            child: const Icon(Icons.add),
           ),
           const SizedBox(height: 10),
           // ✅ 디버그용: ID 토큰 출력 버튼
           FloatingActionButton(
             onPressed: _printIdToken,
             backgroundColor: Colors.green,
-            child: const Icon(Icons.vpn_key),
             heroTag: 'debugTokenBtn',
+            child: const Icon(Icons.vpn_key),
           ),
         ],
       ),
@@ -128,11 +127,7 @@ class GroupModel {
   final String name;
   final String description;
 
-  GroupModel({
-    required this.id,
-    required this.name,
-    required this.description,
-  });
+  GroupModel({required this.id, required this.name, required this.description});
 
   factory GroupModel.fromJson(Map<String, dynamic> json) {
     return GroupModel(

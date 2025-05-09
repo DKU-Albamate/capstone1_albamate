@@ -6,7 +6,7 @@ import 'package:albamate_sample/component/groupHome_navigation.dart';
 class DetailSubPage extends StatefulWidget {
   final Notice notice;
 
-  DetailSubPage({required this.notice});
+  const DetailSubPage({super.key, required this.notice});
 
   @override
   State<DetailSubPage> createState() => _DetailSubPageState();
@@ -27,24 +27,34 @@ class _DetailSubPageState extends State<DetailSubPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('대타 구하기', style: TextStyle(
+        title: Text(
+          '대타 구하기',
+          style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
             fontFamily: "Inter",
-            color: Colors.black)),
+            color: Colors.black,
+          ),
+        ),
         centerTitle: true,
         backgroundColor: Colors.white,
         elevation: 1,
         iconTheme: IconThemeData(color: Colors.black),
-        actions: [ //home 버튼 누르면 groupHome으로
-          IconButton(icon: Icon(Icons.home),
-              onPressed: () {
-                Navigator.pushAndRemoveUntil(
-                  context,
-                  MaterialPageRoute(builder: (context) => GroupNav(groupId : widget.notice.groupId)),
-                      (Route<dynamic> route) => false,
-                );
-              }),
+        actions: [
+          //home 버튼 누르면 groupHome으로
+          IconButton(
+            icon: Icon(Icons.home),
+            onPressed: () {
+              Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(
+                  builder:
+                      (context) => GroupNav(groupId: widget.notice.groupId),
+                ),
+                (Route<dynamic> route) => false,
+              );
+            },
+          ),
         ],
       ),
       body: Column(
@@ -65,14 +75,21 @@ class _DetailSubPageState extends State<DetailSubPage> {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(widget.notice.title,
-                            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                        Text(widget.notice.date,
-                            style: TextStyle(color: Colors.grey, fontSize: 12)),
+                        Text(
+                          widget.notice.title,
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                        ),
+                        Text(
+                          widget.notice.date,
+                          style: TextStyle(color: Colors.grey, fontSize: 12),
+                        ),
                       ],
                     ),
                     Spacer(),
-                    Icon(Icons.more_vert)
+                    Icon(Icons.more_vert),
                   ],
                 ),
                 SizedBox(height: 12),
@@ -121,10 +138,10 @@ class _DetailSubPageState extends State<DetailSubPage> {
                     }
                   },
                   child: Text('등록'),
-                )
+                ),
               ],
             ),
-          )
+          ),
         ],
       ),
     );

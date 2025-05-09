@@ -6,15 +6,15 @@ import 'package:intl/intl.dart';
 class CreateGuidePage extends StatefulWidget {
   final String groupId; //
   final Notice? notice;
-  const CreateGuidePage({required this.groupId, this.notice, Key? key}) : super(key: key);
+  const CreateGuidePage({required this.groupId, this.notice, super.key});
 
   @override
   _CreateGuidePageState createState() => _CreateGuidePageState();
 }
 
 class _CreateGuidePageState extends State<CreateGuidePage> {
-  TextEditingController _titleController = TextEditingController();
-  TextEditingController _contentController = TextEditingController();
+  final TextEditingController _titleController = TextEditingController();
+  final TextEditingController _contentController = TextEditingController();
   int _selectedIndex = 0;
 
   @override
@@ -55,12 +55,15 @@ class _CreateGuidePageState extends State<CreateGuidePage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('안내사항',
-            style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                fontFamily: "Inter",
-                color: Colors.black)),
+        title: Text(
+          '안내사항',
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            fontFamily: "Inter",
+            color: Colors.black,
+          ),
+        ),
         backgroundColor: Colors.white,
         elevation: 1,
         centerTitle: true,
@@ -81,10 +84,7 @@ class _CreateGuidePageState extends State<CreateGuidePage> {
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
             SizedBox(height: 8),
-            Text(
-              formattedDate,
-              style: TextStyle(color: Colors.grey),
-            ),
+            Text(formattedDate, style: TextStyle(color: Colors.grey)),
             Divider(thickness: 1),
             SizedBox(height: 8),
             Expanded(
@@ -101,11 +101,11 @@ class _CreateGuidePageState extends State<CreateGuidePage> {
             IndexedStack(
               index: _selectedIndex,
               children: [Container(), Container()],
-            )
+            ),
           ],
         ),
       ),
-      bottomNavigationBar: Container(
+      bottomNavigationBar: SizedBox(
         height: 88,
         child: BottomNavigationBar(
           backgroundColor: Colors.white,

@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 import '/component/home_navigation_boss.dart';
-// 벡엔드 필요한 패키지 추가
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'package:firebase_auth/firebase_auth.dart'; // user UID 가져오기 위해
+import 'package:firebase_auth/firebase_auth.dart';
 
 class BossHomecalendar extends StatefulWidget {
   const BossHomecalendar({super.key});
@@ -16,7 +15,7 @@ class BossHomecalendar extends StatefulWidget {
 class _BossHomecalendarState extends State<BossHomecalendar> {
   CalendarView _calendarView = CalendarView.month;
   List<Appointment> _appointments = [];
-  CalendarController _controller = CalendarController();
+  final CalendarController _controller = CalendarController();
 
   late int _displayYear;
   late int _displayMonth;
@@ -24,38 +23,46 @@ class _BossHomecalendarState extends State<BossHomecalendar> {
   @override
   void initState() {
     super.initState();
-    _fetchAppointments(); // 서버에서 일정 불러오기
+    _fetchAppointments();
     final now = DateTime.now();
     _controller.displayDate = now;
     _displayYear = now.year;
     _displayMonth = now.month;
   }
+
   Future<void> _fetchAppointments() async {
     final uid = FirebaseAuth.instance.currentUser?.uid;
     if (uid == null) return;
 
-    final response = await http.get(Uri.parse(
-      'https://backend-vgbf.onrender.com/appointments?user_uid=$uid',
-    ));
+    final response = await http.get(
+      Uri.parse('https://backend-vgbf.onrender.com/appointments?user_uid=$uid'),
+    );
 
     if (response.statusCode == 200) {
       final List<dynamic> jsonList = jsonDecode(response.body);
 
-      final List<Appointment> fetched = jsonList
-          .where((item) =>
-      item['start_time'] != null &&
-          item['end_time'] != null &&
-          DateTime.parse(item['start_time'])
-              .isBefore(DateTime.parse(item['end_time'])))
-          .map((item) => Appointment(
-        startTime: DateTime.parse(item['start_time']),
-        endTime: DateTime.parse(item['end_time']),
-        subject: item['title'],
-        color: Color(_hexToColor(item['color'] ?? '#FF9900')),
-        notes: item['id'],
-      ))
-      .toList();
+      final List<Appointment> fetched =
+          jsonList
+              .where(
+                (item) =>
+                    item['start_time'] != null &&
+                    item['end_time'] != null &&
+                    DateTime.parse(
+                      item['start_time'],
+                    ).isBefore(DateTime.parse(item['end_time'])),
+              )
+              .map(
+                (item) => Appointment(
+                  startTime: DateTime.parse(item['start_time']),
+                  endTime: DateTime.parse(item['end_time']),
+                  subject: item['title'],
+                  color: Color(_hexToColor(item['color'] ?? '#FF9900')),
+                  notes: item['id'],
+                ),
+              )
+              .toList();
 
+      if (!mounted) return; // ✅ mounted 체크
       setState(() => _appointments = fetched);
     }
   }
@@ -132,10 +139,7 @@ class _BossHomecalendarState extends State<BossHomecalendar> {
               cellBorderColor: Colors.transparent,
               headerHeight: 0,
               showDatePickerButton: false,
-              monthCellBuilder: (
-                BuildContext context,
-                MonthCellDetails details,
-              ) {
+              monthCellBuilder: (context, details) {
                 final bool isToday =
                     details.date.year == DateTime.now().year &&
                     details.date.month == DateTime.now().month &&
@@ -143,13 +147,13 @@ class _BossHomecalendarState extends State<BossHomecalendar> {
 
                 return Container(
                   alignment: Alignment.topCenter,
-                  padding: EdgeInsets.only(top: 4), // 텍스트 상단 여백 줄이기
+                  padding: EdgeInsets.only(top: 4),
                   child: Stack(
                     alignment: Alignment.center,
                     children: [
                       if (isToday)
                         Container(
-                          width: 20, // ✅ 원 크기 조절
+                          width: 20,
                           height: 20,
                           decoration: BoxDecoration(
                             color: Colors.red,
@@ -219,7 +223,6 @@ class _BossHomecalendarState extends State<BossHomecalendar> {
               child: Column(
                 children: [
                   Text("년도 / 월 선택", style: TextStyle(fontSize: 16)),
-                  SizedBox(height: 8),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -262,7 +265,6 @@ class _BossHomecalendarState extends State<BossHomecalendar> {
                       ),
                     ],
                   ),
-                  SizedBox(height: 16),
                   ElevatedButton(
                     onPressed: () {
                       setState(() {
@@ -332,10 +334,16 @@ class _BossHomecalendarState extends State<BossHomecalendar> {
                             IconButton(
                               icon: Icon(Icons.delete, color: Colors.red),
                               onPressed: () async {
-                                final response = await http.delete(Uri.parse('https://backend-vgbf.onrender.com/appointments/${appt.notes}'));
+                                final response = await http.delete(
+                                  Uri.parse(
+                                    'https://backend-vgbf.onrender.com/appointments/${appt.notes}',
+                                  ),
+                                );
                                 if (response.statusCode == 204) {
+                                  if (!mounted) return; // ✅
                                   setState(() => _appointments.remove(appt));
                                 }
+                                if (!mounted) return; // ✅
                                 Navigator.pop(context);
                                 _showDayDetailSheet(date);
                               },
@@ -368,55 +376,66 @@ class _BossHomecalendarState extends State<BossHomecalendar> {
                 decoration: InputDecoration(labelText: '제목'),
                 onChanged: (value) => title = value,
               ),
-              SizedBox(height: 10),
               ElevatedButton(
                 child: Text("추가"),
                 onPressed: () async {
                   final uid = FirebaseAuth.instance.currentUser?.uid;
                   if (uid == null) return;
 
-                  final newAppointment = Appointment(
-                    startTime: DateTime(
-                      selectedDate.year, selectedDate.month, selectedDate.day, start.hour, start.minute,
-                    ),
-                    endTime: DateTime(
-                      selectedDate.year, selectedDate.month, selectedDate.day, end.hour, end.minute,
-                    ),
-                    subject: title,
-                    color: Colors.orange,
-                  );
                   final response = await http.post(
                     Uri.parse('https://backend-vgbf.onrender.com/appointments'),
                     headers: {'Content-Type': 'application/json'},
                     body: jsonEncode({
                       'user_uid': uid,
                       'title': title,
-                      'start_time': newAppointment.startTime.toIso8601String(),
-                      'end_time': newAppointment.endTime.toIso8601String(),
+                      'start_time':
+                          DateTime(
+                            selectedDate.year,
+                            selectedDate.month,
+                            selectedDate.day,
+                            start.hour,
+                            start.minute,
+                          ).toIso8601String(),
+                      'end_time':
+                          DateTime(
+                            selectedDate.year,
+                            selectedDate.month,
+                            selectedDate.day,
+                            end.hour,
+                            end.minute,
+                          ).toIso8601String(),
                       'color': '#FF9900',
                     }),
                   );
 
                   if (response.statusCode == 201) {
                     final json = jsonDecode(response.body);
-                    final id = json[0]['id']; // ✅ 리스트에서 첫 번째 요소의 id 꺼냄
+                    final id = json[0]['id'];
 
                     final newAppointment = Appointment(
                       startTime: DateTime(
-                        selectedDate.year, selectedDate.month, selectedDate.day, start.hour, start.minute,
+                        selectedDate.year,
+                        selectedDate.month,
+                        selectedDate.day,
+                        start.hour,
+                        start.minute,
                       ),
                       endTime: DateTime(
-                        selectedDate.year, selectedDate.month, selectedDate.day, end.hour, end.minute,
+                        selectedDate.year,
+                        selectedDate.month,
+                        selectedDate.day,
+                        end.hour,
+                        end.minute,
                       ),
                       subject: title,
                       color: Colors.orange,
-                      notes: id, // ✅ 이거 꼭 저장해야 나중에 수정/삭제 가능
+                      notes: id,
                     );
 
+                    if (!mounted) return; // ✅
                     setState(() => _appointments.add(newAppointment));
-                    Navigator.pop(context);
+                    if (mounted) Navigator.pop(context); // ✅
                   }
-
                 },
               ),
             ],
@@ -445,7 +464,6 @@ class _BossHomecalendarState extends State<BossHomecalendar> {
                 decoration: InputDecoration(labelText: '제목'),
                 onChanged: (value) => title = value,
               ),
-              SizedBox(height: 10),
               ElevatedButton(
                 child: Text("수정"),
                 onPressed: () async {
@@ -473,7 +491,9 @@ class _BossHomecalendarState extends State<BossHomecalendar> {
                   );
 
                   final response = await http.patch(
-                    Uri.parse('https://backend-vgbf.onrender.com/appointments/${oldAppointment.notes}'),
+                    Uri.parse(
+                      'https://backend-vgbf.onrender.com/appointments/${oldAppointment.notes}',
+                    ),
                     headers: {'Content-Type': 'application/json'},
                     body: jsonEncode({
                       'title': updated.subject,
@@ -484,12 +504,10 @@ class _BossHomecalendarState extends State<BossHomecalendar> {
                   );
 
                   if (response.statusCode == 200) {
-                    final index = _appointments.indexOf(oldAppointment);
-                    if (index != -1) {
-                      setState(() => _appointments[index] = updated);
-                    }
+                    if (!mounted) return; // ✅
+                    setState(() => _appointments[index] = updated);
                   }
-                  Navigator.pop(context);
+                  if (mounted) Navigator.pop(context); // ✅
                 },
               ),
             ],
@@ -522,8 +540,3 @@ class MeetingDataSource extends CalendarDataSource {
     appointments = source;
   }
 }
-
-// 블록 위치 수정 
-// 블록 크기 수정
-// 블록 색깔 선택 가능하게 수정
-// 블록 수정 및 삭제 시 안내메시지 추가 

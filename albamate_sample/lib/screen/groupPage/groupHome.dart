@@ -4,7 +4,6 @@ import 'package:intl/intl.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:albamate_sample/screen/homePage/boss/boss_homeCalendar.dart';
-import 'package:albamate_sample/screen/homePage/worker/worker_homecalendar.dart';
 
 class GroupHomePage extends StatefulWidget {
   final String groupId;
@@ -56,11 +55,15 @@ class _GroupHomePageState extends State<GroupHomePage> {
           //상단 왼쪽 X 버튼
           IconButton(
             icon: const Icon(Icons.close),
-            onPressed: ()  async {
+            onPressed: () async {
               final uid = FirebaseAuth.instance.currentUser?.uid;
 
               if (uid != null) {
-                final userDoc = await FirebaseFirestore.instance.collection('users').doc(uid).get();
+                final userDoc =
+                    await FirebaseFirestore.instance
+                        .collection('users')
+                        .doc(uid)
+                        .get();
                 final role = userDoc['role'];
 
                 if (role == '사장님') {
@@ -71,7 +74,9 @@ class _GroupHomePageState extends State<GroupHomePage> {
                 } else if (role == '알바생') {
                   Navigator.pushReplacement(
                     context,
-                    MaterialPageRoute(builder: (context) => WorkerHomecalendar()),
+                    MaterialPageRoute(
+                      builder: (context) => WorkerHomecalendar(),
+                    ),
                   );
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(
@@ -79,9 +84,9 @@ class _GroupHomePageState extends State<GroupHomePage> {
                   );
                 }
               } else {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('로그인 정보가 없습니다.')),
-                );
+                ScaffoldMessenger.of(
+                  context,
+                ).showSnackBar(const SnackBar(content: Text('로그인 정보가 없습니다.')));
               }
             },
           ),

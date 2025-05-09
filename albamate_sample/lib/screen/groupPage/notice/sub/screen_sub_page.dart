@@ -7,7 +7,7 @@ import 'package:albamate_sample/screen/groupPage/notice/notice_model.dart';
 class ScreenSubPage extends StatefulWidget {
   final String groupId; // ✅ 추가
 
-  const ScreenSubPage({required this.groupId, Key? key}) : super(key: key);
+  const ScreenSubPage({required this.groupId, super.key});
 
   @override
   _ScreenSubPageState createState() => _ScreenSubPageState();
@@ -45,7 +45,11 @@ class _ScreenSubPageState extends State<ScreenSubPage> {
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Icon(Icons.notifications_none, color: Colors.grey[700], size: 28),
+                        Icon(
+                          Icons.notifications_none,
+                          color: Colors.grey[700],
+                          size: 28,
+                        ),
                         SizedBox(width: 8),
                         Expanded(
                           child: Column(
@@ -56,20 +60,28 @@ class _ScreenSubPageState extends State<ScreenSubPage> {
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                      builder: (context) => DetailSubPage(notice: notice),
+                                      builder:
+                                          (context) =>
+                                              DetailSubPage(notice: notice),
                                     ),
                                   );
                                 },
                                 //제목 클릭시 상세페이지 이동
-                              child : Text(
-                                notice.title,
-                                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                                child: Text(
+                                  notice.title,
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                  ),
+                                ),
                               ),
-                            ),
                               SizedBox(height: 4),
                               Text(
                                 notice.date,
-                                style: TextStyle(color: Colors.grey, fontSize: 12),
+                                style: TextStyle(
+                                  color: Colors.grey,
+                                  fontSize: 12,
+                                ),
                               ),
                             ],
                           ),
@@ -81,10 +93,14 @@ class _ScreenSubPageState extends State<ScreenSubPage> {
                               final editedNotice = await Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => CreateSubPage(groupId: widget.groupId),
+                                  builder:
+                                      (context) => CreateSubPage(
+                                        groupId: widget.groupId,
+                                      ),
                                 ),
                               );
-                              if (editedNotice != null && editedNotice is Notice) {
+                              if (editedNotice != null &&
+                                  editedNotice is Notice) {
                                 setState(() {
                                   notices[index] = editedNotice;
                                 });
@@ -95,10 +111,17 @@ class _ScreenSubPageState extends State<ScreenSubPage> {
                               });
                             }
                           },
-                          itemBuilder: (context) => [
-                            PopupMenuItem(value: 'edit', child: Text('수정하기')),
-                            PopupMenuItem(value: 'delete', child: Text('삭제하기')),
-                          ],
+                          itemBuilder:
+                              (context) => [
+                                PopupMenuItem(
+                                  value: 'edit',
+                                  child: Text('수정하기'),
+                                ),
+                                PopupMenuItem(
+                                  value: 'delete',
+                                  child: Text('삭제하기'),
+                                ),
+                              ],
                           icon: Icon(Icons.more_vert),
                         ),
                       ],
@@ -111,7 +134,8 @@ class _ScreenSubPageState extends State<ScreenSubPage> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => DetailSubPage(notice: notice),
+                              builder:
+                                  (context) => DetailSubPage(notice: notice),
                             ),
                           );
                         },
@@ -135,7 +159,9 @@ class _ScreenSubPageState extends State<ScreenSubPage> {
         onPressed: () async {
           final newNotice = await Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => CreateSubPage(groupId: widget.groupId)),
+            MaterialPageRoute(
+              builder: (context) => CreateSubPage(groupId: widget.groupId),
+            ),
           );
 
           if (newNotice != null && newNotice is Notice) {
