@@ -70,6 +70,7 @@ class _WorkerGroupState extends State<WorkerGroup> {
                       groupId: group['id'].toString(),
                       groupName: group['name'] ?? '',
                       groupDescription: group['description'] ?? '',
+                      onGroupUpdated: _loadGroups,
                     );
                   },
                 ),

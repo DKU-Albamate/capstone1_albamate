@@ -43,9 +43,21 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
     setState(() => isLoading = false);
 
     if (response.statusCode == 201) {
-      final groupData = jsonDecode(response.body)['data'];
-      final groupId = groupData['id'];
-      _showInviteCodeDialog(groupId);
+      final responseData = jsonDecode(response.body);
+      if (responseData['success'] == true && responseData['data'] != null) {
+        final groupId = responseData['data']['groupId'];
+        if (groupId == null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('그룹 ID를 받지 못했습니다.')),
+          );
+          return;
+        }
+        _showInviteCodeDialog(groupId);
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('서버 응답이 올바르지 않습니다.')),
+        );
+      }
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('그룹 생성에 실패했습니다.')),

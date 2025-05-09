@@ -69,15 +69,16 @@ class _BossGroupState extends State<BossGroup> {
     }
   }
 
-  //  Future<void> _printIdToken() async {
-  //    final user = FirebaseAuth.instance.currentUser;
-  //    if (user != null) {
-  //      final idToken = await user.getIdToken(true); // ✅ 강제 갱신
-  //      print('[DEBUG] idToken: $idToken');
-  //    } else {
-  //      print('로그인된 사용자가 없습니다.');
-  //    }
-  //    }
+  // ✅ 디버그용: ID 토큰 출력 함수 
+  Future<void> _printIdToken() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      final idToken = await user.getIdToken(true); // 강제 갱신
+      print('[DEBUG] idToken: $idToken');
+    } else {
+      print('로그인된 사용자가 없습니다.');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -95,6 +96,7 @@ class _BossGroupState extends State<BossGroup> {
                       groupId: group.id,
                       groupName: group.name,
                       groupDescription: group.description,
+                      onGroupUpdated: _fetchGroups,
                     );
                   },
                 ),
@@ -107,12 +109,13 @@ class _BossGroupState extends State<BossGroup> {
             heroTag: 'createGroupBtn',
           ),
           const SizedBox(height: 10),
-          //           FloatingActionButton(
-          //             onPressed: _printIdToken,
-          //             child: const Icon(Icons.vpn_key),
-          //             backgroundColor: Colors.green,
-          //             heroTag: 'tokenDebugBtn',
-          //           ),
+          // ✅ 디버그용: ID 토큰 출력 버튼
+          FloatingActionButton(
+            onPressed: _printIdToken,
+            backgroundColor: Colors.green,
+            child: const Icon(Icons.vpn_key),
+            heroTag: 'debugTokenBtn',
+          ),
         ],
       ),
       bottomNavigationBar: const HomeNavigationBoss(currentIndex: 0),

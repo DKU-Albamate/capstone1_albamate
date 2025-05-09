@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'package:firebase_auth/firebase_auth.dart';
 
 class EditGroupPage extends StatefulWidget {
   final String groupId;
@@ -58,10 +58,8 @@ class _EditGroupPageState extends State<EditGroupPage> {
     setState(() => isLoading = false);
 
     if (response.statusCode == 200) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('그룹 정보가 수정되었습니다.')),
-      );
-      Navigator.pop(context, true); // 이전 페이지에 성공 알림
+      if (!mounted) return;
+      Navigator.pop(context, true); // 수정 성공 시 true 반환
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('그룹 수정에 실패했습니다.')),
@@ -98,13 +96,15 @@ class _EditGroupPageState extends State<EditGroupPage> {
                 Radio<bool>(
                   value: true,
                   groupValue: useAutoSchedule,
-                  onChanged: (value) => setState(() => useAutoSchedule = value!),
+                  onChanged: (value) =>
+                      setState(() => useAutoSchedule = value!),
                 ),
                 const Text("사용함"),
                 Radio<bool>(
                   value: false,
                   groupValue: useAutoSchedule,
-                  onChanged: (value) => setState(() => useAutoSchedule = value!),
+                  onChanged: (value) =>
+                      setState(() => useAutoSchedule = value!),
                 ),
                 const Text("사용 안함"),
               ],
