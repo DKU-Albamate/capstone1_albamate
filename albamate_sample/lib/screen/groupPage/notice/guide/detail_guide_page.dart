@@ -7,7 +7,7 @@ import 'package:albamate_sample/component/groupHome_navigation.dart';
 class DetailGuidePage extends StatefulWidget {
   final Notice notice;
 
-  const DetailGuidePage({required this.notice});
+  const DetailGuidePage({super.key, required this.notice});
 
   @override
   State<DetailGuidePage> createState() => _DetailGuidePageState();
@@ -20,24 +20,33 @@ class _DetailGuidePageState extends State<DetailGuidePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('안내사항', style: TextStyle(
+        title: Text(
+          '안내사항',
+          style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
             fontFamily: "Inter",
-            color: Colors.black)),
+            color: Colors.black,
+          ),
+        ),
         backgroundColor: Colors.white,
         elevation: 1,
         centerTitle: true,
         iconTheme: IconThemeData(color: Colors.black),
         actions: [
-          IconButton(icon: Icon(Icons.home),
-              onPressed: () {
-                Navigator.pushAndRemoveUntil(
-                    context,
-                    MaterialPageRoute(builder: (context) => GroupNav(groupId : widget.notice.groupId)),
-                  (Route<dynamic> route) => false,
-                );
-          }),
+          IconButton(
+            icon: Icon(Icons.home),
+            onPressed: () {
+              Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(
+                  builder:
+                      (context) => GroupNav(groupId: widget.notice.groupId),
+                ),
+                (Route<dynamic> route) => false,
+              );
+            },
+          ),
         ],
       ),
       body: Padding(
@@ -52,14 +61,22 @@ class _DetailGuidePageState extends State<DetailGuidePage> {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(widget.notice.title,
-                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                    Text(
+                      widget.notice.title,
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                     SizedBox(height: 4),
-                    Text(widget.notice.date, style: TextStyle(color: Colors.grey)),
+                    Text(
+                      widget.notice.date,
+                      style: TextStyle(color: Colors.grey),
+                    ),
                   ],
                 ),
                 Spacer(),
-                Icon(Icons.more_vert)
+                Icon(Icons.more_vert),
               ],
             ),
             SizedBox(height: 20),
@@ -86,7 +103,7 @@ class _DetailGuidePageState extends State<DetailGuidePage> {
                 },
               ),
               SizedBox(width: 8),
-              Text('확인', style: TextStyle(color: Colors.grey[800]))
+              Text('확인', style: TextStyle(color: Colors.grey[800])),
             ],
           ),
         ),

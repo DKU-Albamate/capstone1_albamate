@@ -1,7 +1,6 @@
 import 'package:albamate_sample/screen/groupPage/schedule/schedule_build.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:albamate_sample/screen/groupPage/schedule/schedule_build.dart';
 
 class BossScheduleViewPage extends StatefulWidget {
   final String scheduleId;

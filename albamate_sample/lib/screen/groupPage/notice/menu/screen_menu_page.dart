@@ -3,12 +3,11 @@ import 'create_menu_page.dart';
 import 'detail_menu_page.dart';
 import 'package:albamate_sample/screen/groupPage/notice/notice_model.dart';
 
-
 //신메뉴 공지 화면 페이지
 class ScreenMenuPage extends StatefulWidget {
   final String groupId; // ✅ 추가
 
-  const ScreenMenuPage({required this.groupId, Key? key}) : super(key: key);
+  const ScreenMenuPage({required this.groupId, super.key});
 
   @override
   _ScreenMenuPageState createState() => _ScreenMenuPageState();
@@ -46,31 +45,43 @@ class _ScreenMenuPageState extends State<ScreenMenuPage> {
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Icon(Icons.notifications_none, color: Colors.grey[700], size: 28),
+                        Icon(
+                          Icons.notifications_none,
+                          color: Colors.grey[700],
+                          size: 28,
+                        ),
                         SizedBox(width: 8),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               GestureDetector(
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => DetailMenuPage(notice: notice),
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder:
+                                          (context) =>
+                                              DetailMenuPage(notice: notice),
+                                    ),
+                                  );
+                                },
+                                //제목 클릭시 상세 페이지로 이동
+                                child: Text(
+                                  notice.title,
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
                                   ),
-                                );
-                              },
-                              //제목 클릭시 상세 페이지로 이동
-                              child : Text(
-                                notice.title,
-                                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                                ),
                               ),
-                            ),
                               SizedBox(height: 4),
                               Text(
                                 notice.date,
-                                style: TextStyle(color: Colors.grey, fontSize: 12),
+                                style: TextStyle(
+                                  color: Colors.grey,
+                                  fontSize: 12,
+                                ),
                               ),
                             ],
                           ),
@@ -82,10 +93,14 @@ class _ScreenMenuPageState extends State<ScreenMenuPage> {
                               final editedNotice = await Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => CreateMenuPage(groupId: widget.groupId),
+                                  builder:
+                                      (context) => CreateMenuPage(
+                                        groupId: widget.groupId,
+                                      ),
                                 ),
                               );
-                              if (editedNotice != null && editedNotice is Notice) {
+                              if (editedNotice != null &&
+                                  editedNotice is Notice) {
                                 setState(() {
                                   notices[index] = editedNotice;
                                 });
@@ -96,10 +111,17 @@ class _ScreenMenuPageState extends State<ScreenMenuPage> {
                               });
                             }
                           },
-                          itemBuilder: (context) => [
-                            PopupMenuItem(value: 'edit', child: Text('수정하기')),
-                            PopupMenuItem(value: 'delete', child: Text('삭제하기')),
-                          ],
+                          itemBuilder:
+                              (context) => [
+                                PopupMenuItem(
+                                  value: 'edit',
+                                  child: Text('수정하기'),
+                                ),
+                                PopupMenuItem(
+                                  value: 'delete',
+                                  child: Text('삭제하기'),
+                                ),
+                              ],
                           icon: Icon(Icons.more_vert),
                         ),
                       ],
@@ -112,7 +134,8 @@ class _ScreenMenuPageState extends State<ScreenMenuPage> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => DetailMenuPage(notice: notice),
+                              builder:
+                                  (context) => DetailMenuPage(notice: notice),
                             ),
                           );
                         },
@@ -136,7 +159,9 @@ class _ScreenMenuPageState extends State<ScreenMenuPage> {
         onPressed: () async {
           final newNotice = await Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => CreateMenuPage(groupId: widget.groupId)),
+            MaterialPageRoute(
+              builder: (context) => CreateMenuPage(groupId: widget.groupId),
+            ),
           );
 
           if (newNotice != null && newNotice is Notice) {

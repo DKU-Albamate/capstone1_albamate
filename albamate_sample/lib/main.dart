@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:intl/date_symbol_data_local.dart'; // ✅ 추가
 import 'firebase_options.dart';
@@ -13,13 +12,11 @@ void main() async {
   // ✅ 로케일 데이터 초기화 (ko_KR용 DateFormat 사용 시 필요)
   await initializeDateFormatting('ko_KR', null);
 
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   // 딥링크로 앱이 시작되었는지 확인
   final PendingDynamicLinkData? initialLink =
-  await FirebaseDynamicLinks.instance.getInitialLink();
+      await FirebaseDynamicLinks.instance.getInitialLink();
 
   runApp(MyApp(initialLink: initialLink));
 }
@@ -42,10 +39,7 @@ class MyApp extends StatelessWidget {
 
     return MaterialApp(
       title: 'AlbaMate',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-        useMaterial3: true,
-      ),
+      theme: ThemeData(primarySwatch: Colors.blue, useMaterial3: true),
       home: startPage,
     );
   }

@@ -6,15 +6,15 @@ import 'package:intl/intl.dart';
 class CreateMenuPage extends StatefulWidget {
   final String groupId;
   final Notice? notice;
-  const CreateMenuPage({required this.groupId, this.notice, Key? key}) : super(key: key);
+  const CreateMenuPage({required this.groupId, this.notice, super.key});
 
   @override
   _CreateMenuPageState createState() => _CreateMenuPageState();
 }
 
 class _CreateMenuPageState extends State<CreateMenuPage> {
-  TextEditingController _titleController = TextEditingController();
-  TextEditingController _contentController = TextEditingController();
+  final TextEditingController _titleController = TextEditingController();
+  final TextEditingController _contentController = TextEditingController();
   int _selectedIndex = 0;
 
   @override
@@ -55,12 +55,15 @@ class _CreateMenuPageState extends State<CreateMenuPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('신메뉴 공지',
-            style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                fontFamily: "Inter",
-                color: Colors.black)),
+        title: Text(
+          '신메뉴 공지',
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            fontFamily: "Inter",
+            color: Colors.black,
+          ),
+        ),
         backgroundColor: Colors.white,
         elevation: 1,
         centerTitle: true,
@@ -81,10 +84,7 @@ class _CreateMenuPageState extends State<CreateMenuPage> {
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
             SizedBox(height: 8),
-            Text(
-              formattedDate,
-              style: TextStyle(color: Colors.grey),
-            ),
+            Text(formattedDate, style: TextStyle(color: Colors.grey)),
             Divider(thickness: 1),
             SizedBox(height: 8),
             Expanded(
@@ -101,11 +101,11 @@ class _CreateMenuPageState extends State<CreateMenuPage> {
             IndexedStack(
               index: _selectedIndex,
               children: [Container(), Container()],
-            )
+            ),
           ],
         ),
       ),
-      bottomNavigationBar: Container(
+      bottomNavigationBar: SizedBox(
         height: 88,
         child: BottomNavigationBar(
           backgroundColor: Colors.white,

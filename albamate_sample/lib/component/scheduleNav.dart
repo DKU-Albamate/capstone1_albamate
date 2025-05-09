@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:albamate_sample/screen/groupPage/schedule/create_schedule.dart';
 import 'package:albamate_sample/screen/groupPage/schedule/schedule_card.dart';
 
 class ScheduleRequestTab extends StatefulWidget {

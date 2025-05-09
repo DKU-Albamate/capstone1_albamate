@@ -15,7 +15,7 @@ class WorkerHomecalendar extends StatefulWidget {
 class _WorkerHomecalendarState extends State<WorkerHomecalendar> {
   CalendarView _calendarView = CalendarView.month;
   List<Appointment> _appointments = [];
-  CalendarController _controller = CalendarController();
+  final CalendarController _controller = CalendarController();
 
   late int _displayYear;
   late int _displayMonth;
@@ -418,10 +418,18 @@ class _WorkerHomecalendarState extends State<WorkerHomecalendar> {
 
                     final newAppointment = Appointment(
                       startTime: DateTime(
-                        selectedDate.year, selectedDate.month, selectedDate.day, start.hour, start.minute,
+                        selectedDate.year,
+                        selectedDate.month,
+                        selectedDate.day,
+                        start.hour,
+                        start.minute,
                       ),
                       endTime: DateTime(
-                        selectedDate.year, selectedDate.month, selectedDate.day, end.hour, end.minute,
+                        selectedDate.year,
+                        selectedDate.month,
+                        selectedDate.day,
+                        end.hour,
+                        end.minute,
                       ),
                       subject: title,
                       color: Colors.orange,

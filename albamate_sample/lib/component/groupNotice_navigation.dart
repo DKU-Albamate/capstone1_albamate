@@ -7,7 +7,7 @@ import 'package:albamate_sample/screen/groupPage/notice/sub/screen_sub_page.dart
 class NoticePageNav extends StatefulWidget {
   final String groupId; // ✅ 추가
 
-  const NoticePageNav({required this.groupId, Key? key}) : super(key: key);
+  const NoticePageNav({required this.groupId, super.key});
   @override
   _NoticePageNavState createState() => _NoticePageNavState();
 }
@@ -25,7 +25,7 @@ class _NoticePageNavState extends State<NoticePageNav> {
   @override
   Widget build(BuildContext context) {
     //각 탭에 대응되는 하위 페이지
-    final List<Widget> _pages = [
+    final List<Widget> pages = [
       ScreenGuidePage(groupId: widget.groupId),
       ScreenSubPage(groupId: widget.groupId),
       ScreenMenuPage(groupId: widget.groupId),
@@ -33,12 +33,15 @@ class _NoticePageNavState extends State<NoticePageNav> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('공지사항',
-            style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                fontFamily: "Inter",
-                color: Colors.black)),
+        title: Text(
+          '공지사항',
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            fontFamily: "Inter",
+            color: Colors.black,
+          ),
+        ),
         backgroundColor: Colors.white,
         elevation: 1,
         centerTitle: true,
@@ -69,9 +72,7 @@ class _NoticePageNavState extends State<NoticePageNav> {
             ),
           ),
           //현재 선택된 탭에 따라 화면 출력됨
-          Expanded(
-            child: _pages[_selectedIndex],
-          ),
+          Expanded(child: pages[_selectedIndex]),
         ],
       ),
     );

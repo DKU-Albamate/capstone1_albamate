@@ -32,9 +32,7 @@ class _WorkerGroupState extends State<WorkerGroup> {
       final idToken = await user.getIdToken();
       final response = await http.get(
         Uri.parse('https://backend-vgbf.onrender.com/api/groups'),
-        headers: {
-          'Authorization': 'Bearer $idToken',
-        },
+        headers: {'Authorization': 'Bearer $idToken'},
       );
 
       if (response.statusCode == 200) {
@@ -67,18 +65,15 @@ class _WorkerGroupState extends State<WorkerGroup> {
           'Authorization': 'Bearer $idToken',
           'Content-Type': 'application/json',
         },
-        body: jsonEncode({
-          'inviteCode': inviteCode,
-          'userUid': user.uid,
-        }),
+        body: jsonEncode({'inviteCode': inviteCode, 'userUid': user.uid}),
       );
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         if (data['success'] == true) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('그룹 참여가 완료되었습니다.')),
-          );
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(const SnackBar(content: Text('그룹 참여가 완료되었습니다.')));
           _fetchGroups(); // 그룹 목록 새로고침
           return true;
         }
@@ -90,9 +85,9 @@ class _WorkerGroupState extends State<WorkerGroup> {
   }
 
   void _showInviteCodeDialog(BuildContext context) {
-    final TextEditingController _codeController = TextEditingController();
-    String _warningMessage = '';
-    bool _isSubmitting = false;
+    final TextEditingController codeController = TextEditingController();
+    String warningMessage = '';
+    bool isSubmitting = false;
 
     showDialog(
       context: context,
@@ -101,7 +96,9 @@ class _WorkerGroupState extends State<WorkerGroup> {
         return StatefulBuilder(
           builder: (context, setState) {
             return Dialog(
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
               backgroundColor: Colors.white,
               child: Stack(
                 children: [
@@ -112,59 +109,66 @@ class _WorkerGroupState extends State<WorkerGroup> {
                       children: [
                         const Text(
                           '초대 코드를 입력하세요',
-                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                         const SizedBox(height: 16),
                         TextField(
-                          controller: _codeController,
+                          controller: codeController,
                           decoration: const InputDecoration(
                             hintText: '초대 코드',
                             border: OutlineInputBorder(),
                           ),
                         ),
                         const SizedBox(height: 8),
-                        if (_warningMessage.isNotEmpty)
+                        if (warningMessage.isNotEmpty)
                           Text(
-                            _warningMessage,
+                            warningMessage,
                             style: const TextStyle(color: Colors.red),
                           ),
                         const SizedBox(height: 16),
                         ElevatedButton(
-                          onPressed: _isSubmitting
-                              ? null
-                              : () async {
-                                  final code = _codeController.text.trim();
-                                  if (code.isEmpty) {
-                                    setState(() {
-                                      _warningMessage = '초대코드를 입력해주세요';
-                                    });
-                                    return;
-                                  }
-
-                                  setState(() {
-                                    _isSubmitting = true;
-                                    _warningMessage = '';
-                                  });
-
-                                  try {
-                                    await _joinGroup(code);
-                                    if (context.mounted) {
-                                      Navigator.pop(context);
+                          onPressed:
+                              isSubmitting
+                                  ? null
+                                  : () async {
+                                    final code = codeController.text.trim();
+                                    if (code.isEmpty) {
+                                      setState(() {
+                                        warningMessage = '초대코드를 입력해주세요';
+                                      });
+                                      return;
                                     }
-                                  } catch (e) {
+
                                     setState(() {
-                                      _warningMessage = e.toString();
-                                      _isSubmitting = false;
+                                      isSubmitting = true;
+                                      warningMessage = '';
                                     });
-                                  }
-                                },
-                          child: _isSubmitting
-                              ? const SizedBox(
-                                  width: 20,
-                                  height: 20,
-                                  child: CircularProgressIndicator(strokeWidth: 2),
-                                )
-                              : const Text('참여하기'),
+
+                                    try {
+                                      await _joinGroup(code);
+                                      if (context.mounted) {
+                                        Navigator.pop(context);
+                                      }
+                                    } catch (e) {
+                                      setState(() {
+                                        warningMessage = e.toString();
+                                        isSubmitting = false;
+                                      });
+                                    }
+                                  },
+                          child:
+                              isSubmitting
+                                  ? const SizedBox(
+                                    width: 20,
+                                    height: 20,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                    ),
+                                  )
+                                  : const Text('참여하기'),
                         ),
                       ],
                     ),
@@ -190,22 +194,23 @@ class _WorkerGroupState extends State<WorkerGroup> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('그룹 참여')),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : _groups.isEmpty
+      body:
+          _isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : _groups.isEmpty
               ? const Center(child: Text('참여한 그룹이 없습니다.'))
               : ListView.builder(
-                  padding: const EdgeInsets.all(16.0),
-                  itemCount: _groups.length,
-                  itemBuilder: (context, index) {
-                    final group = _groups[index];
-                    return GroupCard(
-                      groupId: group['id'],
-                      groupName: group['name'],
-                      groupDescription: group['description'] ?? '',
-                    );
-                  },
-                ),
+                padding: const EdgeInsets.all(16.0),
+                itemCount: _groups.length,
+                itemBuilder: (context, index) {
+                  final group = _groups[index];
+                  return GroupCard(
+                    groupId: group['id'],
+                    groupName: group['name'],
+                    groupDescription: group['description'] ?? '',
+                  );
+                },
+              ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _showInviteCodeDialog(context),
         backgroundColor: Colors.blue,
