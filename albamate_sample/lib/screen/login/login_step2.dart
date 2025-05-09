@@ -16,29 +16,25 @@ class LoginPasswordScreen extends StatefulWidget {
 }
 
 class _LoginPasswordScreenState extends State<LoginPasswordScreen> {
-  // 비밀번호 입력 필드 컨트롤러
   TextEditingController passwordController = TextEditingController();
-
-  // 상태 메시지와 비밀번호 실패 여부를 위한 변수
   String statusMessage = '';
-  bool loginFailed = false; // ❗ 비밀번호 실패 여부 저장
+  bool loginFailed = false;
+  bool _obscurePassword = true; // 👈 비밀번호 표시 여부 상태
 
-  // 로그인 로직 함수
+  // 로그인 로직
   void _login() async {
     setState(() {
       statusMessage = '';
-      loginFailed = false; // 초기화
+      loginFailed = false;
     });
 
     try {
-      // Firebase 인증 처리
       UserCredential userCredential = await FirebaseAuth.instance
           .signInWithEmailAndPassword(
-            email: widget.email, // 전달된 이메일 사용
-            password: passwordController.text, // 입력한 비밀번호 사용
+            email: widget.email,
+            password: passwordController.text,
           );
 
-      // Firestore에서 해당 유저 문서 가져오기
       DocumentSnapshot userDoc =
           await FirebaseFirestore.instance
               .collection('users')
@@ -47,38 +43,32 @@ class _LoginPasswordScreenState extends State<LoginPasswordScreen> {
 
       if (userDoc.exists) {
         String role = userDoc['role'];
-        // 사장님이면 사장님 화면으로 이동
         if (role == '사장님') {
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (context) => BossHomecalendar()),
+            MaterialPageRoute(builder: (context) => const BossHomecalendar()),
           );
-        }
-        // 알바생이면 알바생 화면으로 이동
-        else if (role == '알바생') {
+        } else if (role == '알바생') {
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (context) => WorkerHomecalendar()),
+            MaterialPageRoute(builder: (context) => const WorkerHomecalendar()),
           );
         } else {
-          // 직책이 비정상일 때
           setState(() {
             statusMessage = '올바르지 않은 직책입니다.';
             loginFailed = true;
           });
         }
       } else {
-        // Firestore에 사용자 정보가 없는 경우
         setState(() {
           statusMessage = '사용자 정보를 찾을 수 없습니다.';
           loginFailed = true;
         });
       }
     } catch (e) {
-      // 로그인 실패 (예: 비밀번호 오류 등)
       setState(() {
-        statusMessage = '비밀번호가 올바르지 않습니다.'; // ✅ 사용자 친화적인 메시지
-        loginFailed = true; // 실패 상태 true로 설정
+        statusMessage = '비밀번호가 올바르지 않습니다.';
+        loginFailed = true;
       });
     }
   }
@@ -98,8 +88,36 @@ class _LoginPasswordScreenState extends State<LoginPasswordScreen> {
                 children: [
                   TextField(
                     controller: passwordController,
-                    obscureText: true,
-                    decoration: const InputDecoration(labelText: "비밀번호 입력"),
+                    obscureText: _obscurePassword,
+                    decoration: InputDecoration(
+                      labelText: "비밀번호 입력",
+                      suffixIcon: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          IconButton(
+                            icon: Icon(
+                              _obscurePassword
+                                  ? Icons.visibility_off
+                                  : Icons.visibility,
+                              size: 20.0,
+                            ),
+                            onPressed: () {
+                              setState(() {
+                                _obscurePassword = !_obscurePassword;
+                              });
+                            },
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.clear, size: 20.0),
+                            onPressed: () {
+                              setState(() {
+                                passwordController.clear();
+                              });
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
                   const SizedBox(height: 20),
                   ElevatedButton(onPressed: _login, child: const Text("로그인")),
@@ -111,7 +129,7 @@ class _LoginPasswordScreenState extends State<LoginPasswordScreen> {
                 ],
               ),
             ),
-            if (statusMessage.contains('비밀번호')) // "비밀번호"가 포함된 경우만 표시
+            if (statusMessage.contains('비밀번호'))
               Align(
                 alignment: Alignment.bottomCenter,
                 child: Padding(
