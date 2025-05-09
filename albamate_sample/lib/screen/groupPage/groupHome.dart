@@ -1,6 +1,10 @@
+import 'package:albamate_sample/screen/homePage/worker/worker_homecalendar.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import '../../component/groupHome_navigation.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:albamate_sample/screen/homePage/boss/boss_homeCalendar.dart';
+import 'package:albamate_sample/screen/homePage/worker/worker_homecalendar.dart';
 
 class GroupHomePage extends StatefulWidget {
   final String groupId;
@@ -49,9 +53,37 @@ class _GroupHomePageState extends State<GroupHomePage> {
         title: const Text('그룹 홈'),
         centerTitle: true,
         actions: [
+          //상단 왼쪽 X 버튼
           IconButton(
             icon: const Icon(Icons.close),
-            onPressed: () => Navigator.pop(context),
+            onPressed: ()  async {
+              final uid = FirebaseAuth.instance.currentUser?.uid;
+
+              if (uid != null) {
+                final userDoc = await FirebaseFirestore.instance.collection('users').doc(uid).get();
+                final role = userDoc['role'];
+
+                if (role == '사장님') {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (context) => BossHomecalendar()),
+                  );
+                } else if (role == '알바생') {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (context) => WorkerHomecalendar()),
+                  );
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('알 수 없는 사용자 역할입니다.')),
+                  );
+                }
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('로그인 정보가 없습니다.')),
+                );
+              }
+            },
           ),
         ],
       ),
@@ -124,7 +156,6 @@ class EmployeeCard extends StatelessWidget {
       child: ListTile(
         title: const Text("000 직원"),
         subtitle: const Text("8:00 ~ 15:00"),
-        trailing: const Icon(Icons.phone),
       ),
     );
   }
