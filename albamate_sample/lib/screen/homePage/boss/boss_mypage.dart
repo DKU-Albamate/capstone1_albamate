@@ -375,7 +375,7 @@ class _BossMypageState extends State<BossMypage> {
                   ],
                 ),
               ),
-      bottomNavigationBar: HomeNavigation(currentIndex: 2),
+      bottomNavigationBar: HomeNavigationBoss(currentIndex: 2),
     );
   }
 }
