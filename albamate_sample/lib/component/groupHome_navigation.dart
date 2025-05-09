@@ -30,23 +30,19 @@ class _GroupNav extends State<GroupNav> {
     // 각 탭에 해당하는 페이지 리스트
     final List<Widget> _pages = [
       BossScheduleHomePage(),
-      NoticePageNav(
-        groupId: widget.groupId,
-      ), // ✅ '공지사항' 버튼을 누르면 NewDrinkPage가 보이게 설정
+      NoticePageNav(groupId: widget.groupId,),
       GroupHomePage(groupId: widget.groupId), // ✅ 기본 화면
       GroupCalendarPage(groupId: widget.groupId),
       GroupMyPage(),
     ];
 
-    return MaterialApp(
-      home: Scaffold(
+    return Scaffold(
         body: _pages[_selectedIndex], // ✅ 선택한 페이지 표시
         bottomNavigationBar: BottomNavBar(
           selectedIndex: _selectedIndex,
           onItemTapped: _onItemTapped,
         ),
-      ),
-    );
+      );
   }
 }
 
