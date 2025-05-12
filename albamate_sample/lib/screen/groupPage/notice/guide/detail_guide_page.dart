@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:msh_checkbox/msh_checkbox.dart';
 import 'package:albamate_sample/screen/groupPage/notice/notice_model.dart';
 import 'package:albamate_sample/component/groupHome_navigation.dart';
+import 'package:http/http.dart' as http;
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:intl/intl.dart';
+import 'dart:convert';
 
-//안내사항 상세 페이지
 class DetailGuidePage extends StatefulWidget {
   final Notice notice;
 
@@ -17,7 +20,58 @@ class _DetailGuidePageState extends State<DetailGuidePage> {
   bool isChecked = false;
 
   @override
+  void initState() {
+    super.initState();
+    _fetchCheckmark();
+  }
+
+  Future<void> _fetchCheckmark() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+    final idToken = await user.getIdToken();
+
+    final response = await http.get(
+      Uri.parse('https://backend-vgbf.onrender.com/api/posts/${widget.notice.id}/checkmark'),
+      headers: {
+        'Authorization': 'Bearer $idToken',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      setState(() {
+        isChecked = data['isChecked'] ?? false;
+      });
+    }
+  }
+
+  Future<void> _updateCheckmark(bool value) async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+    final idToken = await user.getIdToken();
+
+    final response = await http.post(
+      Uri.parse('https://backend-vgbf.onrender.com/api/posts/${widget.notice.id}/checkmark'),
+      headers: {
+        'Authorization': 'Bearer $idToken',
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode({
+        'postId': widget.notice.id,
+        'isChecked': value,
+      }),
+    );
+
+    if (response.statusCode != 200) {
+      print('체크박스 업데이트 실패: ${response.body}');
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final String formattedDate = DateFormat('yyyy-MM-dd')
+        .format(DateTime.parse(widget.notice.createdAt).toLocal());
+
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -40,8 +94,7 @@ class _DetailGuidePageState extends State<DetailGuidePage> {
               Navigator.pushAndRemoveUntil(
                 context,
                 MaterialPageRoute(
-                  builder:
-                      (context) => GroupNav(groupId: widget.notice.groupId),
+                  builder: (context) => GroupNav(groupId: widget.notice.groupId),
                 ),
                 (Route<dynamic> route) => false,
               );
@@ -70,13 +123,13 @@ class _DetailGuidePageState extends State<DetailGuidePage> {
                     ),
                     SizedBox(height: 4),
                     Text(
-                      widget.notice.date,
+                      formattedDate,
+
                       style: TextStyle(color: Colors.grey),
                     ),
                   ],
                 ),
                 Spacer(),
-                Icon(Icons.more_vert),
               ],
             ),
             SizedBox(height: 20),
@@ -100,6 +153,7 @@ class _DetailGuidePageState extends State<DetailGuidePage> {
                   setState(() {
                     isChecked = selected;
                   });
+                  _updateCheckmark(selected);
                 },
               ),
               SizedBox(width: 8),
