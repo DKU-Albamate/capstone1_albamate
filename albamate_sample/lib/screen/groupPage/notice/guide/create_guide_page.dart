@@ -1,20 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:albamate_sample/screen/groupPage/notice/notice_model.dart';
 import 'package:intl/intl.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:firebase_auth/firebase_auth.dart';
 
-// 안내사항 생성 페이지
 class CreateGuidePage extends StatefulWidget {
-  final String groupId; //
+  final String groupId;
   final Notice? notice;
-  const CreateGuidePage({required this.groupId, this.notice, Key? key}) : super(key: key);
+  const CreateGuidePage({required this.groupId, this.notice, super.key});
 
   @override
   _CreateGuidePageState createState() => _CreateGuidePageState();
 }
 
 class _CreateGuidePageState extends State<CreateGuidePage> {
-  TextEditingController _titleController = TextEditingController();
-  TextEditingController _contentController = TextEditingController();
+  final TextEditingController _titleController = TextEditingController();
+  final TextEditingController _contentController = TextEditingController();
   int _selectedIndex = 0;
 
   @override
@@ -26,22 +28,70 @@ class _CreateGuidePageState extends State<CreateGuidePage> {
     }
   }
 
+  Future<void> _submitPost() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+    final idToken = await user.getIdToken();
+
+    final isEditing = widget.notice != null;
+    final url = isEditing
+        ? 'https://backend-vgbf.onrender.com/api/posts/${widget.notice!.id}'
+        : 'https://backend-vgbf.onrender.com/api/posts';
+
+    final method = isEditing ? 'PUT' : 'POST';
+    final response = await http.Request(method, Uri.parse(url))
+      ..headers.addAll({
+        'Authorization': 'Bearer $idToken',
+        'Content-Type': 'application/json',
+      })
+      ..body = jsonEncode({
+        'groupId': widget.groupId,
+        'title': _titleController.text,
+        'content': _contentController.text,
+        'category': '안내사항',
+      });
+
+    final streamedResponse = await response.send();
+    final resBody = await http.Response.fromStream(streamedResponse);
+
+    if (resBody.statusCode == 200 || resBody.statusCode == 201) {
+      Navigator.pop(context, true); // 작성 완료 후 돌아감
+    } else {
+      print('Error: ${resBody.body}');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('오류 발생: 글 작성/수정 실패')),
+      );
+    }
+  }
+
+  Future<void> _deletePost() async {
+    if (widget.notice == null) return;
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+    final idToken = await user.getIdToken();
+
+    final response = await http.delete(
+      Uri.parse('https://backend-vgbf.onrender.com/api/posts/${widget.notice!.id}'),
+      headers: {
+        'Authorization': 'Bearer $idToken',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      Navigator.pop(context, true);
+    } else {
+      print('삭제 실패: ${response.body}');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('삭제에 실패했습니다')),
+      );
+    }
+  }
+
   void _onItemTapped(int index) {
     if (index == 1) {
-      setState(() {
-        _titleController.clear();
-        _contentController.clear();
-      });
-      Navigator.pop(context);
+      _deletePost();
     } else if (index == 2) {
-      final formattedDate = DateFormat('yyyy/MM/dd').format(DateTime.now());
-      final newNotice = Notice(
-        title: _titleController.text,
-        content: _contentController.text,
-        date: formattedDate,
-        groupId: widget.groupId,
-      );
-      Navigator.pop(context, newNotice);
+      _submitPost();
     } else {
       setState(() {
         _selectedIndex = index;
@@ -51,16 +101,19 @@ class _CreateGuidePageState extends State<CreateGuidePage> {
 
   @override
   Widget build(BuildContext context) {
-    String formattedDate = DateFormat('yyyy/MM/dd').format(DateTime.now());
+    final formattedDate = DateFormat('yyyy/MM/dd').format(DateTime.now());
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('안내사항',
-            style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                fontFamily: "Inter",
-                color: Colors.black)),
+        title: Text(
+          '안내사항',
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            fontFamily: "Inter",
+            color: Colors.black,
+          ),
+        ),
         backgroundColor: Colors.white,
         elevation: 1,
         centerTitle: true,
@@ -81,10 +134,7 @@ class _CreateGuidePageState extends State<CreateGuidePage> {
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
             SizedBox(height: 8),
-            Text(
-              formattedDate,
-              style: TextStyle(color: Colors.grey),
-            ),
+            Text(formattedDate, style: TextStyle(color: Colors.grey)),
             Divider(thickness: 1),
             SizedBox(height: 8),
             Expanded(
@@ -98,14 +148,10 @@ class _CreateGuidePageState extends State<CreateGuidePage> {
                 expands: true,
               ),
             ),
-            IndexedStack(
-              index: _selectedIndex,
-              children: [Container(), Container()],
-            )
           ],
         ),
       ),
-      bottomNavigationBar: Container(
+      bottomNavigationBar: SizedBox(
         height: 88,
         child: BottomNavigationBar(
           backgroundColor: Colors.white,

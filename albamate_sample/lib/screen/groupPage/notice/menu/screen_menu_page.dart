@@ -2,27 +2,82 @@ import 'package:flutter/material.dart';
 import 'create_menu_page.dart';
 import 'detail_menu_page.dart';
 import 'package:albamate_sample/screen/groupPage/notice/notice_model.dart';
+import 'package:http/http.dart' as http;
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart'; // ✅ Firestore
+import 'package:intl/intl.dart';
+import 'dart:convert';
 
-
-//신메뉴 공지 화면 페이지
 class ScreenMenuPage extends StatefulWidget {
-  final String groupId; // ✅ 추가
+  final String groupId;
 
-  const ScreenMenuPage({required this.groupId, Key? key}) : super(key: key);
+  const ScreenMenuPage({required this.groupId, super.key});
 
   @override
   _ScreenMenuPageState createState() => _ScreenMenuPageState();
 }
 
 class _ScreenMenuPageState extends State<ScreenMenuPage> {
-  // 작성된 공지를 저장하는 리스트
   List<Notice> notices = [];
+  String? userRole;
+  String? userUid;
 
-  // 새로운 공지를 추가하는 함수
-  void _addNotice(Notice notice) {
-    setState(() {
-      notices.add(notice);
-    });
+  @override
+  void initState() {
+    super.initState();
+    _fetchUserRoleAndNotices();
+  }
+
+  Future<void> _fetchUserRoleAndNotices() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+
+    userUid = user.uid;
+
+    // 🔵 Firestore에서 역할 가져오기
+    final userDoc = await FirebaseFirestore.instance.collection('users').doc(user.uid).get();
+    if (userDoc.exists) {
+      setState(() {
+        userRole = userDoc['role']; // '사장님' 또는 '알바생'
+      });
+    }
+
+    final idToken = await user.getIdToken();
+
+    final response = await http.get(
+      Uri.parse('https://backend-vgbf.onrender.com/api/posts?groupId=${widget.groupId}&category=신메뉴공지'),
+      headers: {
+        'Authorization': 'Bearer $idToken',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body)['data'] as List;
+      setState(() {
+        notices = data.map((e) => Notice.fromJson(e)).toList();
+      });
+    } else {
+      print('목록 불러오기 실패: ${response.body}');
+    }
+  }
+
+  Future<void> _deleteNotice(String postId) async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+    final idToken = await user.getIdToken();
+
+    final response = await http.delete(
+      Uri.parse('https://backend-vgbf.onrender.com/api/posts/$postId'),
+      headers: {
+        'Authorization': 'Bearer $idToken',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      _fetchUserRoleAndNotices();
+    } else {
+      print('삭제 실패: ${response.body}');
+    }
   }
 
   @override
@@ -32,9 +87,10 @@ class _ScreenMenuPageState extends State<ScreenMenuPage> {
         itemCount: notices.length,
         itemBuilder: (context, index) {
           final notice = notices[index];
+          final isAuthor = userUid != null && userUid == notice.authorUid;
+
           return Container(
             margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            width: double.infinity,
             height: 148,
             child: Card(
               elevation: 2,
@@ -44,7 +100,6 @@ class _ScreenMenuPageState extends State<ScreenMenuPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Icon(Icons.notifications_none, color: Colors.grey[700], size: 28),
                         SizedBox(width: 8),
@@ -53,67 +108,56 @@ class _ScreenMenuPageState extends State<ScreenMenuPage> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               GestureDetector(
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => DetailMenuPage(notice: notice),
-                                  ),
-                                );
-                              },
-                              //제목 클릭시 상세 페이지로 이동
-                              child : Text(
-                                notice.title,
-                                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(builder: (context) => DetailMenuPage(notice: notice)),
+                                  );
+                                },
+                                child: Text(
+                                  notice.title,
+                                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                                ),
                               ),
-                            ),
                               SizedBox(height: 4),
                               Text(
-                                notice.date,
-                                style: TextStyle(color: Colors.grey, fontSize: 12),
+                                  DateFormat('yyyy-MM-dd').format(DateTime.parse(notice.createdAt).toLocal()),
+                                  style: TextStyle(color: Colors.grey, fontSize: 12),
                               ),
                             ],
                           ),
                         ),
-                        // 수정/삭제 버튼
-                        PopupMenuButton<String>(
-                          onSelected: (value) async {
-                            if (value == 'edit') {
-                              final editedNotice = await Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => CreateMenuPage(groupId: widget.groupId),
-                                ),
-                              );
-                              if (editedNotice != null && editedNotice is Notice) {
-                                setState(() {
-                                  notices[index] = editedNotice;
-                                });
+                        // ✅ 사장님이면서 본인 글일 때만 수정/삭제 메뉴 보이게
+                        if (userRole == '사장님' && isAuthor)
+                          PopupMenuButton<String>(
+                            onSelected: (value) async {
+                              if (value == 'edit') {
+                                final edited = await Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => CreateMenuPage(groupId: widget.groupId, notice: notice),
+                                  ),
+                                );
+                                if (edited == true) _fetchUserRoleAndNotices();
+                              } else if (value == 'delete') {
+                                await _deleteNotice(notice.id);
                               }
-                            } else if (value == 'delete') {
-                              setState(() {
-                                notices.removeAt(index);
-                              });
-                            }
-                          },
-                          itemBuilder: (context) => [
-                            PopupMenuItem(value: 'edit', child: Text('수정하기')),
-                            PopupMenuItem(value: 'delete', child: Text('삭제하기')),
-                          ],
-                          icon: Icon(Icons.more_vert),
-                        ),
+                            },
+                            itemBuilder: (context) => [
+                              PopupMenuItem(value: 'edit', child: Text('수정하기')),
+                              PopupMenuItem(value: 'delete', child: Text('삭제하기')),
+                            ],
+                            icon: Icon(Icons.more_vert),
+                          ),
                       ],
                     ),
                     SizedBox(height: 8),
-                    // 제목이나 내용을 누르면 상세 페이지로 이동
                     Expanded(
                       child: GestureDetector(
                         onTap: () {
                           Navigator.push(
                             context,
-                            MaterialPageRoute(
-                              builder: (context) => DetailMenuPage(notice: notice),
-                            ),
+                            MaterialPageRoute(builder: (context) => DetailMenuPage(notice: notice)),
                           );
                         },
                         child: Text(
@@ -130,22 +174,23 @@ class _ScreenMenuPageState extends State<ScreenMenuPage> {
           );
         },
       ),
-      // 공지 작성 버튼
-      floatingActionButton: FloatingActionButton.extended(
-        backgroundColor: Color(0xFF006FFD),
-        onPressed: () async {
-          final newNotice = await Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => CreateMenuPage(groupId: widget.groupId)),
-          );
-
-          if (newNotice != null && newNotice is Notice) {
-            _addNotice(newNotice);
-          }
-        },
-        label: Text('Create', style: TextStyle(color: Colors.white)),
-        icon: Icon(Icons.add, color: Colors.white),
-      ),
+      // ✅ 사장님만 작성 버튼 보이게
+      floatingActionButton: (userRole == '사장님')
+          ? FloatingActionButton.extended(
+              backgroundColor: Color(0xFF006FFD),
+              onPressed: () async {
+                final created = await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => CreateMenuPage(groupId: widget.groupId),
+                  ),
+                );
+                if (created == true) _fetchUserRoleAndNotices();
+              },
+              label: Text('Create', style: TextStyle(color: Colors.white)),
+              icon: Icon(Icons.add, color: Colors.white),
+            )
+          : null,
     );
   }
 }

@@ -2,26 +2,81 @@ import 'package:flutter/material.dart';
 import 'create_sub_page.dart';
 import 'detail_sub_page.dart';
 import 'package:albamate_sample/screen/groupPage/notice/notice_model.dart';
+import 'package:http/http.dart' as http;
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:intl/intl.dart';
+import 'dart:convert';
 
-//대타 구하기 화면 페이지
 class ScreenSubPage extends StatefulWidget {
-  final String groupId; // ✅ 추가
+  final String groupId;
 
-  const ScreenSubPage({required this.groupId, Key? key}) : super(key: key);
+  const ScreenSubPage({required this.groupId, super.key});
 
   @override
   _ScreenSubPageState createState() => _ScreenSubPageState();
 }
 
 class _ScreenSubPageState extends State<ScreenSubPage> {
-  // 작성된 공지를 저장하는 리스트
   List<Notice> notices = [];
+  String? userRole;
+  String? userUid;
 
-  // 새로운 공지를 추가하는 함수
-  void _addNotice(Notice notice) {
-    setState(() {
-      notices.add(notice);
-    });
+  @override
+  void initState() {
+    super.initState();
+    _fetchUserRoleAndNotices();
+  }
+
+  Future<void> _fetchUserRoleAndNotices() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+
+    userUid = user.uid;
+
+    final userDoc = await FirebaseFirestore.instance.collection('users').doc(user.uid).get();
+    if (userDoc.exists) {
+      setState(() {
+        userRole = userDoc['role'];
+      });
+    }
+
+    final idToken = await user.getIdToken();
+
+    final response = await http.get(
+      Uri.parse('https://backend-vgbf.onrender.com/api/posts?groupId=${widget.groupId}&category=대타구하기'),
+      headers: {
+        'Authorization': 'Bearer $idToken',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body)['data'] as List;
+      setState(() {
+        notices = data.map((e) => Notice.fromJson(e)).toList();
+      });
+    } else {
+      print('대타 공지 불러오기 실패: ${response.body}');
+    }
+  }
+
+  Future<void> _deleteNotice(String postId) async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+    final idToken = await user.getIdToken();
+
+    final response = await http.delete(
+      Uri.parse('https://backend-vgbf.onrender.com/api/posts/$postId'),
+      headers: {
+        'Authorization': 'Bearer $idToken',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      _fetchUserRoleAndNotices();
+    } else {
+      print('삭제 실패: ${response.body}');
+    }
   }
 
   @override
@@ -31,9 +86,15 @@ class _ScreenSubPageState extends State<ScreenSubPage> {
         itemCount: notices.length,
         itemBuilder: (context, index) {
           final notice = notices[index];
+          final isAuthor = userUid != null && userUid == notice.authorUid;
+          final canEdit = userRole == '사장님' || isAuthor;
+
+          // ✅ UTC → KST 변환
+          final koreaDate = DateFormat('yyyy-MM-dd')
+              .format(DateTime.parse(notice.createdAt).toLocal());
+
           return Container(
             margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            width: double.infinity,
             height: 148,
             child: Card(
               elevation: 2,
@@ -43,7 +104,6 @@ class _ScreenSubPageState extends State<ScreenSubPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Icon(Icons.notifications_none, color: Colors.grey[700], size: 28),
                         SizedBox(width: 8),
@@ -60,51 +120,46 @@ class _ScreenSubPageState extends State<ScreenSubPage> {
                                     ),
                                   );
                                 },
-                                //제목 클릭시 상세페이지 이동
-                              child : Text(
-                                notice.title,
-                                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                                child: Text(
+                                  notice.title,
+                                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                                ),
                               ),
-                            ),
                               SizedBox(height: 4),
                               Text(
-                                notice.date,
+                                koreaDate,
                                 style: TextStyle(color: Colors.grey, fontSize: 12),
                               ),
                             ],
                           ),
                         ),
-                        // 수정/삭제 버튼
-                        PopupMenuButton<String>(
-                          onSelected: (value) async {
-                            if (value == 'edit') {
-                              final editedNotice = await Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => CreateSubPage(groupId: widget.groupId),
-                                ),
-                              );
-                              if (editedNotice != null && editedNotice is Notice) {
-                                setState(() {
-                                  notices[index] = editedNotice;
-                                });
+                        if (canEdit)
+                          PopupMenuButton<String>(
+                            onSelected: (value) async {
+                              if (value == 'edit') {
+                                final edited = await Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => CreateSubPage(
+                                      groupId: widget.groupId,
+                                      notice: notice,
+                                    ),
+                                  ),
+                                );
+                                if (edited == true) _fetchUserRoleAndNotices();
+                              } else if (value == 'delete') {
+                                await _deleteNotice(notice.id);
                               }
-                            } else if (value == 'delete') {
-                              setState(() {
-                                notices.removeAt(index);
-                              });
-                            }
-                          },
-                          itemBuilder: (context) => [
-                            PopupMenuItem(value: 'edit', child: Text('수정하기')),
-                            PopupMenuItem(value: 'delete', child: Text('삭제하기')),
-                          ],
-                          icon: Icon(Icons.more_vert),
-                        ),
+                            },
+                            itemBuilder: (context) => [
+                              PopupMenuItem(value: 'edit', child: Text('수정하기')),
+                              PopupMenuItem(value: 'delete', child: Text('삭제하기')),
+                            ],
+                            icon: Icon(Icons.more_vert),
+                          ),
                       ],
                     ),
                     SizedBox(height: 8),
-                    // 공지 내용을 누르면 상세 페이지로 이동
                     Expanded(
                       child: GestureDetector(
                         onTap: () {
@@ -129,17 +184,18 @@ class _ScreenSubPageState extends State<ScreenSubPage> {
           );
         },
       ),
-      // 공지 작성 버튼
       floatingActionButton: FloatingActionButton.extended(
         backgroundColor: Color(0xFF006FFD),
         onPressed: () async {
           final newNotice = await Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => CreateSubPage(groupId: widget.groupId)),
+            MaterialPageRoute(
+              builder: (context) => CreateSubPage(groupId: widget.groupId),
+            ),
           );
 
-          if (newNotice != null && newNotice is Notice) {
-            _addNotice(newNotice);
+          if (newNotice == true) {
+            _fetchUserRoleAndNotices();
           }
         },
         label: Text('Create', style: TextStyle(color: Colors.white)),
