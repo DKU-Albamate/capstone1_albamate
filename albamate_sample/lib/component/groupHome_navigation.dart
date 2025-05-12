@@ -3,12 +3,14 @@ import 'package:albamate_sample/screen/groupPage/groupMypage.dart';
 import 'package:flutter/material.dart';
 import 'package:albamate_sample/screen/groupPage/groupHome.dart';
 import 'groupNotice_navigation.dart';
+import 'package:albamate_sample/component/schedule_tab_bar.dart';
+import 'package:albamate_sample/screen/groupPage/schedule/boss_schdule_home.dart';
 
 // 그룹 홈페이지 네비게이션
 class GroupNav extends StatefulWidget {
   final String groupId; // ✅ 생성자에 groupId 추가
 
-  const GroupNav({Key? key, required this.groupId}) : super(key: key);
+  const GroupNav({super.key, required this.groupId});
 
   @override
   _GroupNav createState() => _GroupNav();
@@ -26,23 +28,19 @@ class _GroupNav extends State<GroupNav> {
   @override
   Widget build(BuildContext context) {
     // 각 탭에 해당하는 페이지 리스트
-    final List<Widget> _pages = [
-      Center(child: Text('스케줄 화면', style: TextStyle(fontSize: 24))),
-      NoticePageNav(
-        groupId: widget.groupId,
-      ), // ✅ '공지사항' 버튼을 누르면 NewDrinkPage가 보이게 설정
+    final List<Widget> pages = [
+      BossScheduleHomePage(),
+      NoticePageNav(groupId: widget.groupId),
       GroupHomePage(groupId: widget.groupId), // ✅ 기본 화면
       GroupCalendarPage(groupId: widget.groupId),
       GroupMyPage(),
     ];
 
-    return MaterialApp(
-      home: Scaffold(
-        body: _pages[_selectedIndex], // ✅ 선택한 페이지 표시
-        bottomNavigationBar: BottomNavBar(
-          selectedIndex: _selectedIndex,
-          onItemTapped: _onItemTapped,
-        ),
+    return Scaffold(
+      body: pages[_selectedIndex], // ✅ 선택한 페이지 표시
+      bottomNavigationBar: BottomNavBar(
+        selectedIndex: _selectedIndex,
+        onItemTapped: _onItemTapped,
       ),
     );
   }
@@ -53,7 +51,11 @@ class BottomNavBar extends StatelessWidget {
   final int selectedIndex;
   final Function(int) onItemTapped;
 
-  BottomNavBar({required this.selectedIndex, required this.onItemTapped});
+  const BottomNavBar({
+    super.key,
+    required this.selectedIndex,
+    required this.onItemTapped,
+  });
 
   @override
   Widget build(BuildContext context) {

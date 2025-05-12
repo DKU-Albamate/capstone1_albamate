@@ -97,7 +97,11 @@ class _ScreenGuidePageState extends State<ScreenGuidePage> {
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Icon(Icons.notifications_none, color: Colors.grey[700], size: 28),
+                        Icon(
+                          Icons.notifications_none,
+                          color: Colors.grey[700],
+                          size: 28,
+                        ),
                         SizedBox(width: 8),
                         Expanded(
                           child: Column(
@@ -108,7 +112,9 @@ class _ScreenGuidePageState extends State<ScreenGuidePage> {
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                      builder: (context) => DetailGuidePage(notice: notice),
+                                      builder:
+                                          (context) =>
+                                              DetailGuidePage(notice: notice),
                                     ),
                                   );
                                 },
@@ -124,6 +130,7 @@ class _ScreenGuidePageState extends State<ScreenGuidePage> {
                               Text(
                                   DateFormat('yyyy-MM-dd').format(DateTime.parse(notice.createdAt).toLocal()),
                                   style: TextStyle(color: Colors.grey, fontSize: 12),
+
                               ),
 
                             ],
@@ -155,6 +162,7 @@ class _ScreenGuidePageState extends State<ScreenGuidePage> {
                             ],
                             icon: Icon(Icons.more_vert),
                           ),
+
                       ],
                     ),
                     SizedBox(height: 8),
@@ -164,7 +172,8 @@ class _ScreenGuidePageState extends State<ScreenGuidePage> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => DetailGuidePage(notice: notice),
+                              builder:
+                                  (context) => DetailGuidePage(notice: notice),
                             ),
                           );
                         },
@@ -201,6 +210,7 @@ class _ScreenGuidePageState extends State<ScreenGuidePage> {
               icon: Icon(Icons.add, color: Colors.white),
             )
           : null,
+
     );
   }
 }

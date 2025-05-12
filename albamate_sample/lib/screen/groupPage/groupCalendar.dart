@@ -11,8 +11,8 @@ class GroupCalendarPage extends StatefulWidget {
 
 class _GroupCalendarPageState extends State<GroupCalendarPage> {
   CalendarView _calendarView = CalendarView.month;
-  List<Appointment> _appointments = []; // TODO: groupId 기준 일정 목록으로 대체 필요
-  CalendarController _controller = CalendarController();
+  final List<Appointment> _appointments = []; // TODO: groupId 기준 일정 목록으로 대체 필요
+  final CalendarController _controller = CalendarController();
 
   late int _displayYear;
   late int _displayMonth;

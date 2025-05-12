@@ -124,12 +124,12 @@ class _DetailGuidePageState extends State<DetailGuidePage> {
                     SizedBox(height: 4),
                     Text(
                       formattedDate,
+
                       style: TextStyle(color: Colors.grey),
                     ),
                   ],
                 ),
                 Spacer(),
-                // ✅ 점 세 개 버튼 완전히 제거됨
               ],
             ),
             SizedBox(height: 20),

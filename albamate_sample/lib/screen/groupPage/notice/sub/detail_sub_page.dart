@@ -159,11 +159,14 @@ class _DetailSubPageState extends State<DetailSubPage> {
               fontFamily: "Inter",
               color: Colors.black,
             )),
+
         centerTitle: true,
         backgroundColor: Colors.white,
         elevation: 1,
         iconTheme: IconThemeData(color: Colors.black),
         actions: [
+          //home 버튼 누르면 groupHome으로
+
           IconButton(
             icon: Icon(Icons.home),
             onPressed: () {
@@ -171,6 +174,7 @@ class _DetailSubPageState extends State<DetailSubPage> {
                 context,
                 MaterialPageRoute(
                   builder: (context) => GroupNav(groupId: widget.notice.groupId),
+
                 ),
                 (Route<dynamic> route) => false,
               );
@@ -203,6 +207,7 @@ class _DetailSubPageState extends State<DetailSubPage> {
                       ],
                     ),
                     Spacer(),
+
                   ],
                 ),
                 SizedBox(height: 12),

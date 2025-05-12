@@ -105,7 +105,11 @@ class _ScreenSubPageState extends State<ScreenSubPage> {
                   children: [
                     Row(
                       children: [
-                        Icon(Icons.notifications_none, color: Colors.grey[700], size: 28),
+                        Icon(
+                          Icons.notifications_none,
+                          color: Colors.grey[700],
+                          size: 28,
+                        ),
                         SizedBox(width: 8),
                         Expanded(
                           child: Column(
@@ -116,17 +120,21 @@ class _ScreenSubPageState extends State<ScreenSubPage> {
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                      builder: (context) => DetailSubPage(notice: notice),
+                                      builder:
+                                          (context) =>
+                                              DetailSubPage(notice: notice),
                                     ),
                                   );
                                 },
                                 child: Text(
                                   notice.title,
                                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+
                                 ),
                               ),
                               SizedBox(height: 4),
                               Text(
+
                                 koreaDate,
                                 style: TextStyle(color: Colors.grey, fontSize: 12),
                               ),
@@ -157,6 +165,7 @@ class _ScreenSubPageState extends State<ScreenSubPage> {
                             ],
                             icon: Icon(Icons.more_vert),
                           ),
+
                       ],
                     ),
                     SizedBox(height: 8),
@@ -166,7 +175,8 @@ class _ScreenSubPageState extends State<ScreenSubPage> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => DetailSubPage(notice: notice),
+                              builder:
+                                  (context) => DetailSubPage(notice: notice),
                             ),
                           );
                         },

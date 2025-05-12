@@ -88,6 +88,8 @@ class _DetailMenuPageState extends State<DetailMenuPage> {
         centerTitle: true,
         iconTheme: IconThemeData(color: Colors.black),
         actions: [
+          //home 버튼 누르면 groupHome으로 돌아감
+
           IconButton(
             icon: Icon(Icons.home),
             onPressed: () {
@@ -124,6 +126,7 @@ class _DetailMenuPageState extends State<DetailMenuPage> {
                     SizedBox(height: 4),
                     Text(
                       formattedDate, // ✅ 현재 날짜로 표시
+
                       style: TextStyle(color: Colors.grey),
                     ),
                   ],

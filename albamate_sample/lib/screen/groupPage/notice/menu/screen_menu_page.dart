@@ -8,6 +8,8 @@ import 'package:cloud_firestore/cloud_firestore.dart'; // ✅ Firestore
 import 'package:intl/intl.dart';
 import 'dart:convert';
 
+//신메뉴 공지 화면 페이지
+
 class ScreenMenuPage extends StatefulWidget {
   final String groupId;
 
@@ -101,7 +103,11 @@ class _ScreenMenuPageState extends State<ScreenMenuPage> {
                   children: [
                     Row(
                       children: [
-                        Icon(Icons.notifications_none, color: Colors.grey[700], size: 28),
+                        Icon(
+                          Icons.notifications_none,
+                          color: Colors.grey[700],
+                          size: 28,
+                        ),
                         SizedBox(width: 8),
                         Expanded(
                           child: Column(
@@ -111,12 +117,14 @@ class _ScreenMenuPageState extends State<ScreenMenuPage> {
                                 onTap: () {
                                   Navigator.push(
                                     context,
+
                                     MaterialPageRoute(builder: (context) => DetailMenuPage(notice: notice)),
                                   );
                                 },
                                 child: Text(
                                   notice.title,
                                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+
                                 ),
                               ),
                               SizedBox(height: 4),
@@ -149,6 +157,7 @@ class _ScreenMenuPageState extends State<ScreenMenuPage> {
                             ],
                             icon: Icon(Icons.more_vert),
                           ),
+
                       ],
                     ),
                     SizedBox(height: 8),
@@ -157,7 +166,9 @@ class _ScreenMenuPageState extends State<ScreenMenuPage> {
                         onTap: () {
                           Navigator.push(
                             context,
+
                             MaterialPageRoute(builder: (context) => DetailMenuPage(notice: notice)),
+
                           );
                         },
                         child: Text(
@@ -174,6 +185,7 @@ class _ScreenMenuPageState extends State<ScreenMenuPage> {
           );
         },
       ),
+
       // ✅ 사장님만 작성 버튼 보이게
       floatingActionButton: (userRole == '사장님')
           ? FloatingActionButton.extended(
@@ -191,6 +203,7 @@ class _ScreenMenuPageState extends State<ScreenMenuPage> {
               icon: Icon(Icons.add, color: Colors.white),
             )
           : null,
+
     );
   }
 }
