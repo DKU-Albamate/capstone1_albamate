@@ -14,15 +14,15 @@ class ScheduleRequestNav extends StatefulWidget {
 }
 
 class _ScheduleRequestNavState extends State<ScheduleRequestNav> {
-  List<Map<String, String>> schedulePosts = [];
+  List<Map<String, dynamic>> schedulePosts = [];
 
-  void _addSchedulePost(Map<String, String> newPost) {
+  void _addSchedulePost(Map<String, dynamic> newPost) {
     setState(() {
       schedulePosts.add(newPost);
     });
   }
 
-  void _showRoleDialog(String scheduleId) {
+  void _showRoleDialog(Map<String, dynamic> post) {
     showDialog(
       context: context,
       builder:
@@ -37,8 +37,11 @@ class _ScheduleRequestNavState extends State<ScheduleRequestNav> {
                     context,
                     MaterialPageRoute(
                       builder:
-                          (context) =>
-                              BossScheduleViewPage(scheduleId: scheduleId),
+                          (context) => BossScheduleViewPage(
+                            scheduleId: post['id'] ?? 'dummy-schedule-id',
+                            year: post['year'],
+                            month: post['month'],
+                          ),
                     ),
                   );
                 },
@@ -52,8 +55,10 @@ class _ScheduleRequestNavState extends State<ScheduleRequestNav> {
                     MaterialPageRoute(
                       builder:
                           (context) => WorkerScheduleViewPage(
-                            scheduleId: scheduleId,
+                            scheduleId: post['id'] ?? 'dummy-schedule-id',
                             userId: 'dummy-user-id',
+                            year: post['year'],
+                            month: post['month'],
                           ),
                     ),
                   );
@@ -66,11 +71,15 @@ class _ScheduleRequestNavState extends State<ScheduleRequestNav> {
   }
 
   void _handleCreatePost() async {
-    final newPost = await Navigator.push<Map<String, String>>(
+    final newPost = await Navigator.push<Map<String, dynamic>>(
       context,
       MaterialPageRoute(builder: (context) => const CreateSchedulePostPage()),
     );
-    if (newPost != null) _addSchedulePost(newPost);
+    if (newPost != null) {
+      // 생성된 게시물에 임시 id 부여
+      newPost['id'] = 'dummy-${DateTime.now().millisecondsSinceEpoch}';
+      _addSchedulePost(newPost);
+    }
   }
 
   @override
@@ -81,11 +90,14 @@ class _ScheduleRequestNavState extends State<ScheduleRequestNav> {
         children:
             schedulePosts.map((post) {
               return GestureDetector(
-                onTap: () => _showRoleDialog(post['id'] ?? 'dummy-schedule-id'),
+                onTap: () => _showRoleDialog(post),
                 child: ScheduleCard(
                   title: post['title'] ?? '',
                   description: post['description'] ?? '',
                   createdAt: post['createdAt'] ?? '',
+                  scheduleId: post['id'],
+                  year: post['year'],
+                  month: post['month'],
                 ),
               );
             }).toList(),
