@@ -4,8 +4,15 @@ import 'package:intl/intl.dart';
 
 class BossScheduleViewPage extends StatefulWidget {
   final String scheduleId;
+  final int year;
+  final int month;
 
-  const BossScheduleViewPage({super.key, required this.scheduleId});
+  const BossScheduleViewPage({
+    super.key,
+    required this.scheduleId,
+    required this.year,
+    required this.month,
+  });
 
   @override
   State<BossScheduleViewPage> createState() => _BossScheduleViewPageState();
@@ -19,15 +26,17 @@ class _BossScheduleViewPageState extends State<BossScheduleViewPage> {
     'Charlie': {10, 15, 20},
   };
 
-  DateTime focusedMonth = DateTime.now();
+  late DateTime fixedMonth;
+
+  @override
+  void initState() {
+    super.initState();
+    fixedMonth = DateTime(widget.year, widget.month);
+  }
 
   List<Widget> buildCalendarDays(String user) {
-    final firstDayOfMonth = DateTime(focusedMonth.year, focusedMonth.month, 1);
-    final lastDayOfMonth = DateTime(
-      focusedMonth.year,
-      focusedMonth.month + 1,
-      0,
-    );
+    final firstDayOfMonth = DateTime(fixedMonth.year, fixedMonth.month, 1);
+    final lastDayOfMonth = DateTime(fixedMonth.year, fixedMonth.month + 1, 0);
     final firstWeekday = firstDayOfMonth.weekday % 7;
     final totalDays = lastDayOfMonth.day;
 
@@ -84,7 +93,7 @@ class _BossScheduleViewPageState extends State<BossScheduleViewPage> {
 
   @override
   Widget build(BuildContext context) {
-    final monthText = DateFormat('yyyy. MM').format(focusedMonth);
+    final monthText = DateFormat('yyyy. MM').format(fixedMonth);
 
     return DefaultTabController(
       length: mockUsers.length,
@@ -98,62 +107,42 @@ class _BossScheduleViewPageState extends State<BossScheduleViewPage> {
         ),
         body: Column(
           children: [
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Center(
+                child: Text(
+                  monthText,
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
+            const Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                Text('일'),
+                Text('월'),
+                Text('화'),
+                Text('수'),
+                Text('목'),
+                Text('금'),
+                Text('토'),
+              ],
+            ),
+            const SizedBox(height: 8),
             Expanded(
               child: TabBarView(
                 children:
                     mockUsers.map((user) {
                       return Padding(
                         padding: const EdgeInsets.all(16.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                IconButton(
-                                  icon: const Icon(Icons.chevron_left),
-                                  onPressed: () {
-                                    setState(() {
-                                      focusedMonth = DateTime(
-                                        focusedMonth.year,
-                                        focusedMonth.month - 1,
-                                      );
-                                    });
-                                  },
-                                ),
-                                Text(
-                                  monthText,
-                                  style: const TextStyle(fontSize: 18),
-                                ),
-                                IconButton(
-                                  icon: const Icon(Icons.chevron_right),
-                                  onPressed: () {
-                                    setState(() {
-                                      focusedMonth = DateTime(
-                                        focusedMonth.year,
-                                        focusedMonth.month + 1,
-                                      );
-                                    });
-                                  },
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 8),
-                            const Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                              children: [
-                                Text('일'),
-                                Text('월'),
-                                Text('화'),
-                                Text('수'),
-                                Text('목'),
-                                Text('금'),
-                                Text('토'),
-                              ],
-                            ),
-                            const SizedBox(height: 8),
-                            ...buildCalendarDays(user),
-                          ],
+                        child: SingleChildScrollView(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: buildCalendarDays(user),
+                          ),
                         ),
                       );
                     }).toList(),

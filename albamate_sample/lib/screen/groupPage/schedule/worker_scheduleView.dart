@@ -4,11 +4,15 @@ import 'package:intl/intl.dart';
 class WorkerScheduleViewPage extends StatefulWidget {
   final String scheduleId;
   final String userId; // 사용자 ID, 백엔드 연동 시 필요
+  final int year;
+  final int month;
 
   const WorkerScheduleViewPage({
     super.key,
     required this.scheduleId,
     required this.userId,
+    required this.year,
+    required this.month,
   });
 
   @override
@@ -17,7 +21,13 @@ class WorkerScheduleViewPage extends StatefulWidget {
 
 class _WorkerScheduleViewPageState extends State<WorkerScheduleViewPage> {
   Set<DateTime> unavailableDates = {}; // 날짜 선택 기록
-  DateTime focusedMonth = DateTime.now();
+  late DateTime fixedMonth;
+
+  @override
+  void initState() {
+    super.initState();
+    fixedMonth = DateTime(widget.year, widget.month);
+  }
 
   void toggleDate(DateTime date) {
     setState(() {
@@ -37,12 +47,8 @@ class _WorkerScheduleViewPageState extends State<WorkerScheduleViewPage> {
   }
 
   List<Widget> buildCalendarDays() {
-    final firstDayOfMonth = DateTime(focusedMonth.year, focusedMonth.month, 1);
-    final lastDayOfMonth = DateTime(
-      focusedMonth.year,
-      focusedMonth.month + 1,
-      0,
-    );
+    final firstDayOfMonth = DateTime(fixedMonth.year, fixedMonth.month, 1);
+    final lastDayOfMonth = DateTime(fixedMonth.year, fixedMonth.month + 1, 0);
     final firstWeekday = firstDayOfMonth.weekday % 7;
     final totalDays = lastDayOfMonth.day;
 
@@ -54,7 +60,7 @@ class _WorkerScheduleViewPageState extends State<WorkerScheduleViewPage> {
     }
 
     for (int day = 1; day <= totalDays; day++) {
-      final currentDate = DateTime(focusedMonth.year, focusedMonth.month, day);
+      final currentDate = DateTime(fixedMonth.year, fixedMonth.month, day);
       final isSelected = unavailableDates.contains(currentDate);
 
       currentRow.add(
@@ -103,7 +109,7 @@ class _WorkerScheduleViewPageState extends State<WorkerScheduleViewPage> {
 
   @override
   Widget build(BuildContext context) {
-    final monthText = DateFormat('yyyy. MM').format(focusedMonth);
+    final monthText = DateFormat('yyyy. MM').format(fixedMonth);
 
     return Scaffold(
       appBar: AppBar(title: const Text('내 스케줄 신청')),
@@ -117,33 +123,14 @@ class _WorkerScheduleViewPageState extends State<WorkerScheduleViewPage> {
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                IconButton(
-                  icon: const Icon(Icons.chevron_left),
-                  onPressed: () {
-                    setState(() {
-                      focusedMonth = DateTime(
-                        focusedMonth.year,
-                        focusedMonth.month - 1,
-                      );
-                    });
-                  },
+            Center(
+              child: Text(
+                monthText,
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
                 ),
-                Text(monthText, style: const TextStyle(fontSize: 18)),
-                IconButton(
-                  icon: const Icon(Icons.chevron_right),
-                  onPressed: () {
-                    setState(() {
-                      focusedMonth = DateTime(
-                        focusedMonth.year,
-                        focusedMonth.month + 1,
-                      );
-                    });
-                  },
-                ),
-              ],
+              ),
             ),
             const SizedBox(height: 8),
             const Row(

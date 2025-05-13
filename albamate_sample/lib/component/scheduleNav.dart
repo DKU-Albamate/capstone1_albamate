@@ -11,9 +11,9 @@ class ScheduleRequestTab extends StatefulWidget {
 }
 
 class _ScheduleRequestTabState extends State<ScheduleRequestTab> {
-  List<Map<String, String>> schedulePosts = [];
+  List<Map<String, dynamic>> schedulePosts = [];
 
-  void _addSchedulePost(Map<String, String> newPost) {
+  void _addSchedulePost(Map<String, dynamic> newPost) {
     setState(() {
       schedulePosts.add(newPost);
     });
@@ -29,6 +29,9 @@ class _ScheduleRequestTabState extends State<ScheduleRequestTab> {
             title: post['title'] ?? '',
             description: post['description'] ?? '',
             createdAt: post['createdAt'] ?? '',
+            scheduleId: post['id'] ?? 'dummy-schedule-id',
+            year: post['year'],
+            month: post['month'],
           ),
         ),
         const SizedBox(height: 80),

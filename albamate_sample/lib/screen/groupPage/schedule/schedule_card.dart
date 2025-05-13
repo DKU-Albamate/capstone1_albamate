@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'worker_scheduleView.dart';
 import 'boss_scheduleView.dart';
 
@@ -6,12 +7,18 @@ class ScheduleCard extends StatelessWidget {
   final String title;
   final String description;
   final String createdAt;
+  final String scheduleId;
+  final int year;
+  final int month;
 
   const ScheduleCard({
     super.key,
     required this.title,
     required this.description,
     required this.createdAt,
+    required this.scheduleId,
+    required this.year,
+    required this.month,
   });
 
   @override
@@ -31,11 +38,14 @@ class ScheduleCard extends StatelessWidget {
           children: [
             Text(description),
             const SizedBox(height: 4),
-            Text('생성일: $createdAt', style: const TextStyle(fontSize: 12)),
+            Text(
+              '생성일: ${DateFormat('yyyy-MM-dd HH:mm').format(DateTime.parse(createdAt))}',
+              style: const TextStyle(fontSize: 12),
+            ),
           ],
         ),
         onTap: () {
-          // TODO: 백엔드 연동 전까지 역할 선택 다이얼로그로 대체
+          // 역할 선택 다이얼로그
           showDialog(
             context: context,
             builder: (context) {
@@ -51,7 +61,9 @@ class ScheduleCard extends StatelessWidget {
                         MaterialPageRoute(
                           builder:
                               (context) => BossScheduleViewPage(
-                                scheduleId: 'dummy-schedule-id',
+                                scheduleId: scheduleId,
+                                year: year,
+                                month: month,
                               ),
                         ),
                       );
@@ -66,8 +78,10 @@ class ScheduleCard extends StatelessWidget {
                         MaterialPageRoute(
                           builder:
                               (context) => WorkerScheduleViewPage(
-                                scheduleId: 'dummy-schedule-id',
+                                scheduleId: scheduleId,
                                 userId: 'dummy-user-id',
+                                year: year,
+                                month: month,
                               ),
                         ),
                       );
