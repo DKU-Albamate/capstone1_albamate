@@ -10,6 +10,7 @@ class ScheduleCard extends StatelessWidget {
   final String scheduleId;
   final int year;
   final int month;
+  // TODO: ⚠️ 현재 userRole 임시 사용 중 (백엔드 ownerId 연동 시 제거 예정)
   final String userRole; // ✅ 역할 추가 ('사장님', '알바생')
 
   const ScheduleCard({
@@ -20,6 +21,7 @@ class ScheduleCard extends StatelessWidget {
     required this.scheduleId,
     required this.year,
     required this.month,
+    // TODO: ⚠️ 현재 userRole 임시 사용 중 (백엔드 ownerId 연동 시 제거 예정)
     required this.userRole, // ✅ 역할 받기
   });
 

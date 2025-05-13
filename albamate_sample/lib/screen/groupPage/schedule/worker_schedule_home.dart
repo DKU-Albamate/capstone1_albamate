@@ -26,6 +26,7 @@ class _WorkerScheduleHomePageState extends State<WorkerScheduleHomePage> {
     final pages = [
       ScheduleRequestNav(
         groupId: widget.groupId,
+        // TODO: ⚠️ 현재 userRole 임시 사용 중 (백엔드 ownerId 연동 시 제거 예정)
         userRole: '',
       ), // ✅ 요청 탭 (작성 불가, 보기만)
       ScheduleConfirmNav(groupId: widget.groupId), // ✅ 확정 스케줄 확인 탭

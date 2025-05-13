@@ -29,6 +29,7 @@ class _GroupNavState extends State<GroupNav> {
   @override
   Widget build(BuildContext context) {
     final List<Widget> pages = [
+      // TODO: ⚠️ 현재 userRole 임시 사용 중 (백엔드 ownerId 연동 시 제거 예정)
       // 현재는 로그인 시 받은 role을 기준으로 분기
       // 향후 그룹 ownerId를 백엔드에서 가져와서 비교 후 이 부분만 교체
       widget.userRole.trim() == '사장님'

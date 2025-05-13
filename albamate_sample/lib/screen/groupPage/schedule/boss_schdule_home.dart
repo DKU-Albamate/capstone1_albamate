@@ -26,6 +26,7 @@ class _BossScheduleHomePageState extends State<BossScheduleHomePage> {
     final pages = [
       ScheduleRequestNav(
         groupId: widget.groupId,
+        // TODO: ⚠️ 현재 userRole 임시 사용 중 (백엔드 ownerId 연동 시 제거 예정)
         userRole: '사장님',
       ), // ✅ 그룹 ID 전달
       ScheduleConfirmNav(groupId: widget.groupId),

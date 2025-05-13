@@ -66,6 +66,7 @@ class _ScheduleRequestNavState extends State<ScheduleRequestNav> {
               scheduleId: post['id'],
               year: post['year'],
               month: post['month'],
+              // TODO: ⚠️ 현재 userRole 임시 사용 중 (백엔드 ownerId 연동 시 제거 예정)
               userRole: widget.userRole,
             );
           }).toList(),
