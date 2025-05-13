@@ -32,6 +32,8 @@ class _ScheduleRequestTabState extends State<ScheduleRequestTab> {
             scheduleId: post['id'] ?? 'dummy-schedule-id',
             year: post['year'],
             month: post['month'],
+            // TODO: ⚠️ 현재 userRole 임시 사용 중 (백엔드 ownerId 연동 시 제거 예정)
+            userRole: '',
           ),
         ),
         const SizedBox(height: 80),

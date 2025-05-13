@@ -31,10 +31,10 @@ class _DetailMenuPageState extends State<DetailMenuPage> {
     final idToken = await user.getIdToken();
 
     final response = await http.get(
-      Uri.parse('https://backend-vgbf.onrender.com/api/posts/${widget.notice.id}/checkmark'),
-      headers: {
-        'Authorization': 'Bearer $idToken',
-      },
+      Uri.parse(
+        'https://backend-vgbf.onrender.com/api/posts/${widget.notice.id}/checkmark',
+      ),
+      headers: {'Authorization': 'Bearer $idToken'},
     );
 
     if (response.statusCode == 200) {
@@ -51,15 +51,14 @@ class _DetailMenuPageState extends State<DetailMenuPage> {
     final idToken = await user.getIdToken();
 
     final response = await http.post(
-      Uri.parse('https://backend-vgbf.onrender.com/api/posts/${widget.notice.id}/checkmark'),
+      Uri.parse(
+        'https://backend-vgbf.onrender.com/api/posts/${widget.notice.id}/checkmark',
+      ),
       headers: {
         'Authorization': 'Bearer $idToken',
         'Content-Type': 'application/json',
       },
-      body: jsonEncode({
-        'postId': widget.notice.id,
-        'isChecked': value,
-      }),
+      body: jsonEncode({'postId': widget.notice.id, 'isChecked': value}),
     );
 
     if (response.statusCode != 200) {
@@ -69,8 +68,9 @@ class _DetailMenuPageState extends State<DetailMenuPage> {
 
   @override
   Widget build(BuildContext context) {
-    final String formattedDate = DateFormat('yyyy-MM-dd')
-      .format(DateTime.parse(widget.notice.createdAt).toLocal());
+    final String formattedDate = DateFormat(
+      'yyyy-MM-dd',
+    ).format(DateTime.parse(widget.notice.createdAt).toLocal());
 
     return Scaffold(
       appBar: AppBar(
@@ -89,14 +89,18 @@ class _DetailMenuPageState extends State<DetailMenuPage> {
         iconTheme: IconThemeData(color: Colors.black),
         actions: [
           //home 버튼 누르면 groupHome으로 돌아감
-
           IconButton(
             icon: Icon(Icons.home),
             onPressed: () {
               Navigator.pushAndRemoveUntil(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => GroupNav(groupId: widget.notice.groupId),
+                  builder:
+                      (context) => GroupNav(
+                        groupId: widget.notice.groupId,
+                        // TODO: ⚠️ 현재 userRole 임시 사용 중 (백엔드 ownerId 연동 시 제거 예정)
+                        userRole: '',
+                      ),
                 ),
                 (Route<dynamic> route) => false,
               );

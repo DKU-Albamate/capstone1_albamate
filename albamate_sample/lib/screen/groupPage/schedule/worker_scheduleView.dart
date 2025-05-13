@@ -49,14 +49,19 @@ class _WorkerScheduleViewPageState extends State<WorkerScheduleViewPage> {
   List<Widget> buildCalendarDays() {
     final firstDayOfMonth = DateTime(fixedMonth.year, fixedMonth.month, 1);
     final lastDayOfMonth = DateTime(fixedMonth.year, fixedMonth.month + 1, 0);
+
+    // 날짜 시작 요일 계산 (0: 일요일, 1: 월요일, ..., 6: 토요일)
     final firstWeekday = firstDayOfMonth.weekday % 7;
     final totalDays = lastDayOfMonth.day;
 
     List<Widget> rows = [];
     List<Widget> currentRow = [];
 
+    // 첫 주의 빈 공간도 동일한 크기의 Container를 사용하여 정렬 맞추기
     for (int i = 0; i < firstWeekday; i++) {
-      currentRow.add(const SizedBox(width: 40, height: 40));
+      currentRow.add(
+        Container(width: 40, height: 40, margin: const EdgeInsets.all(2)),
+      );
     }
 
     for (int day = 1; day <= totalDays; day++) {
@@ -94,7 +99,9 @@ class _WorkerScheduleViewPageState extends State<WorkerScheduleViewPage> {
 
     if (currentRow.isNotEmpty) {
       while (currentRow.length < 7) {
-        currentRow.add(const SizedBox(width: 40, height: 40));
+        currentRow.add(
+          Container(width: 40, height: 40, margin: const EdgeInsets.all(2)),
+        );
       }
       rows.add(
         Row(
@@ -133,16 +140,45 @@ class _WorkerScheduleViewPageState extends State<WorkerScheduleViewPage> {
               ),
             ),
             const SizedBox(height: 8),
-            const Row(
+            // 각 요일을 담을 Container를 생성하여 일관된 크기 유지
+            Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                Text('일'),
-                Text('월'),
-                Text('화'),
-                Text('수'),
-                Text('목'),
-                Text('금'),
-                Text('토'),
+                Container(
+                  width: 40,
+                  alignment: Alignment.center,
+                  child: const Text('일'),
+                ),
+                Container(
+                  width: 40,
+                  alignment: Alignment.center,
+                  child: const Text('월'),
+                ),
+                Container(
+                  width: 40,
+                  alignment: Alignment.center,
+                  child: const Text('화'),
+                ),
+                Container(
+                  width: 40,
+                  alignment: Alignment.center,
+                  child: const Text('수'),
+                ),
+                Container(
+                  width: 40,
+                  alignment: Alignment.center,
+                  child: const Text('목'),
+                ),
+                Container(
+                  width: 40,
+                  alignment: Alignment.center,
+                  child: const Text('금'),
+                ),
+                Container(
+                  width: 40,
+                  alignment: Alignment.center,
+                  child: const Text('토'),
+                ),
               ],
             ),
             const SizedBox(height: 8),
