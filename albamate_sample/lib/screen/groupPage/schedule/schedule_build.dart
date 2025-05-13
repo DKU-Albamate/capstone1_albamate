@@ -1,3 +1,4 @@
+import 'package:albamate_sample/screen/groupPage/schedule/boss_schdule_home.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:albamate_sample/screen/groupPage/schedule/schedule_confirm_nav.dart';
@@ -28,13 +29,26 @@ class _ScheduleBuildPageState extends State<ScheduleBuildPage> {
     'David': {},
   };
 
+  // 🔹 한국식 (일요일 ~ 토요일) 주 시작일 계산
+  DateTime getKoreanWeekStart(DateTime date) {
+    return date.subtract(Duration(days: date.weekday % 7));
+  }
+
+  // 🔹 한국식 (일요일 ~ 토요일) 주 종료일 계산
+  DateTime getKoreanWeekEnd(DateTime date) {
+    return date.add(Duration(days: 6 - (date.weekday % 7)));
+  }
+
+  // 🔹 주 최대 근무일수 초과 체크 (한국식 주 기준)
   bool isOverLimit(String user, DateTime date) {
-    final weekStart = date.subtract(Duration(days: date.weekday - 1));
-    final weekEnd = weekStart.add(const Duration(days: 6));
+    final weekStart = getKoreanWeekStart(date);
+    final weekEnd = getKoreanWeekEnd(date);
+
     final count =
         assignedDates[user]!
             .where((d) => !d.isBefore(weekStart) && !d.isAfter(weekEnd))
             .length;
+
     return count >= weeklyLimit;
   }
 
@@ -79,20 +93,30 @@ class _ScheduleBuildPageState extends State<ScheduleBuildPage> {
       'scheduleMap': scheduleMap,
     });
 
-    Navigator.pop(context);
+    // // 스케줄 확정 후 Boss 홈으로 이동
+    // Navigator.pushAndRemoveUntil(
+    //   context,
+    //   MaterialPageRoute(builder: (context) => const BossScheduleHomePage()),
+    //   (route) => false,
+    // );
   }
 
   Widget buildCalendar() {
     final firstDay = DateTime(selectedDate.year, selectedDate.month, 1);
     final lastDay = DateTime(selectedDate.year, selectedDate.month + 1, 0);
-    final firstWeekday = firstDay.weekday % 7; // Sunday = 0
+    final firstWeekday = firstDay.weekday % 7;
     final totalDays = lastDay.day;
+
+    final screenWidth = MediaQuery.of(context).size.width;
+    final padding = 16.0 * 2;
+    final spacing = 2.0 * 6;
+    final boxWidth = (screenWidth - padding - spacing) / 7;
 
     List<Row> rows = [];
     List<Widget> currentRow = [];
 
     for (int i = 0; i < firstWeekday; i++) {
-      currentRow.add(const SizedBox(width: 44, height: 60));
+      currentRow.add(SizedBox(width: boxWidth, height: boxWidth * 1.5));
     }
 
     for (int day = 1; day <= totalDays; day++) {
@@ -107,16 +131,15 @@ class _ScheduleBuildPageState extends State<ScheduleBuildPage> {
         GestureDetector(
           onTap: () => setState(() => selectedDate = date),
           child: Container(
-            width: 44,
-            height: 60,
-            padding: const EdgeInsets.all(2),
+            width: boxWidth,
+            constraints: BoxConstraints(minHeight: boxWidth * 1.5),
+            padding: const EdgeInsets.all(4),
             decoration: BoxDecoration(
               border: Border.all(color: isSelected ? Colors.blue : Colors.grey),
               borderRadius: BorderRadius.circular(6),
               color: isSelected ? Colors.blue.withOpacity(0.2) : Colors.white,
             ),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Text(
                   '$day',
@@ -125,23 +148,18 @@ class _ScheduleBuildPageState extends State<ScheduleBuildPage> {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                Expanded(
-                  child:
-                      assignedUsers.length <= 3
-                          ? Column(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children:
-                                assignedUsers
-                                    .map(
-                                      (user) => Text(
-                                        user,
-                                        style: const TextStyle(fontSize: 8),
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                    )
-                                    .toList(),
+                const SizedBox(height: 2),
+                Column(
+                  children:
+                      assignedUsers
+                          .map(
+                            (user) => Text(
+                              user,
+                              style: const TextStyle(fontSize: 8),
+                              overflow: TextOverflow.ellipsis,
+                            ),
                           )
-                          : const Text('...더보기', style: TextStyle(fontSize: 8)),
+                          .toList(),
                 ),
               ],
             ),
@@ -152,7 +170,7 @@ class _ScheduleBuildPageState extends State<ScheduleBuildPage> {
       if (currentRow.length == 7) {
         rows.add(
           Row(
-            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: currentRow,
           ),
         );
@@ -162,10 +180,13 @@ class _ScheduleBuildPageState extends State<ScheduleBuildPage> {
 
     if (currentRow.isNotEmpty) {
       while (currentRow.length < 7) {
-        currentRow.add(const SizedBox(width: 44, height: 60));
+        currentRow.add(SizedBox(width: boxWidth, height: boxWidth * 1.5));
       }
       rows.add(
-        Row(mainAxisAlignment: MainAxisAlignment.center, children: currentRow),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: currentRow,
+        ),
       );
     }
 
@@ -188,6 +209,11 @@ class _ScheduleBuildPageState extends State<ScheduleBuildPage> {
   Widget build(BuildContext context) {
     final availableUsers = getAvailableUsersForDate(selectedDate);
     final unavailableUsers = getUnavailableUsersForDate(selectedDate);
+
+    final screenWidth = MediaQuery.of(context).size.width;
+    final padding = 16.0 * 2;
+    final spacing = 2.0 * 6;
+    final boxWidth = (screenWidth - padding - spacing) / 7;
 
     return Scaffold(
       appBar: AppBar(title: const Text('스케줄 확정')),
@@ -231,17 +257,19 @@ class _ScheduleBuildPageState extends State<ScheduleBuildPage> {
               ],
             ),
             const SizedBox(height: 4),
-            const Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                Text('일'),
-                Text('월'),
-                Text('화'),
-                Text('수'),
-                Text('목'),
-                Text('금'),
-                Text('토'),
-              ],
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: List.generate(7, (index) {
+                final dayNames = ['일', '월', '화', '수', '목', '금', '토'];
+                return SizedBox(
+                  width: boxWidth,
+                  child: Text(
+                    dayNames[index],
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                );
+              }),
             ),
             const SizedBox(height: 8),
             buildCalendar(),

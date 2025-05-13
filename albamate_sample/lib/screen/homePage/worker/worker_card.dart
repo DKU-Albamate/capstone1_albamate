@@ -29,7 +29,9 @@ class GroupCard extends StatelessWidget {
           // 그룹 홈 페이지로 이동
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => GroupNav(groupId: groupId)),
+            MaterialPageRoute(
+              builder: (context) => GroupNav(groupId: groupId, userRole: ''),
+            ),
           );
         },
       ),

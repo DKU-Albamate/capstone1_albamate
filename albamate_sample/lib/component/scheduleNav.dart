@@ -32,6 +32,7 @@ class _ScheduleRequestTabState extends State<ScheduleRequestTab> {
             scheduleId: post['id'] ?? 'dummy-schedule-id',
             year: post['year'],
             month: post['month'],
+            userRole: '',
           ),
         ),
         const SizedBox(height: 80),

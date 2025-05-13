@@ -65,7 +65,10 @@ class GroupCard extends StatelessWidget {
         onTap: () {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => GroupNav(groupId: groupId)),
+            MaterialPageRoute(
+              // 사장님뷰로만 확인 가능
+              builder: (context) => GroupNav(groupId: groupId, userRole: '사장님'),
+            ),
           );
         },
       ),

@@ -31,10 +31,10 @@ class _DetailGuidePageState extends State<DetailGuidePage> {
     final idToken = await user.getIdToken();
 
     final response = await http.get(
-      Uri.parse('https://backend-vgbf.onrender.com/api/posts/${widget.notice.id}/checkmark'),
-      headers: {
-        'Authorization': 'Bearer $idToken',
-      },
+      Uri.parse(
+        'https://backend-vgbf.onrender.com/api/posts/${widget.notice.id}/checkmark',
+      ),
+      headers: {'Authorization': 'Bearer $idToken'},
     );
 
     if (response.statusCode == 200) {
@@ -51,15 +51,14 @@ class _DetailGuidePageState extends State<DetailGuidePage> {
     final idToken = await user.getIdToken();
 
     final response = await http.post(
-      Uri.parse('https://backend-vgbf.onrender.com/api/posts/${widget.notice.id}/checkmark'),
+      Uri.parse(
+        'https://backend-vgbf.onrender.com/api/posts/${widget.notice.id}/checkmark',
+      ),
       headers: {
         'Authorization': 'Bearer $idToken',
         'Content-Type': 'application/json',
       },
-      body: jsonEncode({
-        'postId': widget.notice.id,
-        'isChecked': value,
-      }),
+      body: jsonEncode({'postId': widget.notice.id, 'isChecked': value}),
     );
 
     if (response.statusCode != 200) {
@@ -69,8 +68,9 @@ class _DetailGuidePageState extends State<DetailGuidePage> {
 
   @override
   Widget build(BuildContext context) {
-    final String formattedDate = DateFormat('yyyy-MM-dd')
-        .format(DateTime.parse(widget.notice.createdAt).toLocal());
+    final String formattedDate = DateFormat(
+      'yyyy-MM-dd',
+    ).format(DateTime.parse(widget.notice.createdAt).toLocal());
 
     return Scaffold(
       appBar: AppBar(
@@ -94,7 +94,11 @@ class _DetailGuidePageState extends State<DetailGuidePage> {
               Navigator.pushAndRemoveUntil(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => GroupNav(groupId: widget.notice.groupId),
+                  builder:
+                      (context) => GroupNav(
+                        groupId: widget.notice.groupId,
+                        userRole: '',
+                      ),
                 ),
                 (Route<dynamic> route) => false,
               );
@@ -122,11 +126,7 @@ class _DetailGuidePageState extends State<DetailGuidePage> {
                       ),
                     ),
                     SizedBox(height: 4),
-                    Text(
-                      formattedDate,
-
-                      style: TextStyle(color: Colors.grey),
-                    ),
+                    Text(formattedDate, style: TextStyle(color: Colors.grey)),
                   ],
                 ),
                 Spacer(),

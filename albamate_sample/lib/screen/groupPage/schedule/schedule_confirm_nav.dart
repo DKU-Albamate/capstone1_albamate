@@ -46,7 +46,7 @@ class _ScheduleConfirmNavState extends State<ScheduleConfirmNav> {
                 context,
                 MaterialPageRoute(
                   builder:
-                      (_) => ScheduleConfirmViewPage(
+                      (_) => ScheduleConfirmDetailPage(
                         title: schedule['title'] ?? '',
                         createdAt: createdAt.toString(),
                         scheduleMapJson:

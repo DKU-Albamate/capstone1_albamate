@@ -44,7 +44,9 @@ class _BossScheduleViewPageState extends State<BossScheduleViewPage> {
     List<Widget> currentRow = [];
 
     for (int i = 0; i < firstWeekday; i++) {
-      currentRow.add(const SizedBox(width: 40, height: 40));
+      currentRow.add(
+        Container(width: 40, height: 40, margin: const EdgeInsets.all(2)),
+      );
     }
 
     for (int day = 1; day <= totalDays; day++) {
@@ -78,7 +80,9 @@ class _BossScheduleViewPageState extends State<BossScheduleViewPage> {
 
     if (currentRow.isNotEmpty) {
       while (currentRow.length < 7) {
-        currentRow.add(const SizedBox(width: 40, height: 40));
+        currentRow.add(
+          Container(width: 40, height: 40, margin: const EdgeInsets.all(2)),
+        );
       }
       rows.add(
         Row(
@@ -119,16 +123,16 @@ class _BossScheduleViewPageState extends State<BossScheduleViewPage> {
                 ),
               ),
             ),
-            const Row(
+            Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                Text('일'),
-                Text('월'),
-                Text('화'),
-                Text('수'),
-                Text('목'),
-                Text('금'),
-                Text('토'),
+              children: const [
+                SizedBox(width: 40, child: Center(child: Text('일'))),
+                SizedBox(width: 40, child: Center(child: Text('월'))),
+                SizedBox(width: 40, child: Center(child: Text('화'))),
+                SizedBox(width: 40, child: Center(child: Text('수'))),
+                SizedBox(width: 40, child: Center(child: Text('목'))),
+                SizedBox(width: 40, child: Center(child: Text('금'))),
+                SizedBox(width: 40, child: Center(child: Text('토'))),
               ],
             ),
             const SizedBox(height: 8),

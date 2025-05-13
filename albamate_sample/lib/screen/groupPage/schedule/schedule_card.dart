@@ -10,6 +10,7 @@ class ScheduleCard extends StatelessWidget {
   final String scheduleId;
   final int year;
   final int month;
+  final String userRole; // ✅ 역할 추가 ('사장님', '알바생')
 
   const ScheduleCard({
     super.key,
@@ -19,6 +20,7 @@ class ScheduleCard extends StatelessWidget {
     required this.scheduleId,
     required this.year,
     required this.month,
+    required this.userRole, // ✅ 역할 받기
   });
 
   @override
@@ -45,53 +47,36 @@ class ScheduleCard extends StatelessWidget {
           ],
         ),
         onTap: () {
-          // 역할 선택 다이얼로그
-          showDialog(
-            context: context,
-            builder: (context) {
-              return AlertDialog(
-                title: const Text('역할 선택'),
-                content: const Text('어떤 역할로 이 스케줄을 보시겠어요?'),
-                actions: [
-                  TextButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder:
-                              (context) => BossScheduleViewPage(
-                                scheduleId: scheduleId,
-                                year: year,
-                                month: month,
-                              ),
-                        ),
-                      );
-                    },
-                    child: const Text('사장님 뷰'),
-                  ),
-                  TextButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder:
-                              (context) => WorkerScheduleViewPage(
-                                scheduleId: scheduleId,
-                                userId: 'dummy-user-id',
-                                year: year,
-                                month: month,
-                              ),
-                        ),
-                      );
-                    },
-                    child: const Text('알바생 뷰'),
-                  ),
-                ],
-              );
-            },
-          );
+          if (userRole == '사장님') {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder:
+                    (context) => BossScheduleViewPage(
+                      scheduleId: scheduleId,
+                      year: year,
+                      month: month,
+                    ),
+              ),
+            );
+          } else if (userRole == '알바생') {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder:
+                    (context) => WorkerScheduleViewPage(
+                      scheduleId: scheduleId,
+                      userId: 'dummy-user-id', // ✅ 나중에 실제 userId 전달
+                      year: year,
+                      month: month,
+                    ),
+              ),
+            );
+          } else {
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(SnackBar(content: Text('올바르지 않은 역할입니다.')));
+          }
         },
       ),
     );
