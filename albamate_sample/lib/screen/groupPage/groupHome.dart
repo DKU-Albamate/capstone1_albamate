@@ -42,6 +42,9 @@ class _GroupHomePageState extends State<GroupHomePage> {
 
     try {
       final token = await FirebaseAuth.instance.currentUser?.getIdToken();
+      print('Fetching tasks for group: ${widget.groupId}');
+      print('Token: $token');
+      
       final response = await http.get(
         Uri.parse('https://backend-vgbf.onrender.com/api/tasks/group/${widget.groupId}'),
         headers: {
@@ -50,19 +53,24 @@ class _GroupHomePageState extends State<GroupHomePage> {
         },
       );
 
+      print('Response status code: ${response.statusCode}');
+      print('Response body: ${response.body}');
+
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         setState(() {
           tasks = List<Map<String, dynamic>>.from(data['data']);
         });
       } else {
+        final errorData = json.decode(response.body);
         setState(() {
-          error = '할 일을 불러오는데 실패했습니다.';
+          error = '할 일을 불러오는데 실패했습니다: ${errorData['message'] ?? '알 수 없는 오류'}';
         });
       }
     } catch (e) {
+      print('Error fetching tasks: $e');
       setState(() {
-        error = '서버 연결에 실패했습니다.';
+        error = '서버 연결에 실패했습니다: $e';
       });
     } finally {
       setState(() {
@@ -82,29 +90,40 @@ class _GroupHomePageState extends State<GroupHomePage> {
 
     try {
       final token = await FirebaseAuth.instance.currentUser?.getIdToken();
+      print('Adding task for group: ${widget.groupId}');
+      print('Token: $token');
+      
+      final requestBody = {
+        'groupId': widget.groupId,
+        'content': taskController.text,
+      };
+      print('Request body: $requestBody');
+
       final response = await http.post(
         Uri.parse('https://backend-vgbf.onrender.com/api/tasks'),
         headers: {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
         },
-        body: json.encode({
-          'groupId': widget.groupId,
-          'content': taskController.text,
-        }),
+        body: json.encode(requestBody),
       );
+
+      print('Response status code: ${response.statusCode}');
+      print('Response body: ${response.body}');
 
       if (response.statusCode == 201) {
         taskController.clear();
         await fetchTasks();
       } else {
+        final errorData = json.decode(response.body);
         setState(() {
-          error = '할 일 추가에 실패했습니다.';
+          error = '할 일 추가에 실패했습니다: ${errorData['message'] ?? '알 수 없는 오류'}';
         });
       }
     } catch (e) {
+      print('Error adding task: $e');
       setState(() {
-        error = '서버 연결에 실패했습니다.';
+        error = '서버 연결에 실패했습니다: $e';
       });
     } finally {
       setState(() {
