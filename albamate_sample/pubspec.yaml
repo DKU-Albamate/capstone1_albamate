@@ -43,6 +43,7 @@ dependencies:
   msh_checkbox: ^2.0.1
   firebase_dynamic_links: ^6.1.5
   flutter_slidable: ^3.0.0
+  supabase_flutter: ^2.9.0
 
 dev_dependencies:
   flutter_test:
