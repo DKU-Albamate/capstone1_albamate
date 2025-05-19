@@ -4,11 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 // import 'package:http/http.dart' as http;
 // import 'dart:convert';
 
-// 실제 로그인 단계에서 전달받도록 수정 필요
-// 제거: State 클래스에서는 widget.userRole 사용
-//
-// 제거: State 클래스에서는 widget.groupId 사용
-//  // "알바생"이면 수정 불가
+//"알바생"이면 수정 불가
 
 class GroupCalendarPage extends StatefulWidget {
   final String userRole;
