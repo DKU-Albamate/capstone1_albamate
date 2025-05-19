@@ -4,6 +4,8 @@ import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
 
 class CreateGuidePage extends StatefulWidget {
   final String groupId;
@@ -18,6 +20,8 @@ class _CreateGuidePageState extends State<CreateGuidePage> {
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _contentController = TextEditingController();
   int _selectedIndex = 0;
+  File? _selectedImage;
+  String? _imageUrl;
 
   @override
   void initState() {
@@ -25,6 +29,57 @@ class _CreateGuidePageState extends State<CreateGuidePage> {
     if (widget.notice != null) {
       _titleController.text = widget.notice!.title;
       _contentController.text = widget.notice!.content;
+      _imageUrl = widget.notice!.imageUrl;
+    }
+  }
+
+  Future<void> _pickImage() async {
+    final ImagePicker picker = ImagePicker();
+    final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+    
+    if (image != null) {
+      setState(() {
+        _selectedImage = File(image.path);
+      });
+      await _uploadImage();
+    }
+  }
+
+  Future<void> _uploadImage() async {
+    if (_selectedImage == null) return;
+
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+    final idToken = await user.getIdToken();
+
+    var request = http.MultipartRequest(
+      'POST',
+      Uri.parse('https://backend-vgbf.onrender.com/api/posts/upload-image'),
+    );
+
+    request.headers.addAll({
+      'Authorization': 'Bearer $idToken',
+    });
+
+    request.files.add(
+      await http.MultipartFile.fromPath(
+        'image',
+        _selectedImage!.path,
+      ),
+    );
+
+    var streamedResponse = await request.send();
+    var response = await http.Response.fromStream(streamedResponse);
+
+    if (response.statusCode == 200) {
+      var data = jsonDecode(response.body);
+      setState(() {
+        _imageUrl = data['imageUrl'];
+      });
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('이미지 업로드에 실패했습니다.')),
+      );
     }
   }
 
@@ -49,13 +104,14 @@ class _CreateGuidePageState extends State<CreateGuidePage> {
         'title': _titleController.text,
         'content': _contentController.text,
         'category': '안내사항',
+        'imageUrl': _imageUrl,
       });
 
     final streamedResponse = await response.send();
     final resBody = await http.Response.fromStream(streamedResponse);
 
     if (resBody.statusCode == 200 || resBody.statusCode == 201) {
-      Navigator.pop(context, true); // 작성 완료 후 돌아감
+      Navigator.pop(context, true);
     } else {
       print('Error: ${resBody.body}');
       ScaffoldMessenger.of(context).showSnackBar(
@@ -92,6 +148,8 @@ class _CreateGuidePageState extends State<CreateGuidePage> {
       _deletePost();
     } else if (index == 2) {
       _submitPost();
+    } else if (index == 0) {
+      _pickImage();
     } else {
       setState(() {
         _selectedIndex = index;
@@ -137,6 +195,24 @@ class _CreateGuidePageState extends State<CreateGuidePage> {
             Text(formattedDate, style: TextStyle(color: Colors.grey)),
             Divider(thickness: 1),
             SizedBox(height: 8),
+            if (_selectedImage != null || _imageUrl != null)
+              Container(
+                height: 200,
+                width: double.infinity,
+                margin: EdgeInsets.only(bottom: 16),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: Image(
+                    image: _selectedImage != null
+                        ? FileImage(_selectedImage!)
+                        : NetworkImage(_imageUrl!) as ImageProvider,
+                    fit: BoxFit.cover,
+                  ),
+                ),
+              ),
             Expanded(
               child: TextField(
                 controller: _contentController,
@@ -156,7 +232,7 @@ class _CreateGuidePageState extends State<CreateGuidePage> {
         child: BottomNavigationBar(
           backgroundColor: Colors.white,
           items: [
-            BottomNavigationBarItem(icon: Icon(Icons.edit), label: "사진넣기"),
+            BottomNavigationBarItem(icon: Icon(Icons.image), label: "사진넣기"),
             BottomNavigationBarItem(icon: Icon(Icons.delete), label: "삭제하기"),
             BottomNavigationBarItem(icon: Icon(Icons.upload), label: "등록하기"),
           ],

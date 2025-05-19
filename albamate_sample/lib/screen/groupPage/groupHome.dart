@@ -295,18 +295,18 @@ class _GroupHomePageState extends State<GroupHomePage> {
                   error!,
                   style: const TextStyle(color: Colors.red),
                 ),
-              ),
+            ),
             const SizedBox(height: 8),
             if (isLoading)
               const Center(child: CircularProgressIndicator())
             else
-              ListView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: tasks.length,
-                itemBuilder: (context, index) {
+            ListView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: tasks.length,
+              itemBuilder: (context, index) {
                   final task = tasks[index];
-                  return ListTile(
+                return ListTile(
                     title: Text(
                       task['content'],
                       style: TextStyle(
@@ -319,13 +319,13 @@ class _GroupHomePageState extends State<GroupHomePage> {
                       value: task['is_completed'] == true,
                       onChanged: (value) => toggleTaskCompletion(task['id']),
                     ),
-                    trailing: IconButton(
-                      icon: const Icon(Icons.delete),
+                  trailing: IconButton(
+                    icon: const Icon(Icons.delete),
                       onPressed: () => removeTask(task['id']),
-                    ),
-                  );
-                },
-              ),
+                  ),
+                );
+              },
+            ),
           ],
         ),
       ),
