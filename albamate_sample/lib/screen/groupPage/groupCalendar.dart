@@ -4,7 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 // import 'package:http/http.dart' as http;
 // import 'dart:convert';
 
-//"알바생"이면 수정 불가
+// "알바생"이면 수정 불가
 
 class GroupCalendarPage extends StatefulWidget {
   final String userRole;
@@ -23,7 +23,7 @@ class _GroupCalendarPageState extends State<GroupCalendarPage> {
 
   @override
   void initState() {
-    // 제거: 이미 생성자에서 전달받았고 widget.userRole/widget.groupId로 직접 접근
+    // 이미 생성자에서 전달받았고 widget.userRole/widget.groupId로 직접 접근
     super.initState();
     // ⚠️ 아래 함수는 임시 주석처리 — 그룹 캘린더용 API가 필요함
     // _fetchAppointments();
@@ -42,8 +42,29 @@ class _GroupCalendarPageState extends State<GroupCalendarPage> {
     final daysInMonth =
     List.generate(lastDayOfMonth.day, (index) => DateTime(year, month, index + 1));
 
+
     return Scaffold(
-      appBar: AppBar(title: Text("그룹 캘린더")),
+      appBar: AppBar(
+        title: Text("그룹 캘린더"),
+        actions: widget.userRole == "사장님"
+            ? [
+          TextButton.icon( style: TextButton.styleFrom(
+            backgroundColor: Color(0xFF006FFD),
+          ),
+            onPressed: () {
+              // TODO: 스케줄 연동 기능 연결
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text("스케줄 연동 기능은 준비 중입니다.")),
+              );
+            },
+            icon: Icon(Icons.link, color: Colors.white),
+            label: Text("연동", style: TextStyle(color: Colors.black)),
+
+          ),
+        ]
+            : null,
+      ),
+
       body: SingleChildScrollView(
         child: Column(
           children: [
