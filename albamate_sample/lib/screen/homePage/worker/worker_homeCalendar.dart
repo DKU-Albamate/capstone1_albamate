@@ -118,6 +118,21 @@ class _WorkerHomecalendarState extends State<WorkerHomecalendar> {
                 ],
               ),
             ),
+            Padding(
+              padding: const EdgeInsets.only(bottom: 4.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: const [
+                  Text("일", style: TextStyle(fontWeight: FontWeight.bold)),
+                  Text("월", style: TextStyle(fontWeight: FontWeight.bold)),
+                  Text("화", style: TextStyle(fontWeight: FontWeight.bold)),
+                  Text("수", style: TextStyle(fontWeight: FontWeight.bold)),
+                  Text("목", style: TextStyle(fontWeight: FontWeight.bold)),
+                  Text("금", style: TextStyle(fontWeight: FontWeight.bold)),
+                  Text("토", style: TextStyle(fontWeight: FontWeight.bold)),
+                ],
+              ),
+            ),
             Table(
               border: TableBorder(
                 top: BorderSide(color: Colors.grey.shade300),

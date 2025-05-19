@@ -38,7 +38,7 @@ class _GroupNavState extends State<GroupNav> {
           : WorkerScheduleHomePage(groupId: widget.groupId),
       NoticePageNav(groupId: widget.groupId),
       GroupHomePage(groupId: widget.groupId),
-      GroupCalendarPage(groupId: widget.groupId),
+      GroupCalendarPage(userRole: widget.userRole, groupId: widget.groupId),
       GroupMyPage(),
     ];
 

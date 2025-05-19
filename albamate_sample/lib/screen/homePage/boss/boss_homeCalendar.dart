@@ -127,6 +127,21 @@ class _BossHomecalendarState extends State<BossHomecalendar> {
                 ],
               ),
             ),
+            Padding(
+              padding: const EdgeInsets.only(bottom: 4.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: const [
+                  Text("일", style: TextStyle(fontWeight: FontWeight.bold)),
+                  Text("월", style: TextStyle(fontWeight: FontWeight.bold)),
+                  Text("화", style: TextStyle(fontWeight: FontWeight.bold)),
+                  Text("수", style: TextStyle(fontWeight: FontWeight.bold)),
+                  Text("목", style: TextStyle(fontWeight: FontWeight.bold)),
+                  Text("금", style: TextStyle(fontWeight: FontWeight.bold)),
+                  Text("토", style: TextStyle(fontWeight: FontWeight.bold)),
+                ],
+              ),
+            ),
             //커스텀 달력 Table UI
             Table(
               border: TableBorder(
