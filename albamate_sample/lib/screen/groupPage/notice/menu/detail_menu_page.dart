@@ -139,6 +139,28 @@ class _DetailMenuPageState extends State<DetailMenuPage> {
               ],
             ),
             SizedBox(height: 20),
+            if (widget.notice.imageUrl != null && widget.notice.imageUrl!.isNotEmpty)
+              Container(
+                width: double.infinity,
+                height: 200,
+                margin: EdgeInsets.only(bottom: 20),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: Image.network(
+                    widget.notice.imageUrl!,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) {
+                      return Container(
+                        color: Colors.grey[200],
+                        child: Icon(Icons.error_outline, color: Colors.grey),
+                      );
+                    },
+                  ),
+                ),
+              ),
             Text(widget.notice.content),
           ],
         ),

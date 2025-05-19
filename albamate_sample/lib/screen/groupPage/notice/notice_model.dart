@@ -6,6 +6,7 @@ class Notice {
   final String groupId;
   final String category;
   final String createdAt; // 추가
+  final String? imageUrl;  // 추가
 
   Notice({
     required this.id,
@@ -15,6 +16,7 @@ class Notice {
     required this.groupId,
     required this.category,
     required this.createdAt,
+    this.imageUrl, // 추가
   });
 
   factory Notice.fromJson(Map<String, dynamic> json) {
@@ -26,6 +28,7 @@ class Notice {
       groupId: json['group_id'],
       category: json['category'],
       createdAt: json['created_at'], // 받아오기
+      imageUrl: json['image_url'], // 추가
     );
   }
 }
