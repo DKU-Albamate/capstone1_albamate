@@ -130,7 +130,7 @@ class _ScreenGuidePageState extends State<ScreenGuidePage> {
                   return Container(
                     margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     width: double.infinity,
-                    height: 148,
+                    height: notice.imageUrl != null && notice.imageUrl!.isNotEmpty ? 248 : 148,
                     child: Card(
                       elevation: 2,
                       child: Padding(
@@ -247,10 +247,37 @@ class _ScreenGuidePageState extends State<ScreenGuidePage> {
                                     }
                                   });
                                 },
-                                child: Text(
-                                  notice.content,
-                                  overflow: TextOverflow.ellipsis,
-                                  maxLines: 4,
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    if (notice.imageUrl != null && notice.imageUrl!.isNotEmpty)
+                                      Container(
+                                        height: 100,
+                                        width: double.infinity,
+                                        margin: EdgeInsets.only(bottom: 8),
+                                        decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.circular(8),
+                                        ),
+                                        child: ClipRRect(
+                                          borderRadius: BorderRadius.circular(8),
+                                          child: Image.network(
+                                            notice.imageUrl!,
+                                            fit: BoxFit.cover,
+                                            errorBuilder: (context, error, stackTrace) {
+                                              return Container(
+                                                color: Colors.grey[200],
+                                                child: Icon(Icons.error_outline, color: Colors.grey),
+                                              );
+                                            },
+                                          ),
+                                        ),
+                                      ),
+                                    Text(
+                                      notice.content,
+                                      overflow: TextOverflow.ellipsis,
+                                      maxLines: 4,
+                                    ),
+                                  ],
                                 ),
                               ),
                             ),
