@@ -39,7 +39,14 @@ class MyApp extends StatelessWidget {
 
     return MaterialApp(
       title: 'AlbaMate',
-      theme: ThemeData(primarySwatch: Colors.blue, useMaterial3: true),
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+        useMaterial3: true,
+        fontFamily: 'Pretendard',
+        // 후보 폰트
+        // fontFamily: 'NotoSansKR',
+        // fontFamily: 'GmarketSans',
+      ),
       home: startPage,
     );
   }
