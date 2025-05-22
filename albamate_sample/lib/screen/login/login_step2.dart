@@ -1,13 +1,12 @@
-import 'package:flutter/material.dart'; // Flutter UI 구성 요소
-import 'package:firebase_auth/firebase_auth.dart'; // Firebase 인증 기능
-import 'package:cloud_firestore/cloud_firestore.dart'; // Firestore DB 접근
-import '../homePage/boss/boss_homeCalendar.dart'; // 사장님 홈 캘린더
-import '../homePage/worker/worker_homecalendar.dart'; // 알바생 홈 캘린더
+import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import '../homePage/boss/boss_homeCalendar.dart';
+import '../homePage/worker/worker_homecalendar.dart';
 import 'findpw.dart';
 
-// Stateful 위젯으로 로그인 비밀번호 화면 정의
 class LoginPasswordScreen extends StatefulWidget {
-  final String email; // 이전 화면에서 전달된 이메일
+  final String email;
 
   const LoginPasswordScreen({super.key, required this.email});
 
@@ -17,22 +16,22 @@ class LoginPasswordScreen extends StatefulWidget {
 
 class _LoginPasswordScreenState extends State<LoginPasswordScreen> {
   TextEditingController passwordController = TextEditingController();
+  final FocusNode passwordFocusNode = FocusNode();
   String statusMessage = '';
-  bool loginFailed = false;
-  bool _obscurePassword = true; // 👈 비밀번호 표시 여부 상태
+  bool _obscurePassword = true;
 
-  // 로그인 로직
+  bool get isPasswordValid => passwordController.text.isNotEmpty;
+
   void _login() async {
     setState(() {
       statusMessage = '';
-      loginFailed = false;
     });
 
     try {
       UserCredential userCredential = await FirebaseAuth.instance
           .signInWithEmailAndPassword(
             email: widget.email,
-            password: passwordController.text,
+            password: passwordController.text.trim(),
           );
 
       DocumentSnapshot userDoc =
@@ -56,80 +55,162 @@ class _LoginPasswordScreenState extends State<LoginPasswordScreen> {
         } else {
           setState(() {
             statusMessage = '올바르지 않은 직책입니다.';
-            loginFailed = true;
           });
         }
       } else {
         setState(() {
           statusMessage = '사용자 정보를 찾을 수 없습니다.';
-          loginFailed = true;
         });
       }
     } catch (e) {
       setState(() {
         statusMessage = '비밀번호가 올바르지 않습니다.';
-        loginFailed = true;
       });
     }
   }
 
-  // UI 빌드
+  @override
+  void initState() {
+    super.initState();
+    passwordFocusNode.addListener(() {
+      setState(() {});
+    });
+  }
+
+  @override
+  void dispose() {
+    passwordController.dispose();
+    passwordFocusNode.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
+    final isPasswordError = statusMessage == '비밀번호가 올바르지 않습니다.';
+
     return Scaffold(
-      appBar: AppBar(title: const Text("비밀번호 입력")),
+      appBar: AppBar(
+        title: const Text("로그인"),
+        centerTitle: true,
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(4),
+          child: LinearProgressIndicator(
+            value: 2 / 2,
+            backgroundColor: Colors.grey[300],
+            color: const Color(0xFF006FFD),
+            minHeight: 4,
+          ),
+        ),
+      ),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(24.0),
         child: Column(
           children: [
             Expanded(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  TextField(
-                    controller: passwordController,
-                    obscureText: _obscurePassword,
-                    decoration: InputDecoration(
-                      labelText: "비밀번호 입력",
-                      suffixIcon: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          IconButton(
-                            icon: Icon(
-                              _obscurePassword
-                                  ? Icons.visibility_off
-                                  : Icons.visibility,
-                              size: 20.0,
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: 48),
+
+                    // 안내 문구
+                    const Text("비밀번호를 입력해주세요", style: TextStyle(fontSize: 20)),
+                    const SizedBox(height: 24),
+
+                    // 비밀번호 입력 필드
+                    TextField(
+                      controller: passwordController,
+                      focusNode: passwordFocusNode,
+                      obscureText: _obscurePassword,
+                      onChanged: (_) => setState(() {}),
+                      decoration: InputDecoration(
+                        labelText: "비밀번호",
+                        labelStyle: const TextStyle(color: Colors.grey),
+                        floatingLabelStyle: const TextStyle(
+                          color: Color(0xFF006FFD),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderSide: BorderSide(
+                            color:
+                                isPasswordValid && passwordFocusNode.hasFocus
+                                    ? Colors.black
+                                    : Colors.grey,
+                          ),
+                        ),
+                        focusedBorder: const OutlineInputBorder(
+                          borderSide: BorderSide(color: Colors.black, width: 2),
+                        ),
+                        suffixIcon: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            IconButton(
+                              icon: Icon(
+                                _obscurePassword
+                                    ? Icons.visibility_off
+                                    : Icons.visibility,
+                                size: 20.0,
+                              ),
+                              onPressed: () {
+                                setState(() {
+                                  _obscurePassword = !_obscurePassword;
+                                });
+                              },
                             ),
-                            onPressed: () {
-                              setState(() {
-                                _obscurePassword = !_obscurePassword;
-                              });
-                            },
-                          ),
-                          IconButton(
-                            icon: const Icon(Icons.clear, size: 20.0),
-                            onPressed: () {
-                              setState(() {
-                                passwordController.clear();
-                              });
-                            },
-                          ),
-                        ],
+                            IconButton(
+                              icon: const Icon(Icons.clear, size: 20.0),
+                              onPressed: () {
+                                setState(() {
+                                  passwordController.clear();
+                                });
+                              },
+                            ),
+                          ],
+                        ),
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 20),
-                  ElevatedButton(onPressed: _login, child: const Text("로그인")),
-                  const SizedBox(height: 10),
-                  Text(
-                    statusMessage,
-                    style: const TextStyle(color: Colors.red),
-                  ),
-                ],
+                    const SizedBox(height: 32),
+
+                    // 로그인 버튼
+                    SizedBox(
+                      width: double.infinity,
+                      height: 52,
+                      child: ElevatedButton(
+                        onPressed: isPasswordValid ? _login : null,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor:
+                              isPasswordValid
+                                  ? const Color(0xFF006FFD)
+                                  : Colors.grey,
+                          textStyle: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        child: const Text(
+                          "로그인",
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ),
+                    ),
+
+                    // 상태 메시지 - 버튼 아래 가운데 정렬
+                    if (statusMessage.isNotEmpty)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 12),
+                        child: Center(
+                          child: Text(
+                            statusMessage,
+                            style: const TextStyle(color: Colors.red),
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
               ),
             ),
-            if (statusMessage.contains('비밀번호'))
+
+            // 비밀번호 오류 시 하단 재설정 안내
+            if (isPasswordError)
               Align(
                 alignment: Alignment.bottomCenter,
                 child: Padding(
@@ -152,7 +233,7 @@ class _LoginPasswordScreenState extends State<LoginPasswordScreen> {
                         },
                         child: const Text(
                           '비밀번호 재설정',
-                          style: TextStyle(color: Colors.blue),
+                          style: TextStyle(color: Color(0xFF006FFD)),
                         ),
                       ),
                     ],

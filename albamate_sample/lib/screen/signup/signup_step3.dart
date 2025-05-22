@@ -14,9 +14,11 @@ class SignupStep3 extends StatefulWidget {
 
 class _SignupStep3State extends State<SignupStep3> {
   final TextEditingController nameController = TextEditingController();
+  final FocusNode nameFocusNode = FocusNode(); // 포커스 감지
   String? selectedRole;
   String statusMessage = '';
 
+  // 이름과 직책 입력 후 Firebase Auth + Firestore 저장
   Future<void> _signUpAndSaveData() async {
     if (nameController.text.trim().isEmpty || selectedRole == null) {
       setState(() {
@@ -46,17 +48,14 @@ class _SignupStep3State extends State<SignupStep3> {
           'createdAt': FieldValue.serverTimestamp(),
         });
 
-        // 회원가입 성공 메시지 및 로그인 화면으로 이동
+        // 성공 메시지 출력
         setState(() {
           statusMessage = '회원가입 성공! 이메일 인증 후 로그인 화면으로 이동합니다.';
         });
 
-        // 로그인 페이지로 이동
+        // 로그인 화면으로 2초 후 이동
         Future.delayed(const Duration(seconds: 2), () {
-          Navigator.pushReplacementNamed(
-            context,
-            '/login',
-          ); // '/login'은 로그인 화면의 라우트 이름
+          Navigator.pushReplacementNamed(context, '/login');
         });
       }
     } catch (e) {
@@ -67,46 +66,147 @@ class _SignupStep3State extends State<SignupStep3> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    nameFocusNode.addListener(() {
+      setState(() {});
+    });
+  }
+
+  @override
+  void dispose() {
+    nameController.dispose();
+    nameFocusNode.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final isInputComplete =
+        nameController.text.trim().isNotEmpty && selectedRole != null;
+
     return Scaffold(
-      appBar: AppBar(title: const Text("회원가입 - Step 3")),
+      appBar: AppBar(
+        title: const Text("회원가입"), // 앱바 텍스트
+        centerTitle: true,
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(4),
+          child: LinearProgressIndicator(
+            value: 3 / 3, // Step 3/3
+            backgroundColor: Colors.grey[300],
+            color: const Color(0xFF006FFD),
+            minHeight: 4,
+          ),
+        ),
+      ),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(24.0),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            const SizedBox(height: 40),
+            // 이름 입력 필드
             TextField(
               controller: nameController,
-              decoration: const InputDecoration(labelText: "이름"),
+              focusNode: nameFocusNode,
+              onChanged: (_) => setState(() {}),
+              decoration: InputDecoration(
+                labelText: "이름",
+                labelStyle: TextStyle(color: Colors.grey), // 기본 상태 색상
+                floatingLabelStyle: TextStyle(color: const Color(0xFF006FFD)),
+                enabledBorder: OutlineInputBorder(
+                  borderSide: BorderSide(
+                    color:
+                        nameController.text.isNotEmpty && nameFocusNode.hasFocus
+                            ? Colors.black
+                            : Colors.grey,
+                  ),
+                ),
+                focusedBorder: const OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.black, width: 2),
+                ),
+                suffixIcon: IconButton(
+                  icon: const Icon(Icons.clear),
+                  onPressed: () {
+                    setState(() {
+                      nameController.clear();
+                    });
+                  },
+                ),
+              ),
             ),
-            const SizedBox(height: 16),
-            DropdownButton<String>(
-              value: selectedRole,
-              hint: const Text("직책 선택"),
-              items:
-                  ["알바생", "사장님"].map((role) {
-                    return DropdownMenuItem<String>(
-                      value: role,
-                      child: Text(role),
-                    );
-                  }).toList(),
-              onChanged: (value) {
-                setState(() {
-                  selectedRole = value;
-                });
-              },
+            const SizedBox(height: 32),
+
+            // 직책 선택 드롭다운
+            Container(
+              height: 56,
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              decoration: BoxDecoration(
+                border: Border.all(
+                  color: selectedRole != null ? Colors.black : Colors.grey,
+                ),
+                borderRadius: BorderRadius.circular(4),
+              ),
+              child: DropdownButtonHideUnderline(
+                child: DropdownButton<String>(
+                  value: selectedRole,
+                  hint: const Text(
+                    "직책 선택",
+                    style: TextStyle(color: Colors.grey), // 선택 전 텍스트 색상
+                  ),
+                  isExpanded: true,
+                  style: const TextStyle(color: Colors.black), // 선택 후 텍스트 색상
+                  items:
+                      ["알바생", "사장님"].map((role) {
+                        return DropdownMenuItem<String>(
+                          value: role,
+                          child: Text(role),
+                        );
+                      }).toList(),
+                  onChanged: (value) {
+                    setState(() {
+                      selectedRole = value;
+                    });
+                  },
+                ),
+              ),
             ),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: _signUpAndSaveData,
-              child: const Text("회원가입 완료"),
+
+            const SizedBox(height: 36),
+
+            // 버튼 (Step1과 동일 디자인)
+            SizedBox(
+              width: double.infinity,
+              height: 52,
+              child: ElevatedButton(
+                onPressed: isInputComplete ? _signUpAndSaveData : null,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor:
+                      isInputComplete ? const Color(0xFF006FFD) : Colors.grey,
+                  textStyle: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                child: const Text(
+                  "회원가입 완료",
+                  style: TextStyle(color: Colors.white),
+                ),
+              ),
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: 12),
+
+            // 상태 메시지 출력
             if (statusMessage.isNotEmpty)
               Text(
                 statusMessage,
                 textAlign: TextAlign.center,
-                style: const TextStyle(color: Colors.green, fontSize: 16),
+                style: TextStyle(
+                  color:
+                      statusMessage.startsWith('회원가입 성공')
+                          ? Colors.green
+                          : Colors.red,
+                  fontSize: 16,
+                ),
               ),
           ],
         ),
