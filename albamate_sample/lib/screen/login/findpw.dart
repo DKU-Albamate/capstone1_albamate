@@ -19,8 +19,17 @@ class _FindPWScreenState extends State<FindPWScreen> {
   final TextEditingController confirmPasswordController =
       TextEditingController();
 
-  String? selectedRole; // 선택된 직책
+  String? selectedRole;
   String resultMessage = '';
+  bool _obscureNewPassword = true;
+  bool _obscureConfirmPassword = true;
+
+  bool get isValid =>
+      emailController.text.isNotEmpty &&
+      nameController.text.isNotEmpty &&
+      selectedRole != null &&
+      newPasswordController.text.isNotEmpty &&
+      confirmPasswordController.text.isNotEmpty;
 
   void _changePassword() async {
     final email = emailController.text.trim();
@@ -101,61 +110,158 @@ class _FindPWScreenState extends State<FindPWScreen> {
     }
   }
 
+  InputDecoration _buildInputDecoration(String label) {
+    return InputDecoration(
+      labelText: label,
+      labelStyle: const TextStyle(color: Colors.grey),
+      floatingLabelStyle: const TextStyle(color: Color(0xFF006FFD)),
+      enabledBorder: const OutlineInputBorder(
+        borderSide: BorderSide(color: Colors.grey),
+      ),
+      focusedBorder: const OutlineInputBorder(
+        borderSide: BorderSide(color: Colors.black, width: 2),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('비밀번호 재설정')),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(24.0),
         child: SingleChildScrollView(
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              const SizedBox(height: 24),
+
               TextField(
                 controller: emailController,
-                decoration: const InputDecoration(labelText: '이메일'),
+                decoration: _buildInputDecoration('이메일'),
               ),
-              const SizedBox(height: 10),
+              const SizedBox(height: 16),
+
               TextField(
                 controller: nameController,
-                decoration: const InputDecoration(labelText: '이름'),
+                decoration: _buildInputDecoration('이름'),
               ),
-              const SizedBox(height: 10),
+              const SizedBox(height: 16),
+
               DropdownButtonFormField<String>(
                 value: selectedRole,
-                hint: const Text("직책 선택"),
+                isExpanded: true,
+                hint: const Text("직책 선택", style: TextStyle(color: Colors.grey)),
+                decoration: _buildInputDecoration(''),
                 items:
-                    ["알바생", "사장님"].map((role) {
-                      return DropdownMenuItem<String>(
-                        value: role,
-                        child: Text(role),
-                      );
+                    ['알바생', '사장님'].map((role) {
+                      return DropdownMenuItem(value: role, child: Text(role));
                     }).toList(),
-                onChanged: (value) {
-                  setState(() {
-                    selectedRole = value;
-                  });
-                },
-                decoration: const InputDecoration(border: OutlineInputBorder()),
+                onChanged: (value) => setState(() => selectedRole = value),
               ),
-              const SizedBox(height: 10),
+
+              const SizedBox(height: 24),
+
+              const Text(
+                '비밀번호는 8자 이상, 영문자, 숫자, 특수문자를 포함해야 합니다.',
+                style: TextStyle(fontSize: 13, color: Colors.grey),
+              ),
+              const SizedBox(height: 8),
+
               TextField(
                 controller: newPasswordController,
-                obscureText: true,
-                decoration: const InputDecoration(labelText: '새 비밀번호'),
+                obscureText: _obscureNewPassword,
+                decoration: _buildInputDecoration('새 비밀번호').copyWith(
+                  suffixIcon: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                        icon: Icon(
+                          _obscureNewPassword
+                              ? Icons.visibility_off
+                              : Icons.visibility,
+                          size: 20,
+                        ),
+                        onPressed:
+                            () => setState(
+                              () => _obscureNewPassword = !_obscureNewPassword,
+                            ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.clear, size: 20),
+                        onPressed:
+                            () => setState(() => newPasswordController.clear()),
+                      ),
+                    ],
+                  ),
+                ),
               ),
-              const SizedBox(height: 10),
+              const SizedBox(height: 16),
+
               TextField(
                 controller: confirmPasswordController,
-                obscureText: true,
-                decoration: const InputDecoration(labelText: '비밀번호 확인'),
+                obscureText: _obscureConfirmPassword,
+                decoration: _buildInputDecoration('비밀번호 확인').copyWith(
+                  suffixIcon: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                        icon: Icon(
+                          _obscureConfirmPassword
+                              ? Icons.visibility_off
+                              : Icons.visibility,
+                          size: 20,
+                        ),
+                        onPressed:
+                            () => setState(
+                              () =>
+                                  _obscureConfirmPassword =
+                                      !_obscureConfirmPassword,
+                            ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.clear, size: 20),
+                        onPressed:
+                            () => setState(
+                              () => confirmPasswordController.clear(),
+                            ),
+                      ),
+                    ],
+                  ),
+                ),
               ),
-              const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: _changePassword,
-                child: const Text('비밀번호 재설정'),
+              const SizedBox(height: 48),
+
+              SizedBox(
+                width: double.infinity,
+                height: 52,
+                child: ElevatedButton(
+                  onPressed: isValid ? _changePassword : null,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor:
+                        isValid ? const Color(0xFF006FFD) : Colors.grey,
+                    textStyle: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  child: const Text(
+                    '비밀번호 재설정',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
               ),
-              const SizedBox(height: 10),
-              Text(resultMessage, style: const TextStyle(color: Colors.red)),
+
+              const SizedBox(height: 12),
+
+              if (resultMessage.isNotEmpty)
+                Center(
+                  child: Text(
+                    resultMessage,
+                    style: const TextStyle(color: Colors.red),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
             ],
           ),
         ),
