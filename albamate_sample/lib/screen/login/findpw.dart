@@ -1,4 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'login_step2.dart';
 
 class FindPWScreen extends StatefulWidget {
   const FindPWScreen({super.key});
@@ -14,11 +19,8 @@ class _FindPWScreenState extends State<FindPWScreen> {
   final TextEditingController confirmPasswordController =
       TextEditingController();
 
-  String? selectedRole;
+  String? selectedRole; // 선택된 직책
   String resultMessage = '';
-
-  bool _obscureNewPassword = true;
-  bool _obscureConfirmPassword = true;
 
   void _changePassword() async {
     final email = emailController.text.trim();
@@ -47,9 +49,56 @@ class _FindPWScreenState extends State<FindPWScreen> {
       return;
     }
 
-    setState(() {
-      resultMessage = '※ 백엔드에서 정보 확인 후 비밀번호를 변경할 예정입니다.';
-    });
+    try {
+      // 백엔드 API 호출
+      final response = await http.post(
+        Uri.parse('https://backend-vgbf.onrender.com/auth/reset-password'), 
+        // 로컬에서 테스트 하려면 http://localhost:3000/auth/reset-password 넣으시면 됩니다. 
+        // 배포용은 https://backend-vgbf.onrender.com/auth/reset-password, 
+        // VSCode에서 Android Studio로 테스트 할려면 http://10.0.2.2:3000/auth/reset-password로 변경
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          'email': email,
+          'name': name,
+          'role': role,
+          'newPassword': newPassword,
+        }),
+      );
+
+      print('Response status: ${response.statusCode}');
+      print('Response body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final responseData = json.decode(response.body);
+        setState(() {
+          resultMessage = responseData['message'] ?? '비밀번호가 성공적으로 변경되었습니다.';
+        });
+        
+        // 성공 시 로그인 화면으로 이동
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => LoginPasswordScreen(email: email)),
+        );
+      } else {
+        try {
+          final error = json.decode(response.body);
+          setState(() {
+            resultMessage = error['message'] ?? '비밀번호 변경에 실패했습니다.';
+          });
+        } catch (e) {
+          setState(() {
+            resultMessage = '서버 응답 형식이 올바르지 않습니다. 다시 시도해주세요.';
+          });
+        }
+      }
+    } catch (e) {
+      print('Error: $e');
+      setState(() {
+        resultMessage = '서버 연결에 실패했습니다. 다시 시도해주세요.';
+      });
+    }
   }
 
   @override
@@ -60,7 +109,6 @@ class _FindPWScreenState extends State<FindPWScreen> {
         padding: const EdgeInsets.all(16.0),
         child: SingleChildScrollView(
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               TextField(
                 controller: emailController,
@@ -89,94 +137,25 @@ class _FindPWScreenState extends State<FindPWScreen> {
                 },
                 decoration: const InputDecoration(border: OutlineInputBorder()),
               ),
-              const SizedBox(height: 16),
-              const Text(
-                '비밀번호는 8자 이상, 영문자, 숫자, 특수문자를 포함해야 합니다.',
-                style: TextStyle(fontSize: 13, color: Colors.grey),
-              ),
-              const SizedBox(height: 6),
+              const SizedBox(height: 10),
               TextField(
                 controller: newPasswordController,
-                obscureText: _obscureNewPassword,
-                decoration: InputDecoration(
-                  labelText: '새 비밀번호',
-                  suffixIcon: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      IconButton(
-                        icon: Icon(
-                          _obscureNewPassword
-                              ? Icons.visibility_off
-                              : Icons.visibility,
-                          size: 20.0,
-                        ),
-                        onPressed: () {
-                          setState(() {
-                            _obscureNewPassword = !_obscureNewPassword;
-                          });
-                        },
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.clear, size: 20.0),
-                        onPressed: () {
-                          setState(() {
-                            newPasswordController.clear();
-                          });
-                        },
-                      ),
-                    ],
-                  ),
-                ),
+                obscureText: true,
+                decoration: const InputDecoration(labelText: '새 비밀번호'),
               ),
               const SizedBox(height: 10),
               TextField(
                 controller: confirmPasswordController,
-                obscureText: _obscureConfirmPassword,
-                decoration: InputDecoration(
-                  labelText: '비밀번호 확인',
-                  suffixIcon: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      IconButton(
-                        icon: Icon(
-                          _obscureConfirmPassword
-                              ? Icons.visibility_off
-                              : Icons.visibility,
-                          size: 20.0,
-                        ),
-                        onPressed: () {
-                          setState(() {
-                            _obscureConfirmPassword = !_obscureConfirmPassword;
-                          });
-                        },
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.clear, size: 20.0),
-                        onPressed: () {
-                          setState(() {
-                            confirmPasswordController.clear();
-                          });
-                        },
-                      ),
-                    ],
-                  ),
-                ),
+                obscureText: true,
+                decoration: const InputDecoration(labelText: '비밀번호 확인'),
               ),
               const SizedBox(height: 20),
-              Center(
-                child: ElevatedButton(
-                  onPressed: _changePassword,
-                  child: const Text('비밀번호 재설정'),
-                ),
+              ElevatedButton(
+                onPressed: _changePassword,
+                child: const Text('비밀번호 재설정'),
               ),
               const SizedBox(height: 10),
-              Center(
-                child: Text(
-                  resultMessage,
-                  style: const TextStyle(color: Colors.red),
-                  textAlign: TextAlign.center,
-                ),
-              ),
+              Text(resultMessage, style: const TextStyle(color: Colors.red)),
             ],
           ),
         ),
