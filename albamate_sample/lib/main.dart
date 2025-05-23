@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
-import 'package:intl/date_symbol_data_local.dart'; // ✅ 추가
+import 'package:intl/date_symbol_data_local.dart'; // 추가
 import 'firebase_options.dart';
 import 'screen/onboarding.dart';
 import 'screen/invite/invite_handler.dart'; // ❗️이 파일을 따로 만들어야 함
@@ -9,7 +9,7 @@ import 'screen/invite/invite_handler.dart'; // ❗️이 파일을 따로 만들
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // ✅ 로케일 데이터 초기화 (ko_KR용 DateFormat 사용 시 필요)
+  // 로케일 데이터 초기화 (ko_KR용 DateFormat 사용 시 필요)
   await initializeDateFormatting('ko_KR', null);
 
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
@@ -39,7 +39,14 @@ class MyApp extends StatelessWidget {
 
     return MaterialApp(
       title: 'AlbaMate',
-      theme: ThemeData(primarySwatch: Colors.blue, useMaterial3: true),
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+        useMaterial3: true,
+        fontFamily: 'Pretendard',
+        // 후보 폰트
+        // fontFamily: 'NotoSansKR',
+        // fontFamily: 'GmarketSans',
+      ),
       home: startPage,
     );
   }

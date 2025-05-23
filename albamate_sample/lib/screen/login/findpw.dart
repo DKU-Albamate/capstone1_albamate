@@ -31,7 +31,9 @@ class _FindPWScreenState extends State<FindPWScreen> {
       newPasswordController.text.isNotEmpty &&
       confirmPasswordController.text.isNotEmpty;
 
+
   void _changePassword() async {
+
     final email = emailController.text.trim();
     final name = nameController.text.trim();
     final role = selectedRole;
@@ -108,6 +110,20 @@ class _FindPWScreenState extends State<FindPWScreen> {
         resultMessage = '서버 연결에 실패했습니다. 다시 시도해주세요.';
       });
     }
+  }
+
+  InputDecoration _buildInputDecoration(String label) {
+    return InputDecoration(
+      labelText: label,
+      labelStyle: const TextStyle(color: Colors.grey),
+      floatingLabelStyle: const TextStyle(color: Color(0xFF006FFD)),
+      enabledBorder: const OutlineInputBorder(
+        borderSide: BorderSide(color: Colors.grey),
+      ),
+      focusedBorder: const OutlineInputBorder(
+        borderSide: BorderSide(color: Colors.black, width: 2),
+      ),
+    );
   }
 
   InputDecoration _buildInputDecoration(String label) {

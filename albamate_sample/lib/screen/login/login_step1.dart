@@ -12,7 +12,23 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   TextEditingController emailController = TextEditingController();
+  final FocusNode emailFocusNode = FocusNode(); // 포커스 추적
   String statusMessage = '';
+
+  @override
+  void initState() {
+    super.initState();
+    emailFocusNode.addListener(() {
+      setState(() {});
+    });
+  }
+
+  @override
+  void dispose() {
+    emailController.dispose();
+    emailFocusNode.dispose();
+    super.dispose();
+  }
 
   void _checkEmail() async {
     String email = emailController.text.trim();
@@ -33,7 +49,7 @@ class _LoginScreenState extends State<LoginScreen> {
               .get();
 
       if (querySnapshot.docs.isNotEmpty) {
-        // ✅ Firestore에 있으면 비밀번호 입력 화면으로 이동
+        // Firestore에 있으면 비밀번호 입력 화면으로 이동
         Navigator.push(
           context,
           MaterialPageRoute(
@@ -54,35 +70,118 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isEmailValid = emailController.text.trim().isNotEmpty;
+    final isUnregisteredEmail = statusMessage == '등록되지 않은 이메일입니다.';
+
     return Scaffold(
-      appBar: AppBar(title: const Text("로그인")),
+      appBar: AppBar(
+        title: const Text("로그인"),
+        centerTitle: true,
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(4),
+          child: LinearProgressIndicator(
+            value: 1 / 2,
+            backgroundColor: Colors.grey[300],
+            color: const Color(0xFF006FFD),
+            minHeight: 4,
+          ),
+        ),
+      ),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(24.0),
         child: Column(
           children: [
             Expanded(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  TextField(
-                    controller: emailController,
-                    keyboardType: TextInputType.emailAddress,
-                    decoration: const InputDecoration(labelText: "이메일 입력"),
-                  ),
-                  const SizedBox(height: 12),
-                  ElevatedButton(
-                    onPressed: _checkEmail,
-                    child: const Text("다음"),
-                  ),
-                  const SizedBox(height: 10),
-                  Text(
-                    statusMessage,
-                    style: const TextStyle(color: Colors.red),
-                  ),
-                ],
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start, // 왼쪽 정렬
+                  children: [
+                    const SizedBox(height: 48),
+
+                    // 안내 문구
+                    const Text(
+                      "로그인에 사용할 이메일을 입력해주세요",
+                      style: TextStyle(fontSize: 20),
+                    ),
+                    const SizedBox(height: 24),
+
+                    // 이메일 입력 필드
+                    TextField(
+                      controller: emailController,
+                      focusNode: emailFocusNode,
+                      keyboardType: TextInputType.emailAddress,
+                      onChanged: (_) => setState(() {}),
+                      decoration: InputDecoration(
+                        labelText: "이메일",
+                        labelStyle: const TextStyle(color: Colors.grey),
+                        floatingLabelStyle: const TextStyle(
+                          color: Color(0xFF006FFD),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderSide: BorderSide(
+                            color:
+                                isEmailValid && emailFocusNode.hasFocus
+                                    ? Colors.black
+                                    : Colors.grey,
+                          ),
+                        ),
+                        focusedBorder: const OutlineInputBorder(
+                          borderSide: BorderSide(color: Colors.black, width: 2),
+                        ),
+                        suffixIcon: IconButton(
+                          icon: const Icon(Icons.clear),
+                          onPressed: () {
+                            setState(() {
+                              emailController.clear();
+                            });
+                          },
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 32),
+
+                    // 다음 버튼
+                    SizedBox(
+                      width: double.infinity,
+                      height: 52,
+                      child: ElevatedButton(
+                        onPressed: isEmailValid ? _checkEmail : null,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor:
+                              isEmailValid
+                                  ? const Color(0xFF006FFD)
+                                  : Colors.grey,
+                          textStyle: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        child: const Text(
+                          "다음",
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+
+                    // 상태 메시지: 버튼 바로 아래
+                    if (statusMessage.isNotEmpty)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 12),
+                        child: Center(
+                          child: Text(
+                            statusMessage,
+                            style: const TextStyle(color: Colors.red),
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
               ),
             ),
-            if (statusMessage == '등록되지 않은 이메일입니다.')
+
+            // 하단: 회원가입 안내는 등록되지 않은 이메일일 때만 표시
+            if (isUnregisteredEmail)
               Align(
                 alignment: Alignment.bottomCenter,
                 child: Padding(
@@ -106,7 +205,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         },
                         child: const Text(
                           '회원가입',
-                          style: TextStyle(color: Colors.blue),
+                          style: TextStyle(color: Color(0xFF006FFD)),
                         ),
                       ),
                     ],
