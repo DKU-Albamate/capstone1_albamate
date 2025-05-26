@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class WorkerScheduleViewPage extends StatefulWidget {
   final String scheduleId;
@@ -27,6 +30,37 @@ class _WorkerScheduleViewPageState extends State<WorkerScheduleViewPage> {
   void initState() {
     super.initState();
     fixedMonth = DateTime(widget.year, widget.month);
+    fetchUnavailableDates(); // 🔹 기존 불가 날짜 불러오기
+  }
+
+  Future<void> fetchUnavailableDates() async {
+    try {
+      final idToken = await FirebaseAuth.instance.currentUser?.getIdToken();
+      final url = Uri.parse(
+        'https://backend-schedule-vs8b.onrender.com/api/schedules/${widget.scheduleId}/unavailable',
+      );
+
+      final response = await http.get(
+        url,
+        headers: {
+          'Authorization': 'Bearer $idToken',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> dates = jsonDecode(response.body)['data'];
+
+        setState(() {
+          unavailableDates = dates
+              .map((dateStr) => DateTime.parse(dateStr))
+              .toSet();
+        });
+      } else {
+        print('❌ 날짜 불러오기 실패: ${response.body}');
+      }
+    } catch (e) {
+      print('❌ 오류 발생: $e');
+    }
   }
 
   void toggleDate(DateTime date) {
@@ -39,11 +73,42 @@ class _WorkerScheduleViewPageState extends State<WorkerScheduleViewPage> {
     });
   }
 
-  void saveSchedule() {
-    // TODO: 이 데이터를 백엔드로 POST 또는 PUT 요청 보내기
-    print(
-      "불가 날짜 저장: ${unavailableDates.map((d) => DateFormat('yyyy-MM-dd').format(d)).toList()}",
-    );
+  void saveSchedule() async {
+    final List<String> formattedDates = unavailableDates
+        .map((d) => DateFormat('yyyy-MM-dd').format(d))
+        .toList();
+
+    try {
+      final idToken = await FirebaseAuth.instance.currentUser?.getIdToken();
+      final url = Uri.parse(
+        'https://backend-schedule-vs8b.onrender.com/api/schedules/${widget.scheduleId}/unavailable',
+      );
+
+      final response = await http.put(
+        url,
+        headers: {
+          'Authorization': 'Bearer $idToken',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({'dates': formattedDates}),
+      );
+
+      if (response.statusCode == 200) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('저장되었습니다!')),
+        );
+      } else {
+        print('❌ 저장 실패: ${response.body}');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('저장 실패: ${response.statusCode}')),
+        );
+      }
+    } catch (e) {
+      print('❌ 저장 오류: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('오류 발생: $e')),
+      );
+    }
   }
 
   List<Widget> buildCalendarDays() {

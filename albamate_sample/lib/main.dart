@@ -1,15 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
-import 'package:intl/date_symbol_data_local.dart'; // 추가
+import 'package:intl/date_symbol_data_local.dart'; // ✅ 추가
 import 'firebase_options.dart';
 import 'screen/onboarding.dart';
 import 'screen/invite/invite_handler.dart'; // ❗️이 파일을 따로 만들어야 함
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // 로케일 데이터 초기화 (ko_KR용 DateFormat 사용 시 필요)
+  await Supabase.initialize(
+    url: 'https://unkliehgimaceqjjrmmx.supabase.co',
+    anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVua2xpZWhnaW1hY2VxampybW14Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDYzNTE0MDAsImV4cCI6MjA2MTkyNzQwMH0.P0kUwkZbTXc8PjBMo15FKb2vKVj6b83vFchO1icV2fE',
+  );
+
+  // ✅ 로케일 데이터 초기화 (ko_KR용 DateFormat 사용 시 필요)
   await initializeDateFormatting('ko_KR', null);
 
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);

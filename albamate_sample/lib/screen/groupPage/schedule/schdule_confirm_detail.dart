@@ -30,6 +30,7 @@ class _ScheduleConfirmDetailPageState extends State<ScheduleConfirmDetailPage> {
     _parseSchedule();
   }
 
+
   void _parseSchedule() {
     final Map<String, dynamic> scheduleMap = json.decode(
       widget.scheduleMapJson,

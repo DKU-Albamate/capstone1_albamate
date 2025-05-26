@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'worker_scheduleView.dart';
 import 'boss_scheduleView.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class ScheduleCard extends StatelessWidget {
   final String title;
@@ -12,6 +13,7 @@ class ScheduleCard extends StatelessWidget {
   final int month;
   // TODO: ⚠️ 현재 userRole 임시 사용 중 (백엔드 ownerId 연동 시 제거 예정)
   final String userRole; // ✅ 역할 추가 ('사장님', '알바생')
+  final String groupId;
 
   const ScheduleCard({
     super.key,
@@ -23,6 +25,7 @@ class ScheduleCard extends StatelessWidget {
     required this.month,
     // TODO: ⚠️ 현재 userRole 임시 사용 중 (백엔드 ownerId 연동 시 제거 예정)
     required this.userRole, // ✅ 역할 받기
+    required this.groupId,
   });
 
   @override
@@ -49,12 +52,14 @@ class ScheduleCard extends StatelessWidget {
           ],
         ),
         onTap: () {
+          print('👀 전달된 역할: [$userRole]');
           if (userRole == '사장님') {
             Navigator.push(
               context,
               MaterialPageRoute(
                 builder:
                     (context) => BossScheduleViewPage(
+                      groupId: groupId,
                       scheduleId: scheduleId,
                       year: year,
                       month: month,
@@ -62,13 +67,21 @@ class ScheduleCard extends StatelessWidget {
               ),
             );
           } else if (userRole == '알바생') {
+            final user = FirebaseAuth.instance.currentUser; // firestore에서 uid가져옴
+            if (user == null) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('로그인이 필요합니다.')),
+            );
+            return;
+          }
+
             Navigator.push(
               context,
               MaterialPageRoute(
                 builder:
                     (context) => WorkerScheduleViewPage(
                       scheduleId: scheduleId,
-                      userId: 'dummy-user-id', // ✅ 나중에 실제 userId 전달
+                      userId: user.uid, //
                       year: year,
                       month: month,
                     ),

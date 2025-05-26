@@ -33,12 +33,12 @@ class _GroupNavState extends State<GroupNav> {
       // 현재는 로그인 시 받은 role을 기준으로 분기
       // 향후 그룹 ownerId를 백엔드에서 가져와서 비교 후 이 부분만 교체
       widget.userRole.trim() == '사장님'
-      // widget.userRole.trim() == '알바생'
+          // widget.userRole.trim() == '알바생'
           ? BossScheduleHomePage(groupId: widget.groupId)
           : WorkerScheduleHomePage(groupId: widget.groupId),
       NoticePageNav(groupId: widget.groupId),
       GroupHomePage(groupId: widget.groupId),
-      GroupCalendarPage(userRole: widget.userRole, groupId: widget.groupId),
+      GroupCalendarPage(groupId: widget.groupId),
       GroupMyPage(),
     ];
 

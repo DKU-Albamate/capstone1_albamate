@@ -1,7 +1,13 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+
 
 class CreateSchedulePostPage extends StatefulWidget {
-  const CreateSchedulePostPage({super.key});
+  final String groupId;
+  const CreateSchedulePostPage({super.key, required this.groupId});
 
   @override
   State<CreateSchedulePostPage> createState() => _CreateSchedulePostPageState();
@@ -92,19 +98,42 @@ class _CreateSchedulePostPageState extends State<CreateSchedulePostPage> {
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed:
-                    isFormValid
-                        ? () {
-                          final newSchedule = {
+                onPressed: isFormValid
+                    ? () async {
+                        final user = FirebaseAuth.instance.currentUser;
+                        final idToken = await user?.getIdToken();
+                        final response = await http.post(
+                          Uri.parse('https://backend-schedule-vs8b.onrender.com/api/schedules/create'),
+                          headers: {
+                            'Authorization': 'Bearer $idToken',
+                            'Content-Type': 'application/json',
+                          },
+                          body: jsonEncode({
+                            'groupId': widget.groupId,
                             'title': _titleController.text,
                             'description': _descController.text,
                             'year': selectedYear,
                             'month': selectedMonth,
-                            'createdAt': DateTime.now().toIso8601String(),
-                          };
-                          Navigator.pop(context, newSchedule);
+                          }),
+                        );
+
+                        if (response.statusCode == 201) {
+                          final responseData = jsonDecode(response.body)['data'];
+
+                          Navigator.pop(context, {
+                            'scheduleId': responseData['scheduleId'],
+                            'title': _titleController.text,
+                            'description': _descController.text,
+                            'year': selectedYear,
+                            'month': selectedMonth,
+                          });
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text('스케줄 생성 실패: ${response.body}')),
+                          );
                         }
-                        : null,
+                      }
+                    : null,
                 child: const Text("게시물 생성 완료"),
               ),
             ),
