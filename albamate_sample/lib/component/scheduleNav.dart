@@ -34,6 +34,7 @@ class _ScheduleRequestTabState extends State<ScheduleRequestTab> {
             month: post['month'],
             // TODO: ⚠️ 현재 userRole 임시 사용 중 (백엔드 ownerId 연동 시 제거 예정)
             userRole: '',
+            groupId: widget.groupId,
           ),
         ),
         const SizedBox(height: 80),
