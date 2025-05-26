@@ -99,10 +99,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     const SizedBox(height: 48),
 
                     // 안내 문구
-                    const Text(
-                      "로그인에 사용할 이메일을 입력해주세요",
-                      style: TextStyle(fontSize: 20),
-                    ),
+                    const Text("이메일을 입력해주세요", style: TextStyle(fontSize: 20)),
                     const SizedBox(height: 24),
 
                     // 이메일 입력 필드

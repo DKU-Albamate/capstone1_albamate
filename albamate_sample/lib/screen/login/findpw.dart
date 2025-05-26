@@ -31,9 +31,7 @@ class _FindPWScreenState extends State<FindPWScreen> {
       newPasswordController.text.isNotEmpty &&
       confirmPasswordController.text.isNotEmpty;
 
-
   void _changePassword() async {
-
     final email = emailController.text.trim();
     final name = nameController.text.trim();
     final role = selectedRole;
@@ -63,13 +61,11 @@ class _FindPWScreenState extends State<FindPWScreen> {
     try {
       // 백엔드 API 호출
       final response = await http.post(
-        Uri.parse('https://backend-vgbf.onrender.com/auth/reset-password'), 
-        // 로컬에서 테스트 하려면 http://localhost:3000/auth/reset-password 넣으시면 됩니다. 
-        // 배포용은 https://backend-vgbf.onrender.com/auth/reset-password, 
+        Uri.parse('https://backend-vgbf.onrender.com/auth/reset-password'),
+        // 로컬에서 테스트 하려면 http://localhost:3000/auth/reset-password 넣으시면 됩니다.
+        // 배포용은 https://backend-vgbf.onrender.com/auth/reset-password,
         // VSCode에서 Android Studio로 테스트 할려면 http://10.0.2.2:3000/auth/reset-password로 변경
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
           'email': email,
           'name': name,
@@ -86,11 +82,13 @@ class _FindPWScreenState extends State<FindPWScreen> {
         setState(() {
           resultMessage = responseData['message'] ?? '비밀번호가 성공적으로 변경되었습니다.';
         });
-        
+
         // 성공 시 로그인 화면으로 이동
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => LoginPasswordScreen(email: email)),
+          MaterialPageRoute(
+            builder: (context) => LoginPasswordScreen(email: email),
+          ),
         );
       } else {
         try {
@@ -126,19 +124,19 @@ class _FindPWScreenState extends State<FindPWScreen> {
     );
   }
 
-  InputDecoration _buildInputDecoration(String label) {
-    return InputDecoration(
-      labelText: label,
-      labelStyle: const TextStyle(color: Colors.grey),
-      floatingLabelStyle: const TextStyle(color: Color(0xFF006FFD)),
-      enabledBorder: const OutlineInputBorder(
-        borderSide: BorderSide(color: Colors.grey),
-      ),
-      focusedBorder: const OutlineInputBorder(
-        borderSide: BorderSide(color: Colors.black, width: 2),
-      ),
-    );
-  }
+  // InputDecoration _buildInputDecoration(String label) {
+  //   return InputDecoration(
+  //     labelText: label,
+  //     labelStyle: const TextStyle(color: Colors.grey),
+  //     floatingLabelStyle: const TextStyle(color: Color(0xFF006FFD)),
+  //     enabledBorder: const OutlineInputBorder(
+  //       borderSide: BorderSide(color: Colors.grey),
+  //     ),
+  //     focusedBorder: const OutlineInputBorder(
+  //       borderSide: BorderSide(color: Colors.black, width: 2),
+  //     ),
+  //   );
+  // }
 
   @override
   Widget build(BuildContext context) {
