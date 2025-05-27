@@ -24,6 +24,7 @@ class _BossGroupState extends State<BossGroup> {
     _fetchGroups();
   }
 
+  // 그룹 목록 불러오기
   Future<void> _fetchGroups() async {
     setState(() => _isLoading = true);
 
@@ -56,6 +57,7 @@ class _BossGroupState extends State<BossGroup> {
     }
   }
 
+  // 그룹 생성 페이지로 이동
   Future<void> _goToCreateGroup() async {
     final result = await Navigator.push(
       context,
@@ -67,11 +69,11 @@ class _BossGroupState extends State<BossGroup> {
     }
   }
 
-  // ✅ 디버그용: ID 토큰 출력 함수
+  // 디버그용: ID 토큰 출력 함수 (사용 안 함, 버튼 제거됨)
   Future<void> _printIdToken() async {
     final user = FirebaseAuth.instance.currentUser;
     if (user != null) {
-      final idToken = await user.getIdToken(true); // 강제 갱신
+      final idToken = await user.getIdToken(true);
       print('[DEBUG] idToken: $idToken');
     } else {
       print('로그인된 사용자가 없습니다.');
@@ -81,7 +83,10 @@ class _BossGroupState extends State<BossGroup> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('사장님 그룹 관리')),
+      appBar: AppBar(
+        title: const Text('그룹 관리'),
+        automaticallyImplyLeading: false,
+      ),
       body:
           _isLoading
               ? const Center(child: CircularProgressIndicator())
@@ -99,29 +104,27 @@ class _BossGroupState extends State<BossGroup> {
                   );
                 },
               ),
-      floatingActionButton: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          FloatingActionButton(
-            onPressed: _goToCreateGroup,
-            heroTag: 'createGroupBtn',
-            child: const Icon(Icons.add),
+      floatingActionButton: ElevatedButton(
+        onPressed: _goToCreateGroup,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: const Color(0xFF006FFD), // 파란색 배경
+          foregroundColor: Colors.white, // 흰색 글씨
+          padding: const EdgeInsets.symmetric(horizontal: 34, vertical: 14),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(30),
           ),
-          const SizedBox(height: 10),
-          // ✅ 디버그용: ID 토큰 출력 버튼
-          FloatingActionButton(
-            onPressed: _printIdToken,
-            backgroundColor: Colors.green,
-            heroTag: 'debugTokenBtn',
-            child: const Icon(Icons.vpn_key),
-          ),
-        ],
+        ),
+        child: const Text(
+          'CREATE',
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+        ),
       ),
       bottomNavigationBar: const HomeNavigationBoss(currentIndex: 0),
     );
   }
 }
 
+// 그룹 모델 클래스
 class GroupModel {
   final String id;
   final String name;

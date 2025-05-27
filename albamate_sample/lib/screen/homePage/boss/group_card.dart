@@ -10,7 +10,7 @@ class GroupCard extends StatelessWidget {
   final String groupId;
   final String groupName;
   final String groupDescription;
-  final VoidCallback onGroupUpdated; // ✅ 수정 후 새로고침용 콜백
+  final VoidCallback onGroupUpdated; // 수정 후 새로고침용 콜백
 
   const GroupCard({
     super.key,
@@ -22,59 +22,66 @@ class GroupCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      elevation: 3,
-      child: ListTile(
-        contentPadding: const EdgeInsets.all(16.0),
-        title: Text(
-          groupName,
-          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-        ),
-        subtitle: Text(groupDescription),
-        trailing: PopupMenuButton<String>(
-          onSelected: (value) async {
-            if (value == 'edit') {
-              final result = await Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder:
-                      (context) => EditGroupPage(
-                        groupId: groupId,
-                        groupName: groupName,
-                        groupDescription: groupDescription,
-                      ),
-                ),
-              );
-              if (result == true) {
-                onGroupUpdated(); // ✅ 수정 성공 시 새로고침
+    return Padding(
+      padding: const EdgeInsets.symmetric(
+        horizontal: 16,
+      ), // 좌우 여백 추가로 가로 길이 줄이기
+      child: Card(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        elevation: 3,
+        child: ListTile(
+          contentPadding: const EdgeInsets.all(16.0),
+          title: Text(
+            groupName,
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
+          subtitle: Text(groupDescription),
+          trailing: PopupMenuButton<String>(
+            onSelected: (value) async {
+              if (value == 'edit') {
+                final result = await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder:
+                        (context) => EditGroupPage(
+                          groupId: groupId,
+                          groupName: groupName,
+                          groupDescription: groupDescription,
+                        ),
+                  ),
+                );
+                if (result == true) {
+                  onGroupUpdated(); // 수정 성공 시 새로고침
+                }
+              } else if (value == 'delete') {
+                await _deleteGroup(context);
+              } else if (value == 'invite') {
+                await _showInviteCodeDialog(context);
               }
-            } else if (value == 'delete') {
-              await _deleteGroup(context);
-            } else if (value == 'invite') {
-              await _showInviteCodeDialog(context);
-            }
+            },
+            itemBuilder:
+                (BuildContext context) => const [
+                  PopupMenuItem(value: 'edit', child: Text('수정')),
+                  PopupMenuItem(value: 'delete', child: Text('삭제')),
+                  PopupMenuItem(value: 'invite', child: Text('초대 코드 보기')),
+                ],
+          ),
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                // 사장님뷰로만 확인 가능
+                builder:
+                    (context) => GroupNav(groupId: groupId, userRole: '사장님'),
+              ),
+            );
           },
-          itemBuilder:
-              (BuildContext context) => const [
-                PopupMenuItem(value: 'edit', child: Text('수정')),
-                PopupMenuItem(value: 'delete', child: Text('삭제')),
-                PopupMenuItem(value: 'invite', child: Text('초대 코드 보기')),
-              ],
         ),
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              // 사장님뷰로만 확인 가능
-              builder: (context) => GroupNav(groupId: groupId, userRole: '사장님'),
-            ),
-          );
-        },
       ),
     );
   }
 
+  // 초대 코드 다이얼로그 표시
   Future<void> _showInviteCodeDialog(BuildContext context) async {
     try {
       final user = FirebaseAuth.instance.currentUser;
@@ -132,6 +139,7 @@ class GroupCard extends StatelessWidget {
     }
   }
 
+  // 그룹 삭제 처리
   Future<void> _deleteGroup(BuildContext context) async {
     final confirm = await showDialog<bool>(
       context: context,
