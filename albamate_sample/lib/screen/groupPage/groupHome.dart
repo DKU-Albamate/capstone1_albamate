@@ -19,6 +19,7 @@ class GroupHomePage extends StatefulWidget {
 class _GroupHomePageState extends State<GroupHomePage> {
   late String formattedDate;
   List<Map<String, dynamic>> tasks = [];
+  List<Map<String, dynamic>> todayWorkers = []; // 오늘 근무자 목록
   TextEditingController taskController = TextEditingController();
   bool isLoading = false;
   String? error;
@@ -31,6 +32,7 @@ class _GroupHomePageState extends State<GroupHomePage> {
       'ko_KR',
     ).format(DateTime.now());
     fetchTasks();
+    fetchTodayWorkers(); // 오늘 근무자 정보 가져오기
   }
 
   // 할 일 목록 조회
@@ -69,6 +71,50 @@ class _GroupHomePageState extends State<GroupHomePage> {
       }
     } catch (e) {
       print('Error fetching tasks: $e');
+      setState(() {
+        error = '서버 연결에 실패했습니다: $e';
+      });
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
+
+  // 오늘 근무자 정보 가져오기
+  Future<void> fetchTodayWorkers() async {
+    setState(() {
+      isLoading = true;
+      error = null;
+    });
+
+    try {
+      final token = await FirebaseAuth.instance.currentUser?.getIdToken();
+      final today = DateFormat('yyyy-MM-dd').format(DateTime.now());
+      
+      final response = await http.get(
+        Uri.parse('https://backend-schedule-vs8b.onrender.com/api/schedules/group/${widget.groupId}/today'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        setState(() {
+          todayWorkers = List<Map<String, dynamic>>.from(data['data']).map((worker) => {
+            'worker_name': worker['worker_name']
+          }).toList();
+        });
+      } else {
+        final errorData = json.decode(response.body);
+        setState(() {
+          error = '근무자 정보를 불러오는데 실패했습니다: ${errorData['message'] ?? '알 수 없는 오류'}';
+        });
+      }
+    } catch (e) {
+      print('Error fetching workers: $e');
       setState(() {
         error = '서버 연결에 실패했습니다: $e';
       });
@@ -263,7 +309,14 @@ class _GroupHomePageState extends State<GroupHomePage> {
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
-            Column(children: List.generate(3, (index) => const EmployeeCard())),
+            if (isLoading)
+              const Center(child: CircularProgressIndicator())
+            else
+              Column(
+                children: todayWorkers.map((worker) => EmployeeCard(
+                  name: worker['worker_name'] ?? '알 수 없음',
+                )).toList(),
+              ),
             const SizedBox(height: 24),
             const Text(
               '오늘 할 일',
@@ -335,14 +388,18 @@ class _GroupHomePageState extends State<GroupHomePage> {
 
 // 각 직원 카드 위젯
 class EmployeeCard extends StatelessWidget {
-  const EmployeeCard({super.key});
+  final String name;
+
+  const EmployeeCard({
+    super.key,
+    required this.name,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Card(
       child: ListTile(
-        title: const Text("000 직원"),
-        subtitle: const Text("8:00 ~ 15:00"),
+        title: Text(name),
       ),
     );
   }
