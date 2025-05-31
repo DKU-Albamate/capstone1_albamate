@@ -273,9 +273,9 @@ class _ScreenGuidePageState extends State<ScreenGuidePage> {
                                         ),
                                       ),
                                     Text(
-                                      notice.content,
-                                      overflow: TextOverflow.ellipsis,
-                                      maxLines: 4,
+                                  notice.content,
+                                  overflow: TextOverflow.ellipsis,
+                                  maxLines: 4,
                                     ),
                                   ],
                                 ),

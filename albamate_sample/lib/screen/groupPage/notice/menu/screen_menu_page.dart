@@ -192,9 +192,9 @@ class _ScreenMenuPageState extends State<ScreenMenuPage> {
                                 ),
                               ),
                             Text(
-                              notice.content,
-                              overflow: TextOverflow.ellipsis,
-                              maxLines: 4,
+                          notice.content,
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 4,
                             ),
                           ],
                         ),

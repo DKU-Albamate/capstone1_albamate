@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:intl/date_symbol_data_local.dart'; // ✅ 추가
 import 'firebase_options.dart';
 import 'screen/onboarding.dart';
-import 'screen/invite/invite_handler.dart'; // ❗️이 파일을 따로 만들어야 함
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 void main() async {
@@ -20,29 +18,14 @@ void main() async {
 
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
-  // 딥링크로 앱이 시작되었는지 확인
-  final PendingDynamicLinkData? initialLink =
-      await FirebaseDynamicLinks.instance.getInitialLink();
-
-  runApp(MyApp(initialLink: initialLink));
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  final PendingDynamicLinkData? initialLink;
-  const MyApp({super.key, this.initialLink});
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final Uri? deepLink = initialLink?.link;
-
-    Widget startPage = const OnboardingScreen(); // 기본 시작 화면
-
-    // 초대 코드 딥링크로 앱이 열렸을 경우
-    if (deepLink != null && deepLink.queryParameters.containsKey('code')) {
-      final String inviteCode = deepLink.queryParameters['code']!;
-      startPage = InviteHandlerPage(inviteCode: inviteCode);
-    }
-
     return MaterialApp(
       title: 'AlbaMate',
       theme: ThemeData(
@@ -53,7 +36,7 @@ class MyApp extends StatelessWidget {
         // fontFamily: 'NotoSansKR',
         // fontFamily: 'GmarketSans',
       ),
-      home: startPage,
+      home: const OnboardingScreen(),
     );
   }
 }
