@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'worker_imageUpload.dart';
 
 //직원 캘린더
 class WorkerHomecalendar extends StatefulWidget {
@@ -150,6 +151,26 @@ class _WorkerHomecalendarState extends State<WorkerHomecalendar> {
                 6: FlexColumnWidth(),
               },
               children: _buildCalendarRows(daysInMonth),
+            ),
+            //사진 업로드 버튼
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                ElevatedButton.icon(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => WorkerImageUploadPage()),
+                    );
+                  },
+                  icon: Icon(Icons.upload_file, color: Colors.white),
+                  label: Text("사진 업로드", style: TextStyle(color: Colors.white)),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Color(0xFF006FFD),
+                    padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  ),
+                ),
+              ],
             ),
           ],
         ),
