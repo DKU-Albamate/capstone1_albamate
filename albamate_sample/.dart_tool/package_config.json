@@ -176,18 +176,6 @@
       "languageVersion": "3.4"
     },
     {
-      "name": "firebase_dynamic_links",
-      "rootUri": "file:///C:/Users/jcm0314/AppData/Local/Pub/Cache/hosted/pub.dev/firebase_dynamic_links-6.1.5",
-      "packageUri": "lib/",
-      "languageVersion": "3.2"
-    },
-    {
-      "name": "firebase_dynamic_links_platform_interface",
-      "rootUri": "file:///C:/Users/jcm0314/AppData/Local/Pub/Cache/hosted/pub.dev/firebase_dynamic_links_platform_interface-0.2.7+5",
-      "packageUri": "lib/",
-      "languageVersion": "3.2"
-    },
-    {
       "name": "flutter",
       "rootUri": "file:///C:/Users/jcm0314/Desktop/capstone/capstone1/CAPSTONE/flutter/packages/flutter",
       "packageUri": "lib/",
@@ -680,7 +668,7 @@
       "languageVersion": "3.7"
     }
   ],
-  "generated": "2025-05-27T05:14:01.554633Z",
+  "generated": "2025-06-02T14:39:06.583334Z",
   "generator": "pub",
   "generatorVersion": "3.7.2",
   "flutterRoot": "file:///C:/Users/jcm0314/Desktop/capstone/capstone1/CAPSTONE/flutter",

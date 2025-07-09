@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-// import 'package:http/http.dart' as http;
-// import 'dart:convert';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 // "알바생"이면 수정 불가
 
@@ -20,13 +20,79 @@ class _GroupCalendarPageState extends State<GroupCalendarPage> {
   DateTime _focusedDay = DateTime.now();
   Map<DateTime, List<Appointment>> _events = {};
   List<Appointment> _appointments = [];
+  bool _isLoading = false;
 
   @override
   void initState() {
-    // 이미 생성자에서 전달받았고 widget.userRole/widget.groupId로 직접 접근
     super.initState();
-    // ⚠️ 아래 함수는 임시 주석처리 — 그룹 캘린더용 API가 필요함
-    // _fetchAppointments();
+    // 초기 로드 시 확정된 스케줄 가져오기
+    _fetchConfirmedSchedules();
+  }
+
+  // 확정된 스케줄 가져오기
+  Future<void> _fetchConfirmedSchedules() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final token = await FirebaseAuth.instance.currentUser?.getIdToken();
+      
+      final response = await http.get(
+        Uri.parse('https://backend-schedule-vs8b.onrender.com/api/schedules/confirmed?groupId=${widget.groupId}'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        final confirmedSchedules = data['data'] as List;
+        
+        // 기존 이벤트 초기화
+        _events.clear();
+        _appointments.clear();
+
+        // 확정된 스케줄을 캘린더 이벤트로 변환
+        for (final schedule in confirmedSchedules) {
+          final assignments = schedule['assignments'] as Map<String, dynamic>;
+          
+          assignments.forEach((dateStr, workers) {
+            final date = DateTime.parse(dateStr);
+            final dateKey = DateTime(date.year, date.month, date.day);
+            
+            if (workers is List && workers.isNotEmpty) {
+              final workerNames = workers.join(', ');
+              
+              final appointment = Appointment(
+                startTime: date,
+                endTime: date.add(Duration(hours: 1)),
+                subject: '근무: $workerNames',
+                color: Colors.blue,
+                notes: schedule['_id'],
+              );
+
+              if (!_events.containsKey(dateKey)) {
+                _events[dateKey] = [];
+              }
+              _events[dateKey]!.add(appointment);
+              _appointments.add(appointment);
+            }
+          });
+        }
+
+        setState(() {});
+      } else {
+        print('Failed to fetch confirmed schedules: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error fetching confirmed schedules: $e');
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
   }
 
   int _hexToColor(String hex) {
@@ -51,21 +117,24 @@ class _GroupCalendarPageState extends State<GroupCalendarPage> {
           TextButton.icon( style: TextButton.styleFrom(
             backgroundColor: Color(0xFF006FFD),
           ),
-            onPressed: () {
-              // TODO: 스케줄 연동 기능 연결
+            onPressed: () async {
+              // 스케줄 연동 기능
+              await _fetchConfirmedSchedules();
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text("스케줄 연동 기능은 준비 중입니다.")),
+                SnackBar(content: Text("확정된 스케줄이 캘린더에 연동되었습니다.")),
               );
             },
             icon: Icon(Icons.link, color: Colors.white),
-            label: Text("연동", style: TextStyle(color: Colors.black)),
+            label: Text("연동", style: TextStyle(color: Colors.white)),
 
           ),
         ]
             : null,
       ),
 
-      body: SingleChildScrollView(
+      body: _isLoading 
+        ? Center(child: CircularProgressIndicator())
+        : SingleChildScrollView(
         child: Column(
           children: [
             Row(
