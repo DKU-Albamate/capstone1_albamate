@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'worker_imageParseView.dart';
+import 'worker_imageProcessing.dart'; // 로딩 중 페이지 import
 
 class WorkerImageUploadPage extends StatefulWidget {
   const WorkerImageUploadPage({super.key});
@@ -13,7 +13,7 @@ class WorkerImageUploadPage extends StatefulWidget {
 class _WorkerImageUploadPageState extends State<WorkerImageUploadPage> {
   File? _selectedImage;
 
-  // 이미지 선택 실행 함수
+  // 이미지 선택 함수
   Future<void> _pickImage(ImageSource source) async {
     final picker = ImagePicker();
     final picked = await picker.pickImage(source: source);
@@ -21,98 +21,104 @@ class _WorkerImageUploadPageState extends State<WorkerImageUploadPage> {
     if (picked != null) {
       setState(() => _selectedImage = File(picked.path));
 
+      // OCR 처리 화면으로 이동 (로딩 페이지)
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (_) => WorkerImageParseViewPage(
-            imageFile: File(picked.path),
-            parsedSchedule: [
-              '텍스트 추출 넣을 예정'
-              // TODO: 여기 parsedSchedule은 추후 OCR API 결과로 대체될 예정
-              // 예: 서버에 이미지 업로드 → 일정 텍스트 추출 → 여기에 결과 넣기
-            ],
-          ),
+          builder:
+              (_) => WorkerImageProcessingPage(imageFile: File(picked.path)),
         ),
       );
     }
   }
 
-
-  // 사진 선택 방식 모달
+  // 이미지 소스 선택 모달
   void _showImageSourceSelector(BuildContext context) {
     showModalBottomSheet(
       context: context,
-      builder: (context) => SafeArea(
-        child: Wrap(
-          children: [
-            ListTile(
-              leading: Icon(Icons.camera_alt),
-              title: Text('사진 찍기'),
-              onTap: () {
-                Navigator.pop(context);
-                _pickImage(ImageSource.camera);
-              },
+      builder:
+          (context) => SafeArea(
+            child: Wrap(
+              children: [
+                ListTile(
+                  leading: const Icon(Icons.camera_alt),
+                  title: const Text('사진 찍기'),
+                  onTap: () {
+                    Navigator.pop(context);
+                    _pickImage(ImageSource.camera);
+                  },
+                ),
+                ListTile(
+                  leading: const Icon(Icons.photo_library),
+                  title: const Text('사진 보관함'),
+                  onTap: () {
+                    Navigator.pop(context);
+                    _pickImage(ImageSource.gallery);
+                  },
+                ),
+                ListTile(
+                  leading: const Icon(Icons.close),
+                  title: const Text('취소'),
+                  onTap: () => Navigator.pop(context),
+                ),
+              ],
             ),
-            ListTile(
-              leading: Icon(Icons.photo_library),
-              title: Text('사진 보관함'),
-              onTap: () {
-                Navigator.pop(context);
-                _pickImage(ImageSource.gallery);
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.close),
-              title: Text('취소'),
-              onTap: () => Navigator.pop(context),
-            ),
-          ],
-        ),
-      ),
+          ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("이미지 업로드")),
+      appBar: AppBar(title: const Text("이미지 업로드")),
       body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 24.0),
+        padding: const EdgeInsets.symmetric(horizontal: 20.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(
+            const Text(
               "스케줄표 사진을 업로드하고\n캘린더에 쉽게 연동하세요",
               textAlign: TextAlign.center,
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
-            const SizedBox(height: 40),
-            Text("설명 이미지", style: TextStyle(fontSize: 14)),
-            const SizedBox(height: 8),
-            Container(
-              width: 120,
-              height: 120,
-              decoration: BoxDecoration(
-                color: Colors.grey.shade300,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: _selectedImage != null
-                  ? ClipRRect(
-                borderRadius: BorderRadius.circular(8),
-                child: Image.file(_selectedImage!, fit: BoxFit.cover),
-              )
-                  : Icon(Icons.image, size: 40, color: Colors.grey),
+            const SizedBox(height: 50),
+
+            // 예시 이미지
+            Image.asset(
+              'assets/images/schedule_ai_calendar.png',
+              width: 320,
+              fit: BoxFit.contain,
+            ),
+            const SizedBox(height: 18),
+
+            // 안내 텍스트
+            const Text(
+              "사진만 올리면, 일정이 자동으로 등록돼요!",
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 4),
+            const Text(
+              "예시처럼 스케줄표를 올려주세요",
+              style: TextStyle(fontSize: 14, color: Colors.grey),
             ),
             const SizedBox(height: 60),
+
+            // 사진 고르기 버튼
             SizedBox(
               width: double.infinity,
               child: ElevatedButton.icon(
                 onPressed: () => _showImageSourceSelector(context),
-                icon: Icon(Icons.upload_file, color: Colors.white),
-                label: Text("사진 고르기", style: TextStyle(color: Colors.white)),
+                icon: const Icon(Icons.upload_file, color: Colors.white),
+                label: const Text(
+                  "사진 고르기",
+                  style: TextStyle(fontSize: 18, color: Colors.white),
+                ),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Color(0xFF006FFD),
-                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                  backgroundColor: const Color(0xFF006FFD),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 14,
+                  ),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),

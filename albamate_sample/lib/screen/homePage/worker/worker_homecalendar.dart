@@ -5,6 +5,7 @@ import 'dart:convert';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'worker_imageUpload.dart';
+import 'worker_imageParseView.dart';
 
 //직원 캘린더
 class WorkerHomecalendar extends StatefulWidget {
@@ -37,31 +38,41 @@ class _WorkerHomecalendarState extends State<WorkerHomecalendar> {
     final uid = FirebaseAuth.instance.currentUser?.uid;
     if (uid == null) return;
 
-    final response = await http.get(Uri.parse(
-        'https://backend-vgbf.onrender.com/appointments?user_uid=$uid'));
+    final response = await http.get(
+      Uri.parse('https://backend-vgbf.onrender.com/appointments?user_uid=$uid'),
+    );
 
     if (response.statusCode == 200) {
       final List<dynamic> jsonList = jsonDecode(response.body);
 
-      final fetched = jsonList
-          .where((item) =>
-      item['start_time'] != null &&
-          item['end_time'] != null &&
-          DateTime.parse(item['start_time']).isBefore(
-              DateTime.parse(item['end_time'])))
-          .map((item) => Appointment(
-        startTime: DateTime.parse(item['start_time']),
-        endTime: DateTime.parse(item['end_time']),
-        subject: item['title'],
-        color: Color(_hexToColor(item['color'] ?? '#FF9900')),
-        notes: item['id'],
-      ))
-          .toList();
+      final fetched =
+          jsonList
+              .where(
+                (item) =>
+                    item['start_time'] != null &&
+                    item['end_time'] != null &&
+                    DateTime.parse(
+                      item['start_time'],
+                    ).isBefore(DateTime.parse(item['end_time'])),
+              )
+              .map(
+                (item) => Appointment(
+                  startTime: DateTime.parse(item['start_time']),
+                  endTime: DateTime.parse(item['end_time']),
+                  subject: item['title'],
+                  color: Color(_hexToColor(item['color'] ?? '#FF9900')),
+                  notes: item['id'],
+                ),
+              )
+              .toList();
 
       Map<DateTime, List<Appointment>> grouped = {};
       for (var appt in fetched) {
         final date = DateTime(
-            appt.startTime.year, appt.startTime.month, appt.startTime.day);
+          appt.startTime.year,
+          appt.startTime.month,
+          appt.startTime.day,
+        );
         if (!grouped.containsKey(date)) grouped[date] = [];
         grouped[date]!.add(appt);
       }
@@ -88,14 +99,13 @@ class _WorkerHomecalendarState extends State<WorkerHomecalendar> {
     final firstDayOfMonth = DateTime(year, month, 1);
     final lastDayOfMonth = DateTime(year, month + 1, 0);
 
-    final daysInMonth =
-    List.generate(lastDayOfMonth.day, (index) => DateTime(year, month, index + 1));
+    final daysInMonth = List.generate(
+      lastDayOfMonth.day,
+      (index) => DateTime(year, month, index + 1),
+    );
 
     return Scaffold(
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        title: Text("캘린더"),
-      ),
+      appBar: AppBar(automaticallyImplyLeading: false, title: Text("캘린더")),
       body: SingleChildScrollView(
         child: Column(
           children: [
@@ -106,16 +116,21 @@ class _WorkerHomecalendarState extends State<WorkerHomecalendar> {
                 children: [
                   IconButton(
                     icon: Icon(Icons.chevron_left),
-                    onPressed: () =>
-                        setState(() => _focusedDay = DateTime(year, month - 1)),
+                    onPressed:
+                        () => setState(
+                          () => _focusedDay = DateTime(year, month - 1),
+                        ),
                   ),
-                  Text("${year}년 ${month}월",
-                      style:
-                      TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                  Text(
+                    "${year}년 ${month}월",
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
                   IconButton(
                     icon: Icon(Icons.chevron_right),
-                    onPressed: () =>
-                        setState(() => _focusedDay = DateTime(year, month + 1)),
+                    onPressed:
+                        () => setState(
+                          () => _focusedDay = DateTime(year, month + 1),
+                        ),
                   ),
                 ],
               ),
@@ -152,22 +167,34 @@ class _WorkerHomecalendarState extends State<WorkerHomecalendar> {
               },
               children: _buildCalendarRows(daysInMonth),
             ),
+            const SizedBox(height: 12),
             //사진 업로드 버튼
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                ElevatedButton.icon(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => WorkerImageUploadPage()),
-                    );
-                  },
-                  icon: Icon(Icons.upload_file, color: Colors.white),
-                  label: Text("사진 업로드", style: TextStyle(color: Colors.white)),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Color(0xFF006FFD),
-                    padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                Padding(
+                  padding: const EdgeInsets.only(right: 16.0), // 👉 오른쪽 여백 추가
+                  child: ElevatedButton.icon(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => WorkerImageUploadPage(),
+                        ),
+                      );
+                    },
+                    icon: Icon(Icons.upload_file, color: Colors.white),
+                    label: Text(
+                      "사진 업로드",
+                      style: TextStyle(color: Colors.white),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Color(0xFF006FFD),
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 14,
+                        vertical: 12,
+                      ),
+                    ),
                   ),
                 ),
               ],
@@ -191,54 +218,67 @@ class _WorkerHomecalendarState extends State<WorkerHomecalendar> {
     for (final date in daysInMonth) {
       final today = DateTime.now();
       final isToday =
-          date.year == today.year && date.month == today.month && date.day == today.day;
+          date.year == today.year &&
+          date.month == today.month &&
+          date.day == today.day;
       final events = _events[date] ?? [];
 
-      cells.add(GestureDetector(
-        onTap: () => _showDayDetailSheet(date),
-        child: Container(
-          padding: EdgeInsets.all(4),
-          constraints: BoxConstraints(minHeight: 80 + 20.0 * events.length),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                padding: EdgeInsets.all(4),
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: isToday ? Color(0xFF006FFD) : null,
-                ),
-                alignment: Alignment.center,
-                child: Text(
-                  '${date.day}',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: isToday ? Colors.white : Colors.black,
+      cells.add(
+        GestureDetector(
+          onTap: () => _showDayDetailSheet(date),
+          child: Container(
+            padding: EdgeInsets.all(4),
+            constraints: BoxConstraints(minHeight: 80 + 20.0 * events.length),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  padding: EdgeInsets.all(4),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: isToday ? Color(0xFF006FFD) : null,
+                  ),
+                  alignment: Alignment.center,
+                  child: Text(
+                    '${date.day}',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: isToday ? Colors.white : Colors.black,
+                    ),
                   ),
                 ),
-              ),
-              ...events.take(10).map((e) => Container(
-                height: 20,
-                width: double.infinity,
-                margin: EdgeInsets.only(top: 2),
-                padding: EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-                decoration: BoxDecoration(
-                  color: e.color,
-                  borderRadius: BorderRadius.circular(4),
-                ),
-                child: Text(
-                  e.subject,
-                  style: TextStyle(fontSize: 10, color: Colors.black),
-                  overflow: TextOverflow.ellipsis,
-                ),
-              )),
-              if (events.length > 10)
-                Text('+${events.length - 10}',
-                    style: TextStyle(fontSize: 10, color: Colors.grey)),
-            ],
+                ...events
+                    .take(10)
+                    .map(
+                      (e) => Container(
+                        height: 20,
+                        width: double.infinity,
+                        margin: EdgeInsets.only(top: 2),
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 4,
+                          vertical: 2,
+                        ),
+                        decoration: BoxDecoration(
+                          color: e.color,
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: Text(
+                          e.subject,
+                          style: TextStyle(fontSize: 10, color: Colors.black),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ),
+                if (events.length > 10)
+                  Text(
+                    '+${events.length - 10}',
+                    style: TextStyle(fontSize: 10, color: Colors.grey),
+                  ),
+              ],
+            ),
           ),
         ),
-      ));
+      );
 
       if (cells.length == 7) {
         rows.add(TableRow(children: List.from(cells)));
@@ -262,83 +302,90 @@ class _WorkerHomecalendarState extends State<WorkerHomecalendar> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      builder: (context) => DraggableScrollableSheet(
-        expand: false,
-        builder: (context, scrollController) => Scaffold(
-          appBar: AppBar(
-            title: Text("${date.month}월 ${date.day}일 일정"),
-            actions: [
-              IconButton(
-                icon: Icon(Icons.add),
-                onPressed: () {
-                  Navigator.pop(context);
-                  _showAddDialog(date);
-                },
-              ),
-            ],
-          ),
-          body: ListView.builder(
-            controller: scrollController,
-            itemCount: dayAppointments.length,
-            itemBuilder: (context, index) {
-              final appt = dayAppointments[index];
-              return Slidable(
-                key: ValueKey(appt.notes ?? '${appt.subject}-$index'),
-                endActionPane: ActionPane(
-                  motion: const ScrollMotion(),
-                  extentRatio: 0.4,
-                  children: [
-                    SlidableAction(
-                      flex: 1,
-                      onPressed: (_) {
-                        Navigator.pop(context);
-                        _showEditDialog(appt);
-                      },
-                      backgroundColor: Colors.blue.shade50,
-                      foregroundColor: Colors.blue,
-                      icon: Icons.edit_outlined,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    SlidableAction(
-                      flex: 1,
-                      onPressed: (_) async {
-                        final response = await http.delete(
-                          Uri.parse('https://backend-vgbf.onrender.com/appointments/${appt.notes}'),
-                        );
-                        if (response.statusCode == 204) {
-                          setState(() => _appointments.remove(appt));
-                          _fetchAppointments();
-                        }
-                        Navigator.pop(context);
-                      },
-                      backgroundColor: Colors.red.shade50,
-                      foregroundColor: Colors.red,
-                      icon: Icons.delete_outline,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ],
-                ),
-                child: ListTile(
-                  contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-                  leading: Container(
-                    width: 12,
-                    height: 12,
-                    decoration: BoxDecoration(
-                      color: appt.color,
-                      shape: BoxShape.rectangle,
-                      borderRadius: BorderRadius.circular(2),
-                    ),
+      builder:
+          (context) => DraggableScrollableSheet(
+            expand: false,
+            builder:
+                (context, scrollController) => Scaffold(
+                  appBar: AppBar(
+                    title: Text("${date.month}월 ${date.day}일 일정"),
+                    actions: [
+                      IconButton(
+                        icon: Icon(Icons.add),
+                        onPressed: () {
+                          Navigator.pop(context);
+                          _showAddDialog(date);
+                        },
+                      ),
+                    ],
                   ),
-                  title: Text(
-                    appt.subject,
-                    style: TextStyle(fontSize: 14),
+                  body: ListView.builder(
+                    controller: scrollController,
+                    itemCount: dayAppointments.length,
+                    itemBuilder: (context, index) {
+                      final appt = dayAppointments[index];
+                      return Slidable(
+                        key: ValueKey(appt.notes ?? '${appt.subject}-$index'),
+                        endActionPane: ActionPane(
+                          motion: const ScrollMotion(),
+                          extentRatio: 0.4,
+                          children: [
+                            SlidableAction(
+                              flex: 1,
+                              onPressed: (_) {
+                                Navigator.pop(context);
+                                _showEditDialog(appt);
+                              },
+                              backgroundColor: Colors.blue.shade50,
+                              foregroundColor: Colors.blue,
+                              icon: Icons.edit_outlined,
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            SlidableAction(
+                              flex: 1,
+                              onPressed: (_) async {
+                                final response = await http.delete(
+                                  Uri.parse(
+                                    'https://backend-vgbf.onrender.com/appointments/${appt.notes}',
+                                  ),
+                                );
+                                if (response.statusCode == 204) {
+                                  setState(() => _appointments.remove(appt));
+                                  _fetchAppointments();
+                                }
+                                Navigator.pop(context);
+                              },
+                              backgroundColor: Colors.red.shade50,
+                              foregroundColor: Colors.red,
+                              icon: Icons.delete_outline,
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ],
+                        ),
+                        child: ListTile(
+                          contentPadding: EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 4,
+                          ),
+                          leading: Container(
+                            width: 12,
+                            height: 12,
+                            decoration: BoxDecoration(
+                              color: appt.color,
+                              shape: BoxShape.rectangle,
+                              borderRadius: BorderRadius.circular(2),
+                            ),
+                          ),
+                          title: Text(
+                            appt.subject,
+                            style: TextStyle(fontSize: 14),
+                          ),
+                        ),
+                      );
+                    },
                   ),
                 ),
-              );
-            },
           ),
-        ),
-      ),
     );
   }
 
@@ -362,26 +409,41 @@ class _WorkerHomecalendarState extends State<WorkerHomecalendar> {
                   Wrap(
                     spacing: 8,
                     runSpacing: 8,
-                    children: [
-                      '#FEE1E8', '#F6EAC2', '#D3E5EF', '#D4F0C0', '#FFF5BA', '#F8D1C1', '#E2DAF9', '#B2EBF2'
-                    ].map((hex) {
-                      final color = Color(int.parse('FF' + hex.substring(1), radix: 16));
-                      return GestureDetector(
-                        onTap: () => setModalState(() => selectedColor = color),
-                        child: Container(
-                          width: 30,
-                          height: 30,
-                          decoration: BoxDecoration(
-                            color: color,
-                            shape: BoxShape.circle,
-                            border: Border.all(
-                              color: selectedColor == color ? Colors.black : Colors.transparent,
-                              width: 2,
+                    children:
+                        [
+                          '#FEE1E8',
+                          '#F6EAC2',
+                          '#D3E5EF',
+                          '#D4F0C0',
+                          '#FFF5BA',
+                          '#F8D1C1',
+                          '#E2DAF9',
+                          '#B2EBF2',
+                        ].map((hex) {
+                          final color = Color(
+                            int.parse('FF' + hex.substring(1), radix: 16),
+                          );
+                          return GestureDetector(
+                            onTap:
+                                () =>
+                                    setModalState(() => selectedColor = color),
+                            child: Container(
+                              width: 30,
+                              height: 30,
+                              decoration: BoxDecoration(
+                                color: color,
+                                shape: BoxShape.circle,
+                                border: Border.all(
+                                  color:
+                                      selectedColor == color
+                                          ? Colors.black
+                                          : Colors.transparent,
+                                  width: 2,
+                                ),
+                              ),
                             ),
-                          ),
-                        ),
-                      );
-                    }).toList(),
+                          );
+                        }).toList(),
                   ),
                   SizedBox(height: 10),
                   TextField(
@@ -396,21 +458,37 @@ class _WorkerHomecalendarState extends State<WorkerHomecalendar> {
                       if (uid == null) return;
 
                       final newAppointment = Appointment(
-                        startTime: DateTime(selectedDate.year, selectedDate.month, selectedDate.day, start.hour, start.minute),
-                        endTime: DateTime(selectedDate.year, selectedDate.month, selectedDate.day, end.hour, end.minute),
+                        startTime: DateTime(
+                          selectedDate.year,
+                          selectedDate.month,
+                          selectedDate.day,
+                          start.hour,
+                          start.minute,
+                        ),
+                        endTime: DateTime(
+                          selectedDate.year,
+                          selectedDate.month,
+                          selectedDate.day,
+                          end.hour,
+                          end.minute,
+                        ),
                         subject: title,
                         color: selectedColor,
                       );
 
                       final response = await http.post(
-                        Uri.parse('https://backend-vgbf.onrender.com/appointments'),
+                        Uri.parse(
+                          'https://backend-vgbf.onrender.com/appointments',
+                        ),
                         headers: {'Content-Type': 'application/json'},
                         body: jsonEncode({
                           'user_uid': uid,
                           'title': title,
-                          'start_time': newAppointment.startTime.toIso8601String(),
+                          'start_time':
+                              newAppointment.startTime.toIso8601String(),
                           'end_time': newAppointment.endTime.toIso8601String(),
-                          'color': '#${selectedColor.value.toRadixString(16).substring(2).toUpperCase()}',
+                          'color':
+                              '#${selectedColor.value.toRadixString(16).substring(2).toUpperCase()}',
                         }),
                       );
 
@@ -449,26 +527,41 @@ class _WorkerHomecalendarState extends State<WorkerHomecalendar> {
                   Wrap(
                     spacing: 8,
                     runSpacing: 8,
-                    children: [
-                      '#FEE1E8', '#F6EAC2', '#D3E5EF', '#D4F0C0', '#FFF5BA', '#F8D1C1', '#E2DAF9', '#B2EBF2'
-                    ].map((hex) {
-                      final color = Color(int.parse('FF' + hex.substring(1), radix: 16));
-                      return GestureDetector(
-                        onTap: () => setModalState(() => selectedColor = color),
-                        child: Container(
-                          width: 30,
-                          height: 30,
-                          decoration: BoxDecoration(
-                            color: color,
-                            shape: BoxShape.circle,
-                            border: Border.all(
-                              color: selectedColor == color ? Colors.black : Colors.transparent,
-                              width: 2,
+                    children:
+                        [
+                          '#FEE1E8',
+                          '#F6EAC2',
+                          '#D3E5EF',
+                          '#D4F0C0',
+                          '#FFF5BA',
+                          '#F8D1C1',
+                          '#E2DAF9',
+                          '#B2EBF2',
+                        ].map((hex) {
+                          final color = Color(
+                            int.parse('FF' + hex.substring(1), radix: 16),
+                          );
+                          return GestureDetector(
+                            onTap:
+                                () =>
+                                    setModalState(() => selectedColor = color),
+                            child: Container(
+                              width: 30,
+                              height: 30,
+                              decoration: BoxDecoration(
+                                color: color,
+                                shape: BoxShape.circle,
+                                border: Border.all(
+                                  color:
+                                      selectedColor == color
+                                          ? Colors.black
+                                          : Colors.transparent,
+                                  width: 2,
+                                ),
+                              ),
                             ),
-                          ),
-                        ),
-                      );
-                    }).toList(),
+                          );
+                        }).toList(),
                   ),
                   SizedBox(height: 10),
                   TextField(
@@ -489,26 +582,40 @@ class _WorkerHomecalendarState extends State<WorkerHomecalendar> {
                       );
 
                       final response = await http.patch(
-                        Uri.parse('https://backend-vgbf.onrender.com/appointments/${oldAppointment.notes}'),
+                        Uri.parse(
+                          'https://backend-vgbf.onrender.com/appointments/${oldAppointment.notes}',
+                        ),
                         headers: {'Content-Type': 'application/json'},
                         body: jsonEncode({
                           'title': updated.subject,
                           'start_time': updated.startTime.toIso8601String(),
                           'end_time': updated.endTime.toIso8601String(),
-                          'color': '#${selectedColor.value.toRadixString(16).substring(2).toUpperCase()}',
+                          'color':
+                              '#${selectedColor.value.toRadixString(16).substring(2).toUpperCase()}',
                         }),
                       );
 
                       if (response.statusCode == 200) {
                         setState(() {
-                          final index = _appointments.indexWhere((a) => a.notes == oldAppointment.notes);
+                          final index = _appointments.indexWhere(
+                            (a) => a.notes == oldAppointment.notes,
+                          );
                           if (index != -1) {
                             _appointments[index] = updated;
-                            final dateKey = DateTime(updated.startTime.year, updated.startTime.month, updated.startTime.day);
-                            _events[dateKey] = _appointments.where((a) =>
-                            a.startTime.year == dateKey.year &&
-                                a.startTime.month == dateKey.month &&
-                                a.startTime.day == dateKey.day).toList();
+                            final dateKey = DateTime(
+                              updated.startTime.year,
+                              updated.startTime.month,
+                              updated.startTime.day,
+                            );
+                            _events[dateKey] =
+                                _appointments
+                                    .where(
+                                      (a) =>
+                                          a.startTime.year == dateKey.year &&
+                                          a.startTime.month == dateKey.month &&
+                                          a.startTime.day == dateKey.day,
+                                    )
+                                    .toList();
                           }
                         });
                         Navigator.pop(context);
