@@ -1,30 +1,31 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'worker_homecalendar.dart'; // 캘린더 페이지로 이동하기 위해 import 필요
+import 'worker_homecalendar.dart';
+import 'worker_imageProcessing.dart'; // Schedule 클래스를 재사용
 
 class WorkerImageParseViewPage extends StatelessWidget {
   final File imageFile;
-  final List<String> parsedSchedule;
+  final List<Schedule> schedules;        // ← 변경
 
   const WorkerImageParseViewPage({
     super.key,
     required this.imageFile,
-    required this.parsedSchedule,
+    required this.schedules,
   });
 
   @override
   Widget build(BuildContext context) {
-    final screenHeight = MediaQuery.of(context).size.height;
+    final h = MediaQuery.of(context).size.height;
 
     return Scaffold(
-      appBar: AppBar(title: const Text("스케줄 추출 결과")),
+      appBar: AppBar(title: const Text('스케줄 추출 결과')),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-            // 사진 크게 표시 (1/2 화면 높이 사용)
+            // ▸ 업로드한 사진 (확대 가능)
             Container(
-              height: screenHeight * 0.45, // 화면의 45% 차지
+              height: h * 0.45,
               width: double.infinity,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(8),
@@ -37,44 +38,36 @@ class WorkerImageParseViewPage extends StatelessWidget {
                 ),
               ),
             ),
-
             const SizedBox(height: 24),
 
-            // 텍스트 추출 결과 제목
+            // ▸ 추출된 일정 리스트
             Align(
               alignment: Alignment.centerLeft,
-              child: Text(
-                "추출된 일정",
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-              ),
+              child: Text('추출된 일정',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
             ),
             const SizedBox(height: 8),
-
-            // 텍스트 리스트 (남은 높이 안에서 스크롤 가능)
             Expanded(
-              child: ListView.builder(
-                itemCount: parsedSchedule.length,
-                itemBuilder:
-                    (context, index) => Padding(
-                      padding: const EdgeInsets.only(bottom: 4),
-                      child: Text(parsedSchedule[index]),
-                    ),
+              child: ListView.separated(
+                itemCount: schedules.length,
+                separatorBuilder: (_, __) => const Divider(height: 1),
+                itemBuilder: (context, i) => ListTile(
+                  leading: const Icon(Icons.event_note),
+                  title: Text(schedules[i].toString()),
+                ),
               ),
             ),
-
             const SizedBox(height: 12),
 
-            // 캘린더 연동 버튼
+            // ▸ 캘린더로 돌아가기
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: () {
-                  // 캘린더 페이지로 이동
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(builder: (_) => WorkerHomecalendar()),
-                  );
-                },
+                onPressed: () => Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(builder: (_) => const WorkerHomecalendar()),
+                  (route) => false,
+                ),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF006FFD),
                   foregroundColor: Colors.white,
@@ -83,7 +76,7 @@ class WorkerImageParseViewPage extends StatelessWidget {
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-                child: const Text("캘린더 연동", style: TextStyle(fontSize: 16)),
+                child: const Text('캘린더로 이동', style: TextStyle(fontSize: 16)),
               ),
             ),
           ],
@@ -92,3 +85,4 @@ class WorkerImageParseViewPage extends StatelessWidget {
     );
   }
 }
+
