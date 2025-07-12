@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:albamate_sample/screen/homePage/worker/worker_imageConfirm.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'worker_imageProcessing.dart'; // 로딩 중 페이지 import
@@ -22,11 +23,18 @@ class _WorkerImageUploadPageState extends State<WorkerImageUploadPage> {
       setState(() => _selectedImage = File(picked.path));
 
       // OCR 처리 화면으로 이동 (로딩 페이지)
+      // Navigator.push(
+      //   context,
+      //   MaterialPageRoute(
+      //     builder:
+      //         (_) => WorkerImageProcessingPage(imageFile: File(picked.path)),
+      //   ),
+      // );
+      // 기존과 동일하지만 이동 경로만 수정
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder:
-              (_) => WorkerImageProcessingPage(imageFile: File(picked.path)),
+          builder: (_) => WorkerImageConfirmPage(imageFile: File(picked.path)),
         ),
       );
     }
