@@ -99,6 +99,7 @@ class _DetailGuidePageState extends State<DetailGuidePage> {
                         groupId: widget.notice.groupId,
                         // TODO: ⚠️ 현재 userRole 임시 사용 중 (백엔드 ownerId 연동 시 제거 예정)
                         userRole: '',
+                        initialIndex: 2,
                       ),
                 ),
                 (Route<dynamic> route) => false,
