@@ -3,9 +3,9 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:albamate_sample/screen/groupPage/group_imageUpload.dart';
 
 // "알바생"이면 수정 불가
-
 class GroupCalendarPage extends StatefulWidget {
   final String userRole;
   final String groupId;
@@ -181,6 +181,34 @@ class _GroupCalendarPageState extends State<GroupCalendarPage> {
               },
               children: _buildCalendarRows(daysInMonth),
             ),
+            const SizedBox(height: 12),
+
+            // 👉 사진 업로드 버튼 (사장님만 보이게)
+            if (widget.userRole == "사장님")
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(right: 16.0),
+                    child: ElevatedButton.icon(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => GroupImageUploadPage(userRole: widget.userRole, groupId: widget.groupId),
+                          ),
+                        );
+                      },
+                      icon: Icon(Icons.upload_file, color: Colors.white),
+                      label: Text("사진 업로드", style: TextStyle(color: Colors.white)),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Color(0xFF006FFD),
+                        padding: EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
           ],
         ),
       ),
@@ -260,81 +288,102 @@ class _GroupCalendarPageState extends State<GroupCalendarPage> {
   }
 
   void _showDayDetailSheet(DateTime date) {
-    final dayAppointments = _events[date] ?? [];
-
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       builder: (context) => DraggableScrollableSheet(
         expand: false,
-        builder: (context, scrollController) => Scaffold(
-          appBar: AppBar(
-            title: Text("${date.month}월 ${date.day}일 일정"),
-            actions: [
-              if (widget.userRole == "사장님")
-                IconButton(
-                  icon: Icon(Icons.add),
-                  onPressed: () {
-                    Navigator.pop(context);
-                    _showAddDialog(date);
-                  },
-                ),
-            ],
-          ),
-          body: ListView.builder(
-            controller: scrollController,
-            itemCount: dayAppointments.length,
-            itemBuilder: (context, index) {
-              final appt = dayAppointments[index];
-              return Slidable(
-                key: ValueKey(appt.notes ?? '${appt.subject}-$index'),
-                endActionPane: widget.userRole == "사장님"
-                    ? ActionPane(
-                  motion: const ScrollMotion(),
-                  extentRatio: 0.4,
-                  children: [
-                    SlidableAction(
-                      onPressed: (_) {
-                        Navigator.pop(context);
-                        _showEditDialog(appt);
-                      },
-                      backgroundColor: Colors.blue.shade50,
-                      foregroundColor: Colors.blue,
-                      icon: Icons.edit,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    SlidableAction(
-                      onPressed: (_) async {
-                        // ⚠️ 여기에 그룹 일정 삭제용 DELETE API 연동 필요
-                      },
-                      backgroundColor: Colors.red.shade50,
-                      foregroundColor: Colors.red,
-                      icon: Icons.delete,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ],
-                )
-                    : null,
-                child: ListTile(
-                  title: Text(appt.subject),
-                  leading: Container(
-                    width: 12,
-                    height: 12,
-                    decoration: BoxDecoration(
-                      color: appt.color,
-                      shape: BoxShape.rectangle,
-                      borderRadius: BorderRadius.circular(2),
+        builder: (context, scrollController) => StatefulBuilder(
+          builder: (context, setSheetState) => Scaffold(
+            appBar: AppBar(
+              title: Text("${date.month}월 ${date.day}일 일정"),
+              actions: [
+                if (widget.userRole == "사장님")
+                  IconButton(
+                    icon: Icon(Icons.add),
+                    onPressed: () {
+                      Navigator.pop(context);
+                      _showAddDialog(date);
+                    },
+                  ),
+              ],
+            ),
+            body: ListView.builder(
+              controller: scrollController,
+              itemCount: _events[date]?.length ?? 0,
+              itemBuilder: (context, index) {
+                final appt = _events[date]![index];
+                return Slidable(
+                  key: ValueKey(appt.notes ?? '${appt.subject}-$index'),
+                  endActionPane: widget.userRole == "사장님"
+                      ? ActionPane(
+                    motion: const ScrollMotion(),
+                    extentRatio: 0.4,
+                    children: [
+                      SlidableAction(
+                        onPressed: (_) {
+                          Navigator.pop(context);
+                          _showEditDialog(appt);
+                        },
+                        backgroundColor: Colors.blue.shade50,
+                        foregroundColor: Colors.blue,
+                        icon: Icons.edit,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      SlidableAction(
+                        onPressed: (_) async {
+                          // ⚠️ 여기에 그룹 일정 삭제용 DELETE API 연동 필요
+
+                          final dateKey = DateTime(
+                            appt.startTime.year,
+                            appt.startTime.month,
+                            appt.startTime.day,
+                          );
+
+                          setState(() {
+                            _appointments.removeWhere((a) => a.notes == appt.notes);
+                            final updatedDayList = _appointments.where((a) =>
+                            a.startTime.year == dateKey.year &&
+                                a.startTime.month == dateKey.month &&
+                                a.startTime.day == dateKey.day).toList();
+
+                            if (updatedDayList.isEmpty) {
+                              _events.remove(dateKey);
+                            } else {
+                              _events[dateKey] = updatedDayList;
+                            }
+                          });
+
+                          setSheetState(() {});
+                        },
+                        backgroundColor: Colors.red.shade50,
+                        foregroundColor: Colors.red,
+                        icon: Icons.delete,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ],
+                  )
+                      : null,
+                  child: ListTile(
+                    title: Text(appt.subject),
+                    leading: Container(
+                      width: 12,
+                      height: 12,
+                      decoration: BoxDecoration(
+                        color: appt.color,
+                        shape: BoxShape.rectangle,
+                        borderRadius: BorderRadius.circular(2),
+                      ),
                     ),
                   ),
-                ),
-              );
-            },
+                );
+              },
+            ),
           ),
         ),
       ),
     );
   }
-
   // _showAddDialog와 _showEditDialog는 이미 포함되어 있음
 
   void _showAddDialog(DateTime date) {
