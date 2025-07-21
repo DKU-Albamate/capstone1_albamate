@@ -21,6 +21,13 @@ class _WorkerHomecalendarState extends State<WorkerHomecalendar> {
   Map<DateTime, List<Appointment>> _events = {};
   List<Appointment> _appointments = [];
 
+  // 스케줄 일정 추가시 쓰이는 헬퍼 함수
+  String _formatTime24(DateTime dt) {
+    final hour = dt.hour.toString().padLeft(2, '0');
+    final min = dt.minute.toString().padLeft(2, '0');
+    return '$hour:$min';
+  }
+
   @override
   void initState() {
     super.initState();
@@ -55,11 +62,13 @@ class _WorkerHomecalendarState extends State<WorkerHomecalendar> {
                       item['start_time'],
                     ).isBefore(DateTime.parse(item['end_time'])),
               )
+              // _fetchAppointments() 내 Appointment 생성부 수정 -> 백엔드와 기존 데이터 구조 유지하면서 UI 출력만 수정
               .map(
                 (item) => Appointment(
                   startTime: DateTime.parse(item['start_time']),
                   endTime: DateTime.parse(item['end_time']),
-                  subject: item['title'],
+                  subject:
+                      '${_formatTime24(DateTime.parse(item['start_time']))} ~ ${_formatTime24(DateTime.parse(item['end_time']))} / ${item['title']}',
                   color: Color(_hexToColor(item['color'] ?? '#FF9900')),
                   notes: item['id'],
                 ),

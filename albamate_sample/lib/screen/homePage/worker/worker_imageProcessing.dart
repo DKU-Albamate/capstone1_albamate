@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 import 'package:firebase_auth/firebase_auth.dart';
 
 import 'worker_imageParseView.dart';
+import 'worker_homecalendar.dart'; // ✅ 캘린더 페이지 import
 
 class Schedule {
   final DateTime date;
@@ -76,7 +77,7 @@ class _WorkerImageProcessingPageState extends State<WorkerImageProcessingPage> {
       return;
     }
 
-    // 이름 확인 다이얼로그
+    // ✅ 이름 확인 다이얼로그
     final finalName = await showDialog<String>(
       context: context,
       barrierDismissible: false,
@@ -86,41 +87,14 @@ class _WorkerImageProcessingPageState extends State<WorkerImageProcessingPage> {
           content: Text('$name 님의 스케줄을 추출할까요?'),
           actions: [
             TextButton(
-              child: const Text('아니요'),
-              onPressed: () async {
-                final controller = TextEditingController();
-
-                final inputName = await showDialog<String>(
-                  context: context,
-                  barrierDismissible: false,
-                  builder:
-                      (context) => AlertDialog(
-                        title: const Text('이름 입력'),
-                        content: TextField(
-                          controller: controller,
-                          decoration: const InputDecoration(labelText: '이름 입력'),
-                        ),
-                        actions: [
-                          TextButton(
-                            onPressed: () {
-                              final entered = controller.text.trim();
-                              if (entered.isEmpty) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text('이름이 입력되지 않았습니다.'),
-                                  ),
-                                );
-                              } else {
-                                Navigator.pop(context, entered);
-                              }
-                            },
-                            child: const Text('확인'),
-                          ),
-                        ],
-                      ),
+              child: const Text('아니오'),
+              onPressed: () {
+                Navigator.pop(context); // 다이얼로그 닫기
+                Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(builder: (_) => const WorkerHomecalendar()),
+                  (route) => false,
                 );
-
-                Navigator.pop(context, inputName); // 최종 반환
               },
             ),
             TextButton(
