@@ -28,9 +28,45 @@ class WorkerImageParseViewPage extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
+            /* ▸ AI 분석 정보 */
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: const Color(0xFF006FFD).withOpacity(0.1),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: const Color(0xFF006FFD).withOpacity(0.3)),
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.psychology, color: Color(0xFF006FFD)),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          '🤖 Gemini 2.0 Flash AI 분석',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF006FFD),
+                          ),
+                        ),
+                        Text(
+                          '${schedules.length}개의 일정이 추출되었습니다',
+                          style: const TextStyle(fontSize: 12, color: Colors.grey),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+
             /* ▸ 사진(고정) */
             Container(
-              height: h * 0.45,
+              height: h * 0.35, // 높이 조정
               width: double.infinity,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(8),
@@ -43,7 +79,7 @@ class WorkerImageParseViewPage extends StatelessWidget {
                 ),
               ),
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 16),
 
             Align(
               alignment: Alignment.centerLeft,
@@ -62,9 +98,21 @@ class WorkerImageParseViewPage extends StatelessWidget {
               child:
                   schedules.isEmpty
                       ? const Center(
-                        child: Text(
-                          '추출된 일정이 없습니다.',
-                          style: TextStyle(color: Colors.grey),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.info_outline, size: 48, color: Colors.grey),
+                            SizedBox(height: 16),
+                            Text(
+                              '추출된 일정이 없습니다.',
+                              style: TextStyle(color: Colors.grey, fontSize: 16),
+                            ),
+                            SizedBox(height: 8),
+                            Text(
+                              '이미지를 다시 확인해주세요.',
+                              style: TextStyle(color: Colors.grey, fontSize: 14),
+                            ),
+                          ],
                         ),
                       )
                       : ListView.separated(
@@ -73,7 +121,18 @@ class WorkerImageParseViewPage extends StatelessWidget {
                         itemBuilder: (context, i) {
                           final s = schedules[i];
                           return ListTile(
-                            leading: const Icon(Icons.event_note),
+                            leading: Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF006FFD).withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                              child: const Icon(
+                                Icons.event_note,
+                                color: Color(0xFF006FFD),
+                                size: 20,
+                              ),
+                            ),
                             title: Text(
                               '${_fmt(s.start)} ~ ${_fmt(s.end)}',
                               style: const TextStyle(
@@ -95,7 +154,7 @@ class WorkerImageParseViewPage extends StatelessWidget {
             /* ▸ 캘린더로 이동 */
             SizedBox(
               width: double.infinity,
-              child: ElevatedButton(
+              child: ElevatedButton.icon(
                 onPressed:
                     () => Navigator.pushAndRemoveUntil(
                       context,
@@ -104,6 +163,8 @@ class WorkerImageParseViewPage extends StatelessWidget {
                       ),
                       (route) => false,
                     ),
+                icon: const Icon(Icons.calendar_today),
+                label: const Text('캘린더로 이동'),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF006FFD),
                   foregroundColor: Colors.white,
@@ -112,7 +173,6 @@ class WorkerImageParseViewPage extends StatelessWidget {
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-                child: const Text('캘린더로 이동', style: TextStyle(fontSize: 16)),
               ),
             ),
           ],

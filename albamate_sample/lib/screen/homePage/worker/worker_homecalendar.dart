@@ -64,14 +64,33 @@ class _WorkerHomecalendarState extends State<WorkerHomecalendar> {
               )
               // _fetchAppointments() 내 Appointment 생성부 수정 -> 백엔드와 기존 데이터 구조 유지하면서 UI 출력만 수정
               .map(
-                (item) => Appointment(
-                  startTime: DateTime.parse(item['start_time']),
-                  endTime: DateTime.parse(item['end_time']),
-                  subject:
-                      '${_formatTime24(DateTime.parse(item['start_time']))} ~ ${_formatTime24(DateTime.parse(item['end_time']))} / ${item['title']}',
-                  color: Color(_hexToColor(item['color'] ?? '#FF9900')),
-                  notes: item['id'],
-                ),
+                (item) {
+                  // OCR로 추가된 일정인지 확인
+                  final isOcrSchedule = item['source'] == 'ocr' || item['source'] == 'ocr_gemini';
+                  final isGeminiSchedule = item['source'] == 'ocr_gemini';
+                  
+                  // OCR 일정은 특별한 제목 형식 사용
+                  String displayTitle = item['title'];
+                  if (isOcrSchedule) {
+                    final timeRange = '${_formatTime24(DateTime.parse(item['start_time']))} ~ ${_formatTime24(DateTime.parse(item['end_time']))}';
+                    displayTitle = '$timeRange / ${item['title']}';
+                    
+                    // Gemini로 분석된 일정은 특별 표시
+                    if (isGeminiSchedule) {
+                      displayTitle = '🤖 $displayTitle';
+                    }
+                  }
+                  
+                  return Appointment(
+                    startTime: DateTime.parse(item['start_time']),
+                    endTime: DateTime.parse(item['end_time']),
+                    subject: displayTitle,
+                    color: Color(_hexToColor(item['color'] ?? '#FF9900')),
+                    notes: item['id'],
+                    isOcrSchedule: isOcrSchedule,
+                    isGeminiSchedule: isGeminiSchedule,
+                  );
+                },
               )
               .toList();
 
@@ -664,6 +683,8 @@ class Appointment {
   final String subject;
   final Color color;
   final String? notes;
+  final bool isOcrSchedule;
+  final bool isGeminiSchedule;
 
   Appointment({
     required this.startTime,
@@ -671,5 +692,7 @@ class Appointment {
     required this.subject,
     required this.color,
     this.notes,
+    this.isOcrSchedule = false,
+    this.isGeminiSchedule = false,
   });
 }
