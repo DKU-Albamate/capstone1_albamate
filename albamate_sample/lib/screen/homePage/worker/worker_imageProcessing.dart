@@ -21,16 +21,19 @@ class Schedule {
   });
 
   factory Schedule.fromJson(Map<String, dynamic> j) {
-    TimeOfDay _t(String t) {
+    TimeOfDay _t(String? t) {
+      if (t == null || t.isEmpty) {
+        return TimeOfDay(hour: 0, minute: 0);
+      }
       final p = t.split(':').map(int.parse).toList();
       return TimeOfDay(hour: p[0], minute: p[1]);
     }
 
     return Schedule(
-      date: DateTime.parse(j['date']),
+      date: DateTime.parse(j['date'] ?? DateTime.now().toIso8601String()),
       start: _t(j['start']),
       end: _t(j['end']),
-      title: j['title'],
+      title: j['title'] ?? j['position'] ?? j['name'] ?? '근무',
     );
   }
 
@@ -84,7 +87,7 @@ class _WorkerImageProcessingPageState extends State<WorkerImageProcessingPage> {
       builder: (context) {
         return AlertDialog(
           title: const Text('스케줄 추출 이름 확인'),
-          content: Text('$name 님의 스케줄을 추출할까요?'),
+          content: Text('$name 님의 스케줄을 추출할까요?\n\n🤖 Gemini 2.0 Flash AI가 정확하게 분석합니다.'),
           actions: [
             TextButton(
               child: const Text('아니오'),
@@ -109,10 +112,11 @@ class _WorkerImageProcessingPageState extends State<WorkerImageProcessingPage> {
     if (finalName == null || finalName.trim().isEmpty) return;
 
     try {
+      // 🤖 Gemini 2.0 Flash 전용 엔드포인트 사용
       final req =
           http.MultipartRequest(
               'POST',
-              Uri.parse('https://backend-vgbf.onrender.com/ocr/schedule'),
+              Uri.parse('https://backend-vgbf.onrender.com/ocr/schedule/gemini'),
             )
             ..fields['user_uid'] = uid
             ..fields['display_name'] = finalName
@@ -120,8 +124,21 @@ class _WorkerImageProcessingPageState extends State<WorkerImageProcessingPage> {
               await http.MultipartFile.fromPath('photo', widget.imageFile.path),
             );
 
+      // 디버깅: 요청 정보 출력
+      print('📤 앱에서 보내는 요청:');
+      print('   URL: ${req.url}');
+      print('   user_uid: $uid');
+      print('   display_name: $finalName');
+      print('   image_path: ${widget.imageFile.path}');
+      print('   image_size: ${await widget.imageFile.length()} bytes');
+
       final res = await req.send();
       final body = await res.stream.bytesToString();
+
+      // 디버깅: 응답 정보 출력
+      print('📥 백엔드 응답:');
+      print('   Status Code: ${res.statusCode}');
+      print('   Response Body: $body');
 
       if (res.statusCode != 200 && res.statusCode != 201) {
         if (mounted) {
@@ -134,10 +151,33 @@ class _WorkerImageProcessingPageState extends State<WorkerImageProcessingPage> {
       }
 
       final data = jsonDecode(body) as Map<String, dynamic>;
-      final List<Schedule> schedules =
-          (data['schedules'] as List? ?? [])
-              .map<Schedule>((e) => Schedule.fromJson(e))
-              .toList();
+      
+      // 디버깅: 응답 데이터 확인
+      print('🔍 백엔드 응답: $data');
+      
+      final List<Schedule> schedules = [];
+      
+      if (data['schedules'] != null) {
+        final schedulesList = data['schedules'] as List;
+        print('📋 schedules 배열 길이: ${schedulesList.length}');
+        
+        for (var item in schedulesList) {
+          try {
+            if (item is Map<String, dynamic>) {
+              print('📝 일정 데이터: $item');
+              final schedule = Schedule.fromJson(item);
+              schedules.add(schedule);
+              print('✅ 일정 파싱 성공: ${schedule.toString()}');
+            }
+          } catch (e) {
+            print('❌ 일정 파싱 오류: $e, 데이터: $item');
+          }
+        }
+      } else {
+        print('❌ schedules 필드가 없습니다');
+      }
+      
+      print('✅ 파싱된 일정 수: ${schedules.length}');
 
       if (mounted) {
         Navigator.pushReplacement(
@@ -152,6 +192,7 @@ class _WorkerImageProcessingPageState extends State<WorkerImageProcessingPage> {
         );
       }
     } catch (e) {
+      print('❌ 전체 처리 오류: $e');
       if (mounted) {
         ScaffoldMessenger.of(
           context,
