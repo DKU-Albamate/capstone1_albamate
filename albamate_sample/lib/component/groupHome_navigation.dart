@@ -10,15 +10,22 @@ import 'groupNotice_navigation.dart';
 class GroupNav extends StatefulWidget {
   final String groupId;
   final String userRole; // ✅ 현재 로그인 시 받은 '사장님' or '알바생'
+  final int initialIndex;
 
-  const GroupNav({super.key, required this.groupId, required this.userRole});
+  const GroupNav({super.key, required this.groupId, required this.userRole, required this.initialIndex});
 
   @override
   _GroupNavState createState() => _GroupNavState();
 }
 
 class _GroupNavState extends State<GroupNav> {
-  int _selectedIndex = 2;
+  late int _selectedIndex;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedIndex = widget.initialIndex; // ← 이거 추가!
+  }
 
   void _onItemTapped(int index) {
     setState(() {

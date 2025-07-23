@@ -30,7 +30,7 @@ class GroupCard extends StatelessWidget {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => GroupNav(groupId: groupId, userRole: '알바생'),
+              builder: (context) => GroupNav(groupId: groupId, userRole: '알바생', initialIndex: 2),
             ),
           );
         },

@@ -256,93 +256,114 @@ class _BossHomecalendarState extends State<BossHomecalendar> {
 
   //해당 날짜 일정 상세 보기
   void _showDayDetailSheet(DateTime date) {
-    final dayAppointments = _events[date] ?? [];
-
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       builder: (context) => DraggableScrollableSheet(
         expand: false,
-        builder: (context, scrollController) => Scaffold(
-          appBar: AppBar(
-            title: Text("${date.month}월 ${date.day}일 일정"),
-            actions: [
-              IconButton(
-                icon: Icon(Icons.add),
-                onPressed: () {
-                  Navigator.pop(context);
-                  _showAddDialog(date);
-                },
-              ),
-            ],
-          ),
-          body: ListView.builder(
-            controller: scrollController,
-            itemCount: dayAppointments.length,
-            itemBuilder: (context, index) {
-              final appt = dayAppointments[index];
-              return Slidable(
-                key: ValueKey(appt.notes ?? '${appt.subject}-$index'),
-                endActionPane: ActionPane(
-                  motion: const ScrollMotion(), // ✅ 진짜 슬라이드 효과
-                  extentRatio: 0.4, // 두 버튼 공간
-                  children: [
-                    //수정 버튼
-                    SlidableAction(
-                      flex:1,
-                      onPressed: (_) {
-                        Navigator.pop(context);
-                        _showEditDialog(appt);
-                      },
-                      backgroundColor: Colors.blue.shade50,
-                      foregroundColor: Colors.blue,
-                      icon: Icons.edit_outlined,
-                      borderRadius: BorderRadius.circular(8),
+        builder: (context, scrollController) => StatefulBuilder(
+          builder: (context, setSheetState) => Scaffold(
+            appBar: AppBar(
+              title: Text("${date.month}월 ${date.day}일 일정"),
+              actions: [
+                IconButton(
+                  icon: Icon(Icons.add),
+                  onPressed: () {
+                    Navigator.pop(context);
+                    _showAddDialog(date);
+                  },
+                ),
+              ],
+            ),
+            body: ListView.builder(
+              controller: scrollController,
+              itemCount: _events[date]?.length ?? 0,
+              itemBuilder: (context, index) {
+                final appt = _events[date]![index];
 
+                return Slidable(
+                  key: ValueKey(appt.notes ?? '${appt.subject}-$index'),
+                  endActionPane: ActionPane(
+                    motion: const ScrollMotion(),
+                    extentRatio: 0.4,
+                    children: [
+                      SlidableAction(
+                        flex: 1,
+                        onPressed: (_) {
+                          Navigator.pop(context);
+                          _showEditDialog(appt);
+                        },
+                        backgroundColor: Colors.blue.shade50,
+                        foregroundColor: Colors.blue,
+                        icon: Icons.edit_outlined,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      SlidableAction(
+                        flex: 1,
+                        onPressed: (_) async {
+                          final response = await http.delete(
+                            Uri.parse('https://backend-vgbf.onrender.com/appointments/${appt.notes}'),
+                          );
+
+                          if (response.statusCode == 204 && mounted) {
+                            final dateKey = DateTime(
+                              appt.startTime.year,
+                              appt.startTime.month,
+                              appt.startTime.day,
+                            );
+
+                            setState(() {
+                              _appointments.removeWhere((a) => a.notes == appt.notes);
+
+                              final updatedDayList = _appointments.where((a) =>
+                              a.startTime.year == dateKey.year &&
+                                  a.startTime.month == dateKey.month &&
+                                  a.startTime.day == dateKey.day,
+                              ).toList();
+
+                              if (updatedDayList.isEmpty) {
+                                _events.remove(dateKey);
+                              } else {
+                                _events[dateKey] = updatedDayList;
+                              }
+                            });
+
+                            // ✅ UI 목록도 갱신
+                            setSheetState(() {});
+                          }
+                        },
+                        backgroundColor: Colors.red.shade50,
+                        foregroundColor: Colors.red,
+                        icon: Icons.delete_outline,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ],
+                  ),
+                  child: ListTile(
+                    contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                    leading: Container(
+                      width: 12,
+                      height: 12,
+                      decoration: BoxDecoration(
+                        color: appt.color,
+                        shape: BoxShape.rectangle,
+                        borderRadius: BorderRadius.circular(2),
+                      ),
                     ),
-                    //삭제 버튼
-                    SlidableAction(
-                      flex: 1,
-                      onPressed: (_) async {
-                        final response = await http.delete(
-                          Uri.parse('https://backend-vgbf.onrender.com/appointments/${appt.notes}'),
-                        );
-                        if (response.statusCode == 204) {
-                          setState(() => _appointments.remove(appt));
-                          _fetchAppointments(); //다시 불러오기
-                        }
-                        Navigator.pop(context);
-                      },
-                      backgroundColor: Colors.red.shade50,
-                      foregroundColor: Colors.red,
-                      icon: Icons.delete_outline,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ],
-                ),
-                child: ListTile(
-                  contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-                  leading: Container(
-                    width: 12,
-                    height: 12,
-                    decoration: BoxDecoration(
-                      color: appt.color,
-                      shape: BoxShape.rectangle,
-                      borderRadius: BorderRadius.circular(2),
+                    title: Text(
+                      appt.subject,
+                      style: TextStyle(fontSize: 14),
                     ),
                   ),
-                  title: Text(
-                    appt.subject,
-                    style: TextStyle(fontSize: 14),
-                  ),
-                ),
-              );
-            },
+                );
+              },
+            ),
           ),
         ),
       ),
     );
   }
+
   //일정 추가 다이얼로그
   void _showAddDialog(DateTime selectedDate) {
     String title = "";

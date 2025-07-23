@@ -72,7 +72,7 @@ class GroupCard extends StatelessWidget {
               MaterialPageRoute(
                 // 사장님뷰로만 확인 가능
                 builder:
-                    (context) => GroupNav(groupId: groupId, userRole: '사장님'),
+                    (context) => GroupNav(groupId: groupId, userRole: '사장님',initialIndex: 2),
               ),
             );
           },
