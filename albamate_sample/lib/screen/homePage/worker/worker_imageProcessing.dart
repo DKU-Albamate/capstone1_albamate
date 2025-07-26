@@ -164,6 +164,13 @@ class _WorkerImageProcessingPageState extends State<WorkerImageProcessingPage> {
       // 디버깅: 응답 데이터 확인
       print('🔍 백엔드 응답: $data');
       
+      // 재시도 정보 확인
+      if (data['retry_info'] != null) {
+        print('🔄 재시도 정보:');
+        print('   최대 재시도 횟수: ${data['retry_info']['max_retries']}');
+        print('   재시도 과정: ${data['retry_info']['retry_attempts']}');
+      }
+      
       final List<Schedule> schedules = [];
       
       if (data['schedules'] != null) {
