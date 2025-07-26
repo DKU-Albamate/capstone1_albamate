@@ -87,7 +87,7 @@ class _WorkerImageProcessingPageState extends State<WorkerImageProcessingPage> {
       builder: (context) {
         return AlertDialog(
           title: const Text('스케줄 추출 이름 확인'),
-          content: Text('$name 님의 스케줄을 추출할까요?\n\n🤖 Gemini 2.0 Flash AI가 정확하게 분석합니다.'),
+          content: Text('$name 님의 스케줄을 추출할까요?\n\n🤖 Gemini 2.5 Flash Lite AI가 정확하게 분석합니다.'),
           actions: [
             TextButton(
               child: const Text('아니오'),
@@ -112,7 +112,7 @@ class _WorkerImageProcessingPageState extends State<WorkerImageProcessingPage> {
     if (finalName == null || finalName.trim().isEmpty) return;
 
     try {
-      // 🤖 Gemini 2.0 Flash 전용 엔드포인트 사용
+      // 🤖 Gemini 2.5 Flash Lite 전용 엔드포인트 사용
       final req =
           http.MultipartRequest(
               'POST',
