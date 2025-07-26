@@ -120,6 +120,10 @@ class _WorkerImageProcessingPageState extends State<WorkerImageProcessingPage> {
             )
             ..fields['user_uid'] = uid
             ..fields['display_name'] = finalName
+            ..fields['use_gemini'] = 'true'
+            ..fields['gemini_seed'] = '12345'  // 고정된 seed 값
+            ..fields['gemini_temperature'] = '0.1'  // 낮은 temperature
+            ..fields['gemini_top_p'] = '0.8'  // 기본 topP 값
             ..files.add(
               await http.MultipartFile.fromPath('photo', widget.imageFile.path),
             );
@@ -129,6 +133,9 @@ class _WorkerImageProcessingPageState extends State<WorkerImageProcessingPage> {
       print('   URL: ${req.url}');
       print('   user_uid: $uid');
       print('   display_name: $finalName');
+      print('   gemini_seed: 12345');
+      print('   gemini_temperature: 0.1');
+      print('   gemini_top_p: 0.8');
       print('   image_path: ${widget.imageFile.path}');
       print('   image_size: ${await widget.imageFile.length()} bytes');
 
