@@ -87,7 +87,7 @@ class _WorkerImageProcessingPageState extends State<WorkerImageProcessingPage> {
       builder: (context) {
         return AlertDialog(
           title: const Text('스케줄 추출 이름 확인'),
-          content: Text('$name 님의 스케줄을 추출할까요?\n\n🤖 Gemini 2.0 Flash AI가 정확하게 분석합니다.'),
+          content: Text('$name 님의 스케줄을 추출할까요?\n\n🤖 Gemini 2.5 Flash Lite AI가 정확하게 분석합니다.'),
           actions: [
             TextButton(
               child: const Text('아니오'),
@@ -112,7 +112,7 @@ class _WorkerImageProcessingPageState extends State<WorkerImageProcessingPage> {
     if (finalName == null || finalName.trim().isEmpty) return;
 
     try {
-      // 🤖 Gemini 2.0 Flash 전용 엔드포인트 사용
+      // 🤖 Gemini 2.5 Flash Lite 전용 엔드포인트 사용
       final req =
           http.MultipartRequest(
               'POST',
@@ -120,6 +120,11 @@ class _WorkerImageProcessingPageState extends State<WorkerImageProcessingPage> {
             )
             ..fields['user_uid'] = uid
             ..fields['display_name'] = finalName
+            ..fields['use_gemini'] = 'true'
+            ..fields['gemini_seed'] = '1000'  // 고정된 seed 값
+            ..fields['gemini_temperature'] = '0.1'  // 낮은 temperature
+            ..fields['gemini_top_p'] = '0.3'  // 낮은 topP 값
+            ..fields['max_retries'] = '3'  // 최대 재시도 횟수
             ..files.add(
               await http.MultipartFile.fromPath('photo', widget.imageFile.path),
             );
@@ -129,6 +134,10 @@ class _WorkerImageProcessingPageState extends State<WorkerImageProcessingPage> {
       print('   URL: ${req.url}');
       print('   user_uid: $uid');
       print('   display_name: $finalName');
+      print('   gemini_seed: 12345');
+      print('   gemini_temperature: 0.1');
+      print('   gemini_top_p: 0.3');
+      print('   max_retries: 3');
       print('   image_path: ${widget.imageFile.path}');
       print('   image_size: ${await widget.imageFile.length()} bytes');
 
@@ -154,6 +163,13 @@ class _WorkerImageProcessingPageState extends State<WorkerImageProcessingPage> {
       
       // 디버깅: 응답 데이터 확인
       print('🔍 백엔드 응답: $data');
+      
+      // 재시도 정보 확인
+      if (data['retry_info'] != null) {
+        print('🔄 재시도 정보:');
+        print('   최대 재시도 횟수: ${data['retry_info']['max_retries']}');
+        print('   재시도 과정: ${data['retry_info']['retry_attempts']}');
+      }
       
       final List<Schedule> schedules = [];
       

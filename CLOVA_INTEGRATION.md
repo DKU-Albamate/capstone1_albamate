@@ -1,8 +1,8 @@
-# Clova OCR + Gemini 2.0 Flash 프론트엔드 연동 가이드
+# Clova OCR + Gemini 2.5 Flash Lite 프론트엔드 연동 가이드
 
 ## 개요
 
-Flutter 앱에서 Clova OCR과 Gemini 2.0 Flash를 통해 스케줄 이미지를 업로드하고 자동으로 일정을 등록하는 방법입니다.
+Flutter 앱에서 Clova OCR과 Gemini 2.5 Flash Lite를 통해 스케줄 이미지를 업로드하고 자동으로 일정을 등록하는 방법입니다.
 
 ## API 사용법
 
@@ -20,7 +20,7 @@ class OcrService {
     required File imageFile,
     required String userUid,
     String? displayName,
-    bool useGemini = true, // Gemini 2.0 Flash 사용 여부
+    bool useGemini = true, // Gemini 2.5 Flash Lite 사용 여부
   }) async {
     try {
       // multipart 요청 생성
@@ -299,7 +299,7 @@ class _ScheduleUploadWidgetState extends State<ScheduleUploadWidget> {
                   children: [
                     Expanded(
                       child: RadioListTile<bool>(
-                        title: Text('🤖 Gemini 2.0 Flash'),
+                        title: Text('🤖 Gemini 2.5 Flash Lite'),
                         subtitle: Text('더 정확한 분석'),
                         value: true,
                         groupValue: _useGemini,
@@ -393,7 +393,7 @@ class _ScheduleUploadWidgetState extends State<ScheduleUploadWidget> {
 2. **파일 크기**: 너무 큰 이미지는 업로드 시간이 오래 걸릴 수 있습니다
 3. **네트워크**: 안정적인 인터넷 연결이 필요합니다
 4. **권한**: 갤러리 접근 권한이 필요합니다
-5. **API 키**: Gemini 2.0 Flash 사용 시 Google AI Studio API 키가 필요합니다
+5. **API 키**: Gemini 2.5 Flash Lite 사용 시 Google AI Studio API 키가 필요합니다
 
 ## 에러 처리
 
