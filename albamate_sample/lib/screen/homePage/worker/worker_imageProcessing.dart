@@ -121,7 +121,7 @@ class _WorkerImageProcessingPageState extends State<WorkerImageProcessingPage> {
             ..fields['user_uid'] = uid
             ..fields['display_name'] = finalName
             ..fields['use_gemini'] = 'true'
-            ..fields['gemini_seed'] = '12345'  // 고정된 seed 값
+            ..fields['gemini_seed'] = '1000'  // 고정된 seed 값
             ..fields['gemini_temperature'] = '0.1'  // 낮은 temperature
             ..fields['gemini_top_p'] = '0.3'  // 낮은 topP 값
             ..fields['max_retries'] = '3'  // 최대 재시도 횟수
