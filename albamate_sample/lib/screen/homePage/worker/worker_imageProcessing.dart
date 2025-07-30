@@ -121,10 +121,10 @@ class _WorkerImageProcessingPageState extends State<WorkerImageProcessingPage> {
             ..fields['user_uid'] = uid
             ..fields['display_name'] = finalName
             ..fields['use_gemini'] = 'true'
-            ..fields['gemini_seed'] = '1000'  // 고정된 seed 값
-            ..fields['gemini_temperature'] = '0.1'  // 낮은 temperature
-            ..fields['gemini_top_p'] = '0.3'  // 낮은 topP 값
-            ..fields['max_retries'] = '3'  // 최대 재시도 횟수
+                         ..fields['gemini_seed'] = '42'  // 안정적인 seed 값
+             ..fields['gemini_temperature'] = '0.05'  // 매우 낮은 temperature (일관성)
+             ..fields['gemini_top_p'] = '0.3'  // 보수적인 topP 값 (정확성)
+             ..fields['max_retries'] = '5'  // 최대 재시도 횟수 증가
             ..files.add(
               await http.MultipartFile.fromPath('photo', widget.imageFile.path),
             );
@@ -134,10 +134,10 @@ class _WorkerImageProcessingPageState extends State<WorkerImageProcessingPage> {
       print('   URL: ${req.url}');
       print('   user_uid: $uid');
       print('   display_name: $finalName');
-      print('   gemini_seed: 12345');
-      print('   gemini_temperature: 0.1');
-      print('   gemini_top_p: 0.3');
-      print('   max_retries: 3');
+              print('   gemini_seed: 42');
+        print('   gemini_temperature: 0.05');
+        print('   gemini_top_p: 0.3');
+        print('   max_retries: 5');
       print('   image_path: ${widget.imageFile.path}');
       print('   image_size: ${await widget.imageFile.length()} bytes');
 
