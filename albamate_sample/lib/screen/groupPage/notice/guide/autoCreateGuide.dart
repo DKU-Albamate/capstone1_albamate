@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'dart:convert'; // 나중에 API 통신 시 사용
-import 'package:http/http.dart' as http; // 나중에 API 통신 시 사용
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 class AutoCreateGuidePage extends StatefulWidget {
   const AutoCreateGuidePage({super.key});
@@ -12,41 +12,63 @@ class AutoCreateGuidePage extends StatefulWidget {
 class _AutoCreateGuidePageState extends State<AutoCreateGuidePage> {
   final TextEditingController _inputController = TextEditingController();
   String? _generatedText;
-
-  // TODO: 삭제 예정 - 더미 요약 결과
-  final String _dummySummary = '오늘부터 매장 운영시간이 변경됩니다. 꼭 확인해주세요!';
-  // TODO: 삭제 예정 - 더미 키워드
-  final List<String> _dummyTags = ['운영 시간', '중요', '긴급'];
+  String? _previousText;
 
   void _generateWithAI() async {
     final input = _inputController.text.trim();
     if (input.isEmpty) return;
 
-    // TODO: 삭제 예정 - 더미 요약 적용
-    setState(() {
-      _generatedText = _dummySummary;
-    });
-
-    // TODO: 나중에 실제 Gemini, GPT, Clova 등 AI API 요청으로 대체
+    try {
+      final response = await http.post(
+        Uri.parse('https://backend-vgbf.onrender.com/notice/llm-generate'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'input': input}),
+      );
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        setState(() {
+          _previousText = _generatedText;
+          _generatedText = data['generated'] ?? '생성된 내용이 없습니다.';
+        });
+      } else if (response.statusCode == 503) {
+        setState(() {
+          _generatedText = '💡 Gemini 서버가 일시적으로 혼잡합니다. 잠시 후 다시 시도해주세요.';
+        });
+      } else {
+        setState(() {
+          _generatedText = '공지사항 생성 실패 (code: ${response.statusCode})';
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _generatedText = '공지사항 생성 중 오류 발생: $e';
+      });
+    }
   }
 
   void _regenerate() {
-    // TODO: 삭제 예정 - 재생성 더미 값
-    setState(() {
-      _generatedText = '내일 점심시간에 전원 회의가 예정되어 있습니다. 사전 준비 바랍니다.';
-    });
+    _generateWithAI(); // 같은 입력으로 다시 요청
   }
 
   void _revert() {
     setState(() {
-      _generatedText = null;
+      _generatedText = _previousText;
+      _previousText = null;
     });
   }
 
   void _applyToPreviousPage() {
     if (_generatedText != null) {
-      Navigator.pop(context, _generatedText); // 결과 전달
+      Navigator.pop(context, _generatedText);
     }
+  }
+
+  List<String> _extractTagsFromInput() {
+    return _inputController.text
+        .split(',')
+        .map((e) => e.trim())
+        .where((e) => e.isNotEmpty)
+        .toList();
   }
 
   @override
@@ -63,7 +85,7 @@ class _AutoCreateGuidePageState extends State<AutoCreateGuidePage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      "AI가 문장을 다듬고 요약해드려요 ✨",
+                      "AI가 문장을 다듬고 요약해드려요 ✨\n(쉼표로 항목을 구분해 주세요)",
                       style: TextStyle(fontSize: 14, color: Colors.grey[600]),
                     ),
                     SizedBox(height: 12),
@@ -130,21 +152,17 @@ class _AutoCreateGuidePageState extends State<AutoCreateGuidePage> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              "AI 생성 결과",
-                              style: TextStyle(fontWeight: FontWeight.bold),
-                            ),
+                            Text("AI 생성 결과", style: TextStyle(fontWeight: FontWeight.bold)),
                             SizedBox(height: 8),
                             Text(_generatedText!),
-                            SizedBox(height: 8),
+                            SizedBox(height: 12),
 
-                            // TODO: 삭제 예정 - 더미 키워드 태그
+                            // 태그 표시
                             Wrap(
                               spacing: 6,
-                              children:
-                                  _dummyTags
-                                      .map((tag) => Chip(label: Text('#$tag')))
-                                      .toList(),
+                              children: _extractTagsFromInput()
+                                  .map((tag) => Chip(label: Text('#$tag')))
+                                  .toList(),
                             ),
                             SizedBox(height: 12),
 
@@ -152,7 +170,7 @@ class _AutoCreateGuidePageState extends State<AutoCreateGuidePage> {
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 TextButton(
-                                  onPressed: _revert,
+                                  onPressed: _previousText != null ? _revert : null,
                                   child: Text("되돌리기"),
                                 ),
                                 TextButton(
