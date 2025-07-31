@@ -6,7 +6,6 @@ import 'package:http/http.dart' as http;
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:albamate_sample/screen/groupPage/schedule/schedule_confirm_nav.dart';
 
-
 class ScheduleBuildPage extends StatefulWidget {
   final Map<String, List<String>> unavailableMap;
   final Map<String, String> userNameMap;
@@ -27,14 +26,20 @@ class ScheduleBuildPage extends StatefulWidget {
   State<ScheduleBuildPage> createState() => _ScheduleBuildPageState();
 }
 
+// 날짜를 비교할 때 시간까지 비교하지 않도록 헬퍼 함수 추가
+bool isSameDay(DateTime a, DateTime b) {
+  return a.year == b.year && a.month == b.month && a.day == b.day;
+}
+
 class _ScheduleBuildPageState extends State<ScheduleBuildPage> {
   DateTime selectedDate = DateTime.now();
+  DateTime selectedMonth = DateTime.now(); // ✅ 현재 보고 있는 달을 따로 관리
   int weeklyLimit = 3;
   final TextEditingController _titleController = TextEditingController();
 
   late final List<String> selectedUsers;
   late final Map<String, Set<DateTime>> parsedUnavailableMap;
-  late final Map<String, Set<DateTime>> assignedDates;
+  late Map<String, Set<DateTime>> assignedDates;
 
   @override
   void initState() {
@@ -74,11 +79,17 @@ class _ScheduleBuildPageState extends State<ScheduleBuildPage> {
   }
 
   void toggleAssignment(String user, DateTime date) {
+    final current = assignedDates[user]!;
+    final matched = current.firstWhere(
+          (d) => isSameDay(d, date),
+      orElse: () => DateTime(0),
+    );
+
     setState(() {
-      if (assignedDates[user]!.contains(date)) {
-        assignedDates[user]!.remove(date);
+      if (matched.year != 0) {
+        current.remove(matched);
       } else {
-        assignedDates[user]!.add(date);
+        current.add(date);
       }
     });
   }
@@ -109,8 +120,7 @@ class _ScheduleBuildPageState extends State<ScheduleBuildPage> {
     final idToken = await user?.getIdToken();
 
     final response = await http.patch(
-      Uri.parse(
-          'https://backend-schedule-vs8b.onrender.com/api/schedules/${widget.scheduleId}/confirm'),
+      Uri.parse('https://backend-schedule-vs8b.onrender.com/api/schedules/${widget.scheduleId}/confirm'),
       headers: {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer $idToken',
@@ -120,7 +130,6 @@ class _ScheduleBuildPageState extends State<ScheduleBuildPage> {
         'scheduleMap': scheduleMap,
       }),
     );
-
 
     if (response.statusCode == 200) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -147,8 +156,8 @@ class _ScheduleBuildPageState extends State<ScheduleBuildPage> {
   }
 
   Widget buildCalendar() {
-    final firstDay = DateTime(selectedDate.year, selectedDate.month, 1);
-    final lastDay = DateTime(selectedDate.year, selectedDate.month + 1, 0);
+    final firstDay = DateTime(selectedMonth.year, selectedMonth.month, 1); // ✅ 월 달력 렌더 기준 변경
+    final lastDay = DateTime(selectedMonth.year, selectedMonth.month + 1, 0);
     final firstWeekday = firstDay.weekday % 7;
     final totalDays = lastDay.day;
 
@@ -165,11 +174,13 @@ class _ScheduleBuildPageState extends State<ScheduleBuildPage> {
     }
 
     for (int day = 1; day <= totalDays; day++) {
-      final date = DateTime(selectedDate.year, selectedDate.month, day);
-      final isSelected = selectedDate.day == day;
-      final assignedUsers = selectedUsers
-          .where((u) => assignedDates[u]?.contains(date) ?? false)
-          .toList();
+      final date = DateTime(selectedMonth.year, selectedMonth.month, day);
+      final isSelected = isSameDay(selectedDate, date); // ✅ 날짜 비교 정확도 개선
+
+      final assignedUsers = selectedUsers.where((u) {
+        final assignedList = assignedDates[u] ?? {};
+        return assignedList.any((d) => isSameDay(d, date));
+      }).toList();
 
       currentRow.add(
         GestureDetector(
@@ -185,19 +196,11 @@ class _ScheduleBuildPageState extends State<ScheduleBuildPage> {
             ),
             child: Column(
               children: [
-                Text(
-                  '$day',
-                  style: const TextStyle(
-                      fontSize: 10, fontWeight: FontWeight.bold),
-                ),
+                Text('$day', style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 2),
                 Column(
                   children: assignedUsers
-                      .map((user) => Text(
-                            user,
-                            style: const TextStyle(fontSize: 8),
-                            overflow: TextOverflow.ellipsis,
-                          ))
+                      .map((user) => Text(user, style: const TextStyle(fontSize: 8), overflow: TextOverflow.ellipsis))
                       .toList(),
                 ),
               ],
@@ -207,9 +210,7 @@ class _ScheduleBuildPageState extends State<ScheduleBuildPage> {
       );
 
       if (currentRow.length == 7) {
-        rows.add(Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: currentRow));
+        rows.add(Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: currentRow));
         currentRow = [];
       }
     }
@@ -218,9 +219,7 @@ class _ScheduleBuildPageState extends State<ScheduleBuildPage> {
       while (currentRow.length < 7) {
         currentRow.add(SizedBox(width: boxWidth, height: boxWidth * 1.5));
       }
-      rows.add(Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: currentRow));
+      rows.add(Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: currentRow));
     }
 
     return Column(children: rows);
@@ -252,25 +251,23 @@ class _ScheduleBuildPageState extends State<ScheduleBuildPage> {
               children: [
                 IconButton(
                   icon: const Icon(Icons.chevron_left),
-                  onPressed: () => setState(() {
-                    selectedDate = DateTime(
-                      selectedDate.year,
-                      selectedDate.month - 1,
-                    );
-                  }),
+                  onPressed: () {
+                    setState(() {
+                      selectedMonth = DateTime(selectedMonth.year, selectedMonth.month - 1); // ✅ 월 이동은 selectedMonth 기준으로 변경
+                    });
+                  },
                 ),
                 Text(
-                  DateFormat('yyyy. MM').format(selectedDate),
-                  style: const TextStyle(fontSize: 18),
+                  DateFormat('yyyy. MM').format(selectedMonth), //
+                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
                 IconButton(
                   icon: const Icon(Icons.chevron_right),
-                  onPressed: () => setState(() {
-                    selectedDate = DateTime(
-                      selectedDate.year,
-                      selectedDate.month + 1,
-                    );
-                  }),
+                  onPressed: () {
+                    setState(() {
+                      selectedMonth = DateTime(selectedMonth.year, selectedMonth.month + 1);
+                    });
+                  },
                 ),
               ],
             ),
@@ -281,11 +278,7 @@ class _ScheduleBuildPageState extends State<ScheduleBuildPage> {
                 final dayNames = ['일', '월', '화', '수', '목', '금', '토'];
                 return SizedBox(
                   width: boxWidth,
-                  child: Text(
-                    dayNames[index],
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(fontWeight: FontWeight.bold),
-                  ),
+                  child: Text(dayNames[index], textAlign: TextAlign.center, style: const TextStyle(fontWeight: FontWeight.bold)),
                 );
               }),
             ),
@@ -298,38 +291,27 @@ class _ScheduleBuildPageState extends State<ScheduleBuildPage> {
                 DropdownButton<int>(
                   value: weeklyLimit,
                   onChanged: (val) => setState(() => weeklyLimit = val!),
-                  items: List.generate(
-                    7,
-                    (i) => DropdownMenuItem(
-                      value: i + 1,
-                      child: Text('${i + 1}일'),
-                    ),
-                  ),
+                  items: List.generate(7, (i) => DropdownMenuItem(value: i + 1, child: Text('${i + 1}일'))),
                 ),
               ],
             ),
             const SizedBox(height: 8),
             const Text('가능한 인원', style: TextStyle(fontWeight: FontWeight.bold)),
             ...availableUsers.map((user) {
-              final isSelected = assignedDates[user]!.contains(selectedDate);
+              final isSelected = assignedDates[user]!.any((d) => isSameDay(d, selectedDate));
               final isLimited = isOverLimit(user, selectedDate);
               return ListTile(
                 title: Text(user),
                 trailing: isLimited && !isSelected
                     ? const Icon(Icons.warning, color: Colors.red)
                     : Icon(
-                        isSelected
-                            ? Icons.check_box
-                            : Icons.check_box_outline_blank,
-                        color: isSelected ? Colors.blue : null,
-                      ),
+                  isSelected ? Icons.check_box : Icons.check_box_outline_blank,
+                  color: isSelected ? Colors.blue : null,
+                ),
                 onTap: isLimited && !isSelected
                     ? () => ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content:
-                                Text('$user님은 이미 주 $weeklyLimit일 초과입니다.'),
-                          ),
-                        )
+                  SnackBar(content: Text('$user님은 이미 주 $weeklyLimit일 초과입니다.')),
+                )
                     : () => toggleAssignment(user, selectedDate),
               );
             }),
