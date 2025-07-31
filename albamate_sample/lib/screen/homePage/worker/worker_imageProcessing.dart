@@ -115,6 +115,7 @@ class _WorkerImageProcessingPageState extends State<WorkerImageProcessingPage> {
         .isEmpty) return;
 
     try {
+      // 🤖 Gemini 2.5 Flash Lite 전용 엔드포인트 사용
       final req = http.MultipartRequest(
         'POST',
         Uri.parse('https://backend-vgbf.onrender.com/ocr/schedule/gemini'),
@@ -122,15 +123,24 @@ class _WorkerImageProcessingPageState extends State<WorkerImageProcessingPage> {
         ..fields['user_uid'] = uid
         ..fields['display_name'] = finalName
         ..fields['use_gemini'] = 'true'
-        ..fields['gemini_seed'] = '1000'
-        ..fields['gemini_temperature'] = '0.1'
-        ..fields['gemini_top_p'] = '0.3'
-        ..fields['max_retries'] = '3'
+        ..fields['gemini_seed'] = '42'  // 안정적인 seed 값
+        ..fields['gemini_temperature'] = '0.05'  // 매우 낮은 temperature (일관성)
+        ..fields['gemini_top_p'] = '0.3'  // 보수적인 topP 값 (정확성)
+        ..fields['max_retries'] = '5'  // 최대 재시도 횟수 증가
         ..files.add(
             await http.MultipartFile.fromPath('photo', widget.imageFile.path));
 
-      // ✅ 요청 전 로그 출력 (백엔드 로깅용)
-      print('📤 요청 전송 시작');
+      // 디버깅: 요청 정보 출력
+      print('📤 앱에서 보내는 요청:');
+      print('   URL: ${req.url}');
+      print('   user_uid: $uid');
+      print('   display_name: $finalName');
+      print('   gemini_seed: 42');
+      print('   gemini_temperature: 0.05');
+      print('   gemini_top_p: 0.3');
+      print('   max_retries: 5');
+      print('   image_path: ${widget.imageFile.path}');
+      print('   image_size: ${await widget.imageFile.length()} bytes');
 
       // ✅ 동시 요청 타임아웃 처리
       final res = await req.send().timeout(const Duration(seconds: 20));
