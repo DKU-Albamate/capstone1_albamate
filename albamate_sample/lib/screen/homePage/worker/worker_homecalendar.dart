@@ -77,7 +77,7 @@ class _WorkerHomecalendarState extends State<WorkerHomecalendar> {
                     
                     // Gemini로 분석된 일정은 특별 표시
                     if (isGeminiSchedule) {
-                      displayTitle = '🤖 $displayTitle';
+                      displayTitle = ' $displayTitle';
                     }
                   }
                   
@@ -85,7 +85,7 @@ class _WorkerHomecalendarState extends State<WorkerHomecalendar> {
                     startTime: DateTime.parse(item['start_time']),
                     endTime: DateTime.parse(item['end_time']),
                     subject: displayTitle,
-                    color: Color(_hexToColor(item['color'] ?? '#FF9900')),
+                    color: Color(_hexToColor(item['color'] ?? '#006FFD')),
                     notes: item['id'],
                     isOcrSchedule: isOcrSchedule,
                     isGeminiSchedule: isGeminiSchedule,
