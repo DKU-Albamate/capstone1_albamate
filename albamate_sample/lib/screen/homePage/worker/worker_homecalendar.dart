@@ -68,8 +68,9 @@ class _WorkerHomecalendarState extends State<WorkerHomecalendar> {
                   // OCR로 추가된 일정인지 확인
                   final isOcrSchedule = item['source'] == 'ocr' || item['source'] == 'ocr_gemini';
                   final isGeminiSchedule = item['source'] == 'ocr_gemini';
+                  final isGroupSync = item['source'] == 'group_sync';
                   
-                  // OCR 일정은 특별한 제목 형식 사용
+                  // 일정 제목 형식 결정
                   String displayTitle = item['title'];
                   if (isOcrSchedule) {
                     final timeRange = '${_formatTime24(DateTime.parse(item['start_time']))} ~ ${_formatTime24(DateTime.parse(item['end_time']))}';
@@ -79,17 +80,21 @@ class _WorkerHomecalendarState extends State<WorkerHomecalendar> {
                     if (isGeminiSchedule) {
                       displayTitle = ' $displayTitle';
                     }
+                  } else if (isGroupSync) {
+                    // 그룹 연동 일정은 특별 표시
+                    displayTitle = '📅 ${item['title']}';
                   }
                   
-                  return Appointment(
-                    startTime: DateTime.parse(item['start_time']),
-                    endTime: DateTime.parse(item['end_time']),
-                    subject: displayTitle,
-                    color: Color(_hexToColor(item['color'] ?? '#006FFD')),
-                    notes: item['id'],
-                    isOcrSchedule: isOcrSchedule,
-                    isGeminiSchedule: isGeminiSchedule,
-                  );
+                                     return Appointment(
+                     startTime: DateTime.parse(item['start_time']),
+                     endTime: DateTime.parse(item['end_time']),
+                     subject: displayTitle,
+                     color: Color(_hexToColor(item['color'] ?? '#006FFD')),
+                     notes: item['id'],
+                     isOcrSchedule: isOcrSchedule,
+                     isGeminiSchedule: isGeminiSchedule,
+                     isGroupSync: isGroupSync,
+                   );
                 },
               )
               .toList();
@@ -685,6 +690,7 @@ class Appointment {
   final String? notes;
   final bool isOcrSchedule;
   final bool isGeminiSchedule;
+  final bool isGroupSync;
 
   Appointment({
     required this.startTime,
@@ -694,5 +700,6 @@ class Appointment {
     this.notes,
     this.isOcrSchedule = false,
     this.isGeminiSchedule = false,
+    this.isGroupSync = false,
   });
 }
