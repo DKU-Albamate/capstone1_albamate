@@ -12,6 +12,7 @@ class ScheduleBuildPage extends StatefulWidget {
   final Map<String, String> userNameMap;
   final String scheduleId;
   final String groupId;
+  final VoidCallback onConfirmed; // 확정 완료 시 호출할 콜백
 
   const ScheduleBuildPage({
     super.key,
@@ -19,6 +20,7 @@ class ScheduleBuildPage extends StatefulWidget {
     required this.userNameMap,
     required this.scheduleId,
     required this.groupId,
+    required this.onConfirmed,
   });
 
   @override
@@ -119,20 +121,17 @@ class _ScheduleBuildPageState extends State<ScheduleBuildPage> {
       }),
     );
 
+
     if (response.statusCode == 200) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('스케줄 확정 완료')),
       );
+      // 부모에 확정 완료를 알림
+      Navigator.pop(context);
 
-      Navigator.pushReplacement(
-  context,
-  MaterialPageRoute(
-    builder: (context) => Scaffold(
-      appBar: AppBar(title: const Text('스케줄 확정')),
-      body: ScheduleConfirmNav(groupId: widget.groupId),
-    ),
-  ),
-);
+      // 스케줄 작성 페이지는 닫기
+      widget.onConfirmed();
+
     } else {
       print('❌ 실패: ${response.body}');
       ScaffoldMessenger.of(context).showSnackBar(

@@ -11,11 +11,13 @@ import 'dart:convert';
 class ScheduleRequestNav extends StatefulWidget {
   final String groupId; // 부모에서 supabase의 groupId 전달받음
   final String userRole;
+  final VoidCallback? onScheduleConfirmed; // 확정 후 호출될 콜백
 
   const ScheduleRequestNav({
     super.key,
     required this.groupId,
     required this.userRole,
+    this.onScheduleConfirmed,       // 새로 추가
   });
 
   @override
@@ -106,6 +108,7 @@ Future<void> fetchSchedulePosts() async {
               // TODO: ⚠️ 현재 userRole 임시 사용 중 (백엔드 ownerId 연동 시 제거 예정)
               userRole: widget.userRole,
               groupId: widget.groupId,
+              onScheduleConfirmed: widget.onScheduleConfirmed, // 추가
             );
           }).toList(),
           const SizedBox(height: 32),
