@@ -118,9 +118,9 @@ Future<void> fetchSchedulePosts() async {
           widget.userRole == '사장님'
               ? FloatingActionButton.extended(
                 onPressed: _handleCreatePost,
-                backgroundColor: Colors.blue,
-                label: const Text('CREATE'),
-                icon: const Icon(Icons.add),
+                backgroundColor: Color(0xFF006FFD),
+                label: Text('Create', style: TextStyle(color: Colors.white)),
+                icon: Icon(Icons.add, color: Colors.white),
               )
               : null,
     );
