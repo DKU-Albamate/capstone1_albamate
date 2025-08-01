@@ -197,48 +197,56 @@ class _DetailSubPageState extends State<DetailSubPage> {
       ),
       body: Column(
         children: [
-          // 공지 카드
-          Container(
-            padding: EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              border: Border(bottom: BorderSide(color: Colors.grey.shade300)),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    CircleAvatar(backgroundColor: Colors.grey[300], radius: 20),
-                    SizedBox(width: 8),
-                    Column(
+          Expanded( // ✅ 전체 스크롤 가능 영역
+            child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  // 공지 카드
+                  Container(
+                    padding: EdgeInsets.all(16),
+                    width: double.infinity,
+                    child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          widget.notice.title,
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                          ),
+                        Row(
+                          children: [
+                            CircleAvatar(backgroundColor: Colors.grey[300], radius: 20),
+                            SizedBox(width: 8),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  widget.notice.title,
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                                Text(
+                                  createdDate,
+                                  style: TextStyle(color: Colors.grey, fontSize: 12),
+                                ),
+                              ],
+                            ),
+                            Spacer(),
+                          ],
                         ),
-                        Text(
-                          createdDate,
-                          style: TextStyle(color: Colors.grey, fontSize: 12),
-                        ),
+                        SizedBox(height: 12),
+                        Text(widget.notice.content),
                       ],
                     ),
-                    Spacer(),
-                  ],
-                ),
-                SizedBox(height: 12),
-                Text(widget.notice.content),
-              ],
-            ),
-          ),
-          Expanded(
-            child:
-                comments.isEmpty
-                    ? Center(child: Text('댓글이 없습니다.'))
-                    : ListView.builder(
+                  ),
+
+                  // 댓글 목록
+                  if (comments.isEmpty)
+                    Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Center(child: Text('댓글이 없습니다.')),
+                    )
+                  else
+                    ListView.builder(
+                      shrinkWrap: true,
+                      physics: NeverScrollableScrollPhysics(),
                       itemCount: comments.length,
                       itemBuilder: (context, index) {
                         final comment = comments[index];
@@ -248,17 +256,21 @@ class _DetailSubPageState extends State<DetailSubPage> {
                           ),
                           title: Text(comment.userName),
                           subtitle: Text(comment.content),
-                          trailing:
-                              comment.userUid == currentUid
-                                  ? IconButton(
-                                    icon: Icon(Icons.delete, color: Colors.red),
-                                    onPressed: () => _deleteComment(comment.id),
-                                  )
-                                  : null,
+                          trailing: comment.userUid == currentUid
+                              ? IconButton(
+                            icon: Icon(Icons.delete, color: Colors.red),
+                            onPressed: () => _deleteComment(comment.id),
+                          )
+                              : null,
                         );
                       },
                     ),
+                ],
+              ),
+            ),
           ),
+
+          // ✅ 댓글 작성창은 고정
           Container(
             padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             decoration: BoxDecoration(

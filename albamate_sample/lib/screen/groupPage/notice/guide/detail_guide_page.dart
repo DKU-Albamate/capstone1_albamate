@@ -108,7 +108,7 @@ class _DetailGuidePageState extends State<DetailGuidePage> {
           ),
         ],
       ),
-      body: Padding(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(20.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -135,7 +135,8 @@ class _DetailGuidePageState extends State<DetailGuidePage> {
               ],
             ),
             SizedBox(height: 20),
-            if (widget.notice.imageUrl != null && widget.notice.imageUrl!.isNotEmpty)
+            if (widget.notice.imageUrl != null &&
+                widget.notice.imageUrl!.isNotEmpty)
               Container(
                 width: double.infinity,
                 height: 200,
@@ -158,6 +159,7 @@ class _DetailGuidePageState extends State<DetailGuidePage> {
                 ),
               ),
             Text(widget.notice.content),
+            SizedBox(height: 80), // ✅ 하단 체크박스 침범 방지
           ],
         ),
       ),
