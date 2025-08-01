@@ -216,7 +216,7 @@ class _WorkerGroupState extends State<WorkerGroup> {
         backgroundColor: const Color(0xFF006FFD),
         label: const Text(
           '그룹 참여',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          style: TextStyle(color: Colors.white),
         ),
         icon: const Icon(Icons.group_add, color: Colors.white),
       ),

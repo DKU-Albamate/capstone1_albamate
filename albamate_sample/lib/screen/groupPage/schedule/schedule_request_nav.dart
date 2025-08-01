@@ -119,7 +119,7 @@ Future<void> fetchSchedulePosts() async {
               ? FloatingActionButton.extended(
                 onPressed: _handleCreatePost,
                 backgroundColor: Color(0xFF006FFD),
-                label: Text('Create', style: TextStyle(color: Colors.white)),
+                label: Text('CREATE', style: TextStyle(color: Colors.white)),
                 icon: Icon(Icons.add, color: Colors.white),
               )
               : null,

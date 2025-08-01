@@ -109,7 +109,7 @@ class _BossGroupState extends State<BossGroup> {
         backgroundColor: const Color(0xFF006FFD),
         label: const Text(
           'CREATE',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          style: TextStyle(color: Colors.white),
         ),
         icon: const Icon(Icons.add, color: Colors.white),
       ),

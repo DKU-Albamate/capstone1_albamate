@@ -306,7 +306,7 @@ class _ScreenGuidePageState extends State<ScreenGuidePage> {
                     _fetchUserRoleAndNotices();
                   }
                 },
-                label: Text('Create', style: TextStyle(color: Colors.white)),
+                label: Text('CREATE', style: TextStyle(color: Colors.white)),
                 icon: Icon(Icons.add, color: Colors.white),
               )
               : null,

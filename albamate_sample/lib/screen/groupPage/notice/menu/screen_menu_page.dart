@@ -221,7 +221,7 @@ class _ScreenMenuPageState extends State<ScreenMenuPage> {
                 );
                 if (created == true) _fetchUserRoleAndNotices();
               },
-              label: Text('Create', style: TextStyle(color: Colors.white)),
+              label: Text('CREATE', style: TextStyle(color: Colors.white)),
               icon: Icon(Icons.add, color: Colors.white),
             )
           : null,
