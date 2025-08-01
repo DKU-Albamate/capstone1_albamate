@@ -46,7 +46,7 @@ class WorkerImageParseViewPage extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const Text(
-                          '🤖 Gemini 2.5 Flash Lite AI 분석',
+                          ' Gemini 2.5 Flash Lite AI 분석',
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             color: Color(0xFF006FFD),
