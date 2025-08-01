@@ -23,6 +23,7 @@ class _ScreenMenuPageState extends State<ScreenMenuPage> {
   List<Notice> notices = [];
   String? userRole;
   String? userUid;
+  bool _isLoading = false;
 
   @override
   void initState() {
@@ -33,6 +34,8 @@ class _ScreenMenuPageState extends State<ScreenMenuPage> {
   Future<void> _fetchUserRoleAndNotices() async {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) return;
+
+    setState(() => _isLoading = true);
 
     userUid = user.uid;
 
@@ -47,7 +50,7 @@ class _ScreenMenuPageState extends State<ScreenMenuPage> {
     final idToken = await user.getIdToken();
 
     final response = await http.get(
-      Uri.parse('https://backend-vgbf.onrender.com/api/posts?groupId=${widget.groupId}&category=신메뉴공지'),
+      Uri.parse('https://backend-vgbf.onrender.com/api/posts?groupId=${widget.groupId}&category=\uC2E0\uBA54\uB274\uACF5\uC9C0'),
       headers: {
         'Authorization': 'Bearer $idToken',
       },
@@ -57,9 +60,11 @@ class _ScreenMenuPageState extends State<ScreenMenuPage> {
       final data = jsonDecode(response.body)['data'] as List;
       setState(() {
         notices = data.map((e) => Notice.fromJson(e)).toList();
+        _isLoading = false;
       });
     } else {
       print('목록 불러오기 실패: ${response.body}');
+      setState(() => _isLoading = false);
     }
   }
 
@@ -85,15 +90,19 @@ class _ScreenMenuPageState extends State<ScreenMenuPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: ListView.builder(
+      body: _isLoading
+          ? Center(child: CircularProgressIndicator())
+          : ListView.builder(
         itemCount: notices.length,
         itemBuilder: (context, index) {
           final notice = notices[index];
           final isAuthor = userUid != null && userUid == notice.authorUid;
+          final hasImage = notice.imageUrl != null && notice.imageUrl!.isNotEmpty;
 
           return Container(
             margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            height: notice.imageUrl != null && notice.imageUrl!.isNotEmpty ? 248 : 148,
+            width: double.infinity,
+            height: hasImage ? 248 : 160, // ✅ 이미지 유무에 따라 카드 높이 지정
             child: Card(
               elevation: 2,
               child: Padding(
@@ -102,11 +111,11 @@ class _ScreenMenuPageState extends State<ScreenMenuPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Icon(
-                          Icons.notifications_none,
-                          color: Colors.grey[700],
-                          size: 28,
+                        Padding(
+                          padding: EdgeInsets.only(top: 7), // 🔔 아이콘 조금 내려줄기
+                          child: Icon(Icons.notifications_none, color: Colors.grey[700], size: 28),
                         ),
                         SizedBox(width: 8),
                         Expanded(
@@ -127,8 +136,8 @@ class _ScreenMenuPageState extends State<ScreenMenuPage> {
                               ),
                               SizedBox(height: 4),
                               Text(
-                                  DateFormat('yyyy-MM-dd').format(DateTime.parse(notice.createdAt).toLocal()),
-                                  style: TextStyle(color: Colors.grey, fontSize: 12),
+                                DateFormat('yyyy-MM-dd').format(DateTime.parse(notice.createdAt).toLocal()),
+                                style: TextStyle(color: Colors.grey, fontSize: 12),
                               ),
                             ],
                           ),
@@ -158,46 +167,44 @@ class _ScreenMenuPageState extends State<ScreenMenuPage> {
                       ],
                     ),
                     SizedBox(height: 8),
-                    Expanded(
-                      child: GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) => DetailMenuPage(notice: notice)),
-                          );
-                        },
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            if (notice.imageUrl != null && notice.imageUrl!.isNotEmpty)
-                              Container(
-                                height: 100,
-                                width: double.infinity,
-                                margin: EdgeInsets.only(bottom: 8),
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(8),
-                                  child: Image.network(
-                                    notice.imageUrl!,
-                                    fit: BoxFit.cover,
-                                    errorBuilder: (context, error, stackTrace) {
-                                      return Container(
-                                        color: Colors.grey[200],
-                                        child: Icon(Icons.error_outline, color: Colors.grey),
-                                      );
-                                    },
-                                  ),
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => DetailMenuPage(notice: notice)),
+                        );
+                      },
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          if (hasImage)
+                            Container(
+                              height: 100,
+                              width: double.infinity,
+                              margin: EdgeInsets.only(bottom: 8),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(8),
+                                child: Image.network(
+                                  notice.imageUrl!,
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (context, error, stackTrace) {
+                                    return Container(
+                                      color: Colors.grey[200],
+                                      child: Icon(Icons.error_outline, color: Colors.grey),
+                                    );
+                                  },
                                 ),
                               ),
-                            Text(
-                          notice.content,
-                          overflow: TextOverflow.ellipsis,
-                          maxLines: 4,
                             ),
-                          ],
-                        ),
+                          Text(
+                            notice.content,
+                            maxLines: 3,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
                       ),
                     ),
                   ],
@@ -211,19 +218,19 @@ class _ScreenMenuPageState extends State<ScreenMenuPage> {
       // ✅ 사장님만 작성 버튼 보이게
       floatingActionButton: (userRole == '사장님')
           ? FloatingActionButton.extended(
-              backgroundColor: Color(0xFF006FFD),
-              onPressed: () async {
-                final created = await Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => CreateMenuPage(groupId: widget.groupId),
-                  ),
-                );
-                if (created == true) _fetchUserRoleAndNotices();
-              },
-              label: Text('CREATE', style: TextStyle(color: Colors.white)),
-              icon: Icon(Icons.add, color: Colors.white),
-            )
+        backgroundColor: Color(0xFF006FFD),
+        onPressed: () async {
+          final created = await Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => CreateMenuPage(groupId: widget.groupId),
+            ),
+          );
+          if (created == true) _fetchUserRoleAndNotices();
+        },
+        label: Text('CREATE', style: TextStyle(color: Colors.white)),
+        icon: Icon(Icons.add, color: Colors.white),
+      )
           : null,
     );
   }
