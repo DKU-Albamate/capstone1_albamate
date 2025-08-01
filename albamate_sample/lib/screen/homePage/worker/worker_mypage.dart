@@ -342,6 +342,14 @@ class _WorkerMyPageState extends State<WorkerMyPage> {
                             setState(() => isEditing = true);
                           }
                         },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF006FFD),
+                          foregroundColor: Colors.white,
+                          textStyle: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                         child: Text(isEditing ? '저장하기' : '프로필 수정'),
                       ),
                     ),
@@ -354,6 +362,10 @@ class _WorkerMyPageState extends State<WorkerMyPage> {
                       width: double.infinity,
                       child: OutlinedButton(
                         onPressed: confirmLogout,
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: const Color(0xFF006FFD),
+                          side: const BorderSide(color: Color(0xFF006FFD)),
+                        ),
                         child: const Text('로그아웃'),
                       ),
                     ),
