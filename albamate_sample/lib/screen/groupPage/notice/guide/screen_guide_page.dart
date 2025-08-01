@@ -130,13 +130,14 @@ class _ScreenGuidePageState extends State<ScreenGuidePage> {
                   return Container(
                     margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     width: double.infinity,
-                    height: notice.imageUrl != null && notice.imageUrl!.isNotEmpty ? 248 : 148,
+                    // ✅ 고정 높이 제거하여 동적 크기 조정
                     child: Card(
                       elevation: 2,
                       child: Padding(
                         padding: const EdgeInsets.all(12.0),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min, // ✅ 최소 크기로 설정
                           children: [
                             Row(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -148,9 +149,12 @@ class _ScreenGuidePageState extends State<ScreenGuidePage> {
                                 ),
                                 SizedBox(width: 8),
                                 Expanded(
+                                  // ✅ Flexible을 Expanded로 변경
                                   child: Column(
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
+                                    mainAxisSize:
+                                        MainAxisSize.min, // ✅ 최소 크기로 설정
                                     children: [
                                       GestureDetector(
                                         onTap: () {
@@ -175,6 +179,10 @@ class _ScreenGuidePageState extends State<ScreenGuidePage> {
                                             fontWeight: FontWeight.bold,
                                             fontSize: 16,
                                           ),
+                                          overflow:
+                                              TextOverflow
+                                                  .ellipsis, // ✅ 오버플로우 처리
+                                          maxLines: 2, // ✅ 최대 라인 수 제한
                                         ),
                                       ),
                                       SizedBox(height: 4),
@@ -230,55 +238,72 @@ class _ScreenGuidePageState extends State<ScreenGuidePage> {
                               ],
                             ),
                             SizedBox(height: 8),
-                            Expanded(
-                              child: GestureDetector(
-                                onTap: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder:
-                                          (context) =>
-                                              DetailGuidePage(notice: notice),
-                                    ),
-                                  ).then((_) {
-                                    // 돌아왔을 때 새로고침이 필요하다면 여기서 실행
-                                    if (mounted) {
-                                      _fetchUserRoleAndNotices();
-                                    }
-                                  });
-                                },
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    if (notice.imageUrl != null && notice.imageUrl!.isNotEmpty)
-                                      Container(
-                                        height: 100,
-                                        width: double.infinity,
-                                        margin: EdgeInsets.only(bottom: 8),
-                                        decoration: BoxDecoration(
-                                          borderRadius: BorderRadius.circular(8),
-                                        ),
-                                        child: ClipRRect(
-                                          borderRadius: BorderRadius.circular(8),
-                                          child: Image.network(
-                                            notice.imageUrl!,
-                                            fit: BoxFit.cover,
-                                            errorBuilder: (context, error, stackTrace) {
-                                              return Container(
-                                                color: Colors.grey[200],
-                                                child: Icon(Icons.error_outline, color: Colors.grey),
-                                              );
-                                            },
-                                          ),
+                            // ✅ Expanded 제거하고 직접 Column 사용
+                            GestureDetector(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder:
+                                        (context) =>
+                                            DetailGuidePage(notice: notice),
+                                  ),
+                                ).then((_) {
+                                  // 돌아왔을 때 새로고침이 필요하다면 여기서 실행
+                                  if (mounted) {
+                                    _fetchUserRoleAndNotices();
+                                  }
+                                });
+                              },
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisSize: MainAxisSize.min, // ✅ 최소 크기로 설정
+                                children: [
+                                  if (notice.imageUrl != null &&
+                                      notice.imageUrl!.isNotEmpty)
+                                    Container(
+                                      height: 120, // ✅ 이미지 높이를 약간 조정
+                                      width: double.infinity,
+                                      margin: EdgeInsets.only(bottom: 8),
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      child: ClipRRect(
+                                        borderRadius: BorderRadius.circular(8),
+                                        child: Image.network(
+                                          notice.imageUrl!,
+                                          fit: BoxFit.cover,
+                                          errorBuilder: (
+                                            context,
+                                            error,
+                                            stackTrace,
+                                          ) {
+                                            return Container(
+                                              color: Colors.grey[200],
+                                              child: Icon(
+                                                Icons.error_outline,
+                                                color: Colors.grey,
+                                              ),
+                                            );
+                                          },
                                         ),
                                       ),
-                                    Text(
-                                  notice.content,
-                                  overflow: TextOverflow.ellipsis,
-                                  maxLines: 4,
                                     ),
-                                  ],
-                                ),
+                                  // ✅ 내용 텍스트도 오버플로우 처리 개선
+                                  Text(
+                                    notice.content,
+                                    overflow: TextOverflow.ellipsis,
+                                    maxLines:
+                                        notice.imageUrl != null &&
+                                                notice.imageUrl!.isNotEmpty
+                                            ? 3
+                                            : 5, // ✅ 이미지 유무에 따라 라인 수 조정
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      height: 1.4, // ✅ 줄 간격 조정
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
                           ],

@@ -97,7 +97,6 @@ class _DetailGuidePageState extends State<DetailGuidePage> {
                   builder:
                       (context) => GroupNav(
                         groupId: widget.notice.groupId,
-                        // TODO: ⚠️ 현재 userRole 임시 사용 중 (백엔드 ownerId 연동 시 제거 예정)
                         userRole: '',
                         initialIndex: 2,
                       ),
@@ -108,7 +107,7 @@ class _DetailGuidePageState extends State<DetailGuidePage> {
           ),
         ],
       ),
-      body: Padding(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(20.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -135,7 +134,8 @@ class _DetailGuidePageState extends State<DetailGuidePage> {
               ],
             ),
             SizedBox(height: 20),
-            if (widget.notice.imageUrl != null && widget.notice.imageUrl!.isNotEmpty)
+            if (widget.notice.imageUrl != null &&
+                widget.notice.imageUrl!.isNotEmpty)
               Container(
                 width: double.infinity,
                 height: 200,
@@ -157,7 +157,10 @@ class _DetailGuidePageState extends State<DetailGuidePage> {
                   ),
                 ),
               ),
-            Text(widget.notice.content),
+            Text(
+              widget.notice.content,
+              style: TextStyle(fontSize: 16, height: 1.6),
+            ),
           ],
         ),
       ),
