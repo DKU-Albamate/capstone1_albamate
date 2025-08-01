@@ -35,6 +35,7 @@ class HomeNavigationWorker extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BottomNavigationBar(
+      selectedItemColor: Color(0xff006FFD),
       currentIndex: currentIndex,
       onTap: (index) => _onItemTapped(context, index),
       items: const [
