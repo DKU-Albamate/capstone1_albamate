@@ -104,21 +104,16 @@ class _BossGroupState extends State<BossGroup> {
                   );
                 },
               ),
-      floatingActionButton: ElevatedButton(
+      floatingActionButton: FloatingActionButton.extended(
         onPressed: _goToCreateGroup,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: const Color(0xFF006FFD), // 파란색 배경
-          foregroundColor: Colors.white, // 흰색 글씨
-          padding: const EdgeInsets.symmetric(horizontal: 34, vertical: 14),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(30),
-          ),
-        ),
-        child: const Text(
+        backgroundColor: const Color(0xFF006FFD),
+        label: const Text(
           'CREATE',
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          style: TextStyle(color: Colors.white),
         ),
+        icon: const Icon(Icons.add, color: Colors.white),
       ),
+
       bottomNavigationBar: const HomeNavigationBoss(currentIndex: 0),
     );
   }

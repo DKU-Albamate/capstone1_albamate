@@ -213,8 +213,12 @@ class _WorkerGroupState extends State<WorkerGroup> {
               ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _showInviteCodeDialog(context),
-        backgroundColor: Colors.blue,
-        label: const Text("그룹 참여", style: TextStyle(color: Colors.white)),
+        backgroundColor: const Color(0xFF006FFD),
+        label: const Text(
+          '그룹 참여',
+          style: TextStyle(color: Colors.white),
+        ),
+        icon: const Icon(Icons.group_add, color: Colors.white),
       ),
       bottomNavigationBar: const HomeNavigationWorker(currentIndex: 0),
     );

@@ -4,7 +4,7 @@ import 'package:albamate_sample/screen/groupPage/notice/notice_model.dart';
 import 'package:albamate_sample/component/groupHome_navigation.dart';
 import 'package:http/http.dart' as http;
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:intl/intl.dart'; // ✅ 현재 날짜 포맷을 위해 추가
+import 'package:intl/intl.dart';
 import 'dart:convert';
 
 class DetailMenuPage extends StatefulWidget {
@@ -68,9 +68,8 @@ class _DetailMenuPageState extends State<DetailMenuPage> {
 
   @override
   Widget build(BuildContext context) {
-    final String formattedDate = DateFormat(
-      'yyyy-MM-dd',
-    ).format(DateTime.parse(widget.notice.createdAt).toLocal());
+    final String formattedDate = DateFormat('yyyy-MM-dd')
+        .format(DateTime.parse(widget.notice.createdAt).toLocal());
 
     return Scaffold(
       appBar: AppBar(
@@ -88,28 +87,26 @@ class _DetailMenuPageState extends State<DetailMenuPage> {
         centerTitle: true,
         iconTheme: IconThemeData(color: Colors.black),
         actions: [
-          //home 버튼 누르면 groupHome으로 돌아감
           IconButton(
             icon: Icon(Icons.home),
             onPressed: () {
               Navigator.pushAndRemoveUntil(
                 context,
                 MaterialPageRoute(
-                  builder:
-                      (context) => GroupNav(
-                        groupId: widget.notice.groupId,
-                        // TODO: ⚠️ 현재 userRole 임시 사용 중 (백엔드 ownerId 연동 시 제거 예정)
-                        userRole: '',
-                        initialIndex: 2,
-                      ),
+                  builder: (context) => GroupNav(
+                    groupId: widget.notice.groupId,
+                    // TODO: ⚠️ 현재 userRole 임시 사용 중 (백엔드 ownerId 연동 시 제거 예정)
+                    userRole: '',
+                    initialIndex: 2,
+                  ),
                 ),
-                (Route<dynamic> route) => false,
+                    (Route<dynamic> route) => false,
               );
             },
           ),
         ],
       ),
-      body: Padding(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(20.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -130,8 +127,7 @@ class _DetailMenuPageState extends State<DetailMenuPage> {
                     ),
                     SizedBox(height: 4),
                     Text(
-                      formattedDate, // ✅ 현재 날짜로 표시
-
+                      formattedDate,
                       style: TextStyle(color: Colors.grey),
                     ),
                   ],
@@ -140,7 +136,8 @@ class _DetailMenuPageState extends State<DetailMenuPage> {
               ],
             ),
             SizedBox(height: 20),
-            if (widget.notice.imageUrl != null && widget.notice.imageUrl!.isNotEmpty)
+            if (widget.notice.imageUrl != null &&
+                widget.notice.imageUrl!.isNotEmpty)
               Container(
                 width: double.infinity,
                 height: 200,
@@ -163,6 +160,7 @@ class _DetailMenuPageState extends State<DetailMenuPage> {
                 ),
               ),
             Text(widget.notice.content),
+            SizedBox(height: 80), // 체크박스 하단 고정 간섭 방지
           ],
         ),
       ),
