@@ -56,12 +56,22 @@ class _AutoCreateGuidePageState extends State<AutoCreateGuidePage> {
       _previousText = null;
     });
   }
-
+   // 제목과 본문 넘기기
   void _applyToPreviousPage() {
-    if (_generatedText != null) {
-      Navigator.pop(context, _generatedText);
-    }
+  if (_generatedText == null) return;
+
+  final result = _generatedText!;
+  final title = RegExp(r'제목:\s*(.*)').firstMatch(result)?.group(1)?.trim();
+  final content = RegExp(r'본문:\s*(.*)', dotAll: true).firstMatch(result)?.group(1)?.trim();
+
+  if (title != null && content != null) {
+    Navigator.pop(context, {
+      'title': title,
+      'content': content,
+    });
   }
+}
+
 
   List<String> _extractTagsFromInput() {
     return _inputController.text
@@ -148,15 +158,51 @@ class _AutoCreateGuidePageState extends State<AutoCreateGuidePage> {
                         decoration: BoxDecoration(
                           color: Colors.grey[100],
                           borderRadius: BorderRadius.circular(8),
+                            boxShadow: [
+                              BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2)),
+                            ],
                         ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text("AI 생성 결과", style: TextStyle(fontWeight: FontWeight.bold)),
                             SizedBox(height: 8),
-                            Text(_generatedText!),
-                            SizedBox(height: 12),
+                            // 제목 박스
+                            Text("제목", style: TextStyle(color: Colors.grey[600], fontSize: 14)),
+                            SizedBox(height: 4),
+                            Container(
+                              width: double.infinity,
+                              padding: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                border: Border.all(color: Colors.blueAccent.withOpacity(0.5)),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Text(
+                                RegExp(r'제목:\s*(.*)').firstMatch(_generatedText!)?.group(1) ?? '제목 없음',
+                              ),
+                            ),
 
+                            SizedBox(height: 12),
+                            // 본문
+                            Text("본문", style: TextStyle(color: Colors.grey[600], fontSize: 14)),
+                            SizedBox(height: 4),
+                            Container(
+                              width: double.infinity,
+                              padding: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                border: Border.all(color: Colors.blueAccent.withOpacity(0.5)),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Text(
+                                RegExp(r'본문:\s*(.*)', dotAll: true).firstMatch(_generatedText!)?.group(1)?.trim() ?? '본문 없음',
+                                style: TextStyle(fontSize: 16, height: 1.6),
+                              ),
+                            ),
+
+
+                            SizedBox(height: 12),
                             // 태그 표시
                             Wrap(
                               spacing: 6,
