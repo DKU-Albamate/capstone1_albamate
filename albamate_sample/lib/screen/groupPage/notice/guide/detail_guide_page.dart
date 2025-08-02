@@ -157,11 +157,7 @@ class _DetailGuidePageState extends State<DetailGuidePage> {
                   ),
                 ),
               ),
-
-            Text(
-              widget.notice.content,
-              style: TextStyle(fontSize: 16, height: 1.6),
-            ),
+            Text(widget.notice.content),
             SizedBox(height: 80), // ✅ 하단 체크박스 침범 방지
           ],
         ),
