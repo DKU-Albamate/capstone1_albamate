@@ -704,6 +704,9 @@
       "languageVersion": "3.7"
     }
   ],
+
+  "generated": "2025-07-31T08:38:50.638675Z",
+
   "generator": "pub",
   "generatorVersion": "3.8.1",
   "flutterRoot": "file:///C:/Users/User/Desktop/flutter",

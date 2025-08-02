@@ -97,7 +97,6 @@ class _DetailGuidePageState extends State<DetailGuidePage> {
                   builder:
                       (context) => GroupNav(
                         groupId: widget.notice.groupId,
-                        // TODO: ⚠️ 현재 userRole 임시 사용 중 (백엔드 ownerId 연동 시 제거 예정)
                         userRole: '',
                         initialIndex: 2,
                       ),
@@ -158,7 +157,13 @@ class _DetailGuidePageState extends State<DetailGuidePage> {
                   ),
                 ),
               ),
-            Text(widget.notice.content),
+
+            SizedBox(height: 80), // ✅ 하단 체크박스 침범 방지
+
+            Text(
+              widget.notice.content,
+              style: TextStyle(fontSize: 16, height: 1.6),
+            ),
             SizedBox(height: 80), // ✅ 하단 체크박스 침범 방지
           ],
         ),

@@ -94,6 +94,7 @@ class _ScreenGuidePageState extends State<ScreenGuidePage> {
     final currentUser = FirebaseAuth.instance.currentUser;
 
     return Scaffold(
+
       body: _isLoading
           ? Center(child: CircularProgressIndicator())
           : ListView.builder(
@@ -214,6 +215,7 @@ class _ScreenGuidePageState extends State<ScreenGuidePage> {
                                     );
                                   },
                                 ),
+
                               ),
                             ),
                           Text(
