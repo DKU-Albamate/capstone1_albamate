@@ -206,18 +206,24 @@ class _BossScheduleViewPageState extends State<BossScheduleViewPage> {
                     child: SizedBox(
                       width: double.infinity,
                       child: ElevatedButton(
-                        onPressed: () {
-                          Navigator.push(
+                        onPressed: () async {
+                          await Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => ScheduleBuildPage(
+                              builder: (_) => ScheduleBuildPage(
                                 unavailableMap: unavailableMap,
                                 userNameMap: userNameMap,
                                 scheduleId: widget.scheduleId,
                                 groupId: widget.groupId,
+                                onConfirmed: () {
+                                  // 스케줄 작성 페이지에서 확정이 완료되면
+
+                                  Navigator.pop(context, true); // BossScheduleViewPage를 닫으면서 true 반환
+                                },
                               ),
                             ),
                           );
+
                         },
                         child: const Text('스케줄 작성하러 가기'),
                       ),
