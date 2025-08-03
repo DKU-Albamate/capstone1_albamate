@@ -187,13 +187,14 @@ class _CreateMenuPageState extends State<CreateMenuPage> {
                 ),
                 ElevatedButton(
                   onPressed: () async {
-                    final result = await Navigator.push(
+                    final result = await Navigator.push<Map<String, String>>(
                       context,
                       MaterialPageRoute(builder: (_) => AutoCreateMenuPage()),
                     );
-                    if (result != null && result is String) {
+                    if (result != null) {
                       setState(() {
-                        _contentController.text = result;
+                        _titleController.text = result['title'] ?? '';
+                        _contentController.text = result['content'] ?? '';
                       });
                     }
                   },

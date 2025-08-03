@@ -18,6 +18,9 @@ class DetailMenuPage extends StatefulWidget {
 
 class _DetailMenuPageState extends State<DetailMenuPage> {
   bool isChecked = false;
+  bool _showSummary = false;
+  String? _summary;
+  bool _isLoadingSummary = false;
 
   @override
   void initState() {
@@ -66,6 +69,32 @@ class _DetailMenuPageState extends State<DetailMenuPage> {
     }
   }
 
+  Future<void> _fetchSummary() async {
+    setState(() {
+      _isLoadingSummary = true;
+    });
+
+    final response = await http.post(
+      Uri.parse('https://backend-vgbf.onrender.com/notice/llmSummary'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'content': widget.notice.content}),
+    );
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      setState(() {
+        _summary = data['summary'];
+        _showSummary = true;
+        _isLoadingSummary = false;
+      });
+    } else {
+      setState(() {
+        _isLoadingSummary = false;
+      });
+      print('요약 실패: ${response.body}');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final String formattedDate = DateFormat('yyyy-MM-dd')
@@ -95,12 +124,11 @@ class _DetailMenuPageState extends State<DetailMenuPage> {
                 MaterialPageRoute(
                   builder: (context) => GroupNav(
                     groupId: widget.notice.groupId,
-                    // TODO: ⚠️ 현재 userRole 임시 사용 중 (백엔드 ownerId 연동 시 제거 예정)
                     userRole: '',
                     initialIndex: 2,
                   ),
                 ),
-                    (Route<dynamic> route) => false,
+                (Route<dynamic> route) => false,
               );
             },
           ),
@@ -111,6 +139,52 @@ class _DetailMenuPageState extends State<DetailMenuPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // ✅ 요약하기 버튼
+            Align(
+              alignment: Alignment.centerRight,
+              child: TextButton(
+                onPressed: () {
+                  if (_summary != null) {
+                    setState(() {
+                      _showSummary = !_showSummary;
+                    });
+                  } else {
+                    _fetchSummary();
+                  }
+                },
+                child: Text(
+                  _showSummary ? '요약 숨기기' : '요약하기',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+              ),
+            ),
+
+            // ✅ 요약 결과
+            AnimatedCrossFade(
+              firstChild: SizedBox.shrink(),
+              secondChild: _isLoadingSummary
+                  ? Center(child: CircularProgressIndicator())
+                  : Container(
+                      width: double.infinity,
+                      margin: EdgeInsets.only(bottom: 16),
+                      padding: EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.blue[50],
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: Colors.blue),
+                      ),
+                      child: Text(
+                        _summary ?? '',
+                        style: TextStyle(fontSize: 14),
+                      ),
+                    ),
+              crossFadeState: _showSummary
+                  ? CrossFadeState.showSecond
+                  : CrossFadeState.showFirst,
+              duration: Duration(milliseconds: 300),
+            ),
+
+            // ✅ 작성자 / 날짜
             Row(
               children: [
                 CircleAvatar(backgroundColor: Colors.grey[300], radius: 20),
@@ -126,16 +200,15 @@ class _DetailMenuPageState extends State<DetailMenuPage> {
                       ),
                     ),
                     SizedBox(height: 4),
-                    Text(
-                      formattedDate,
-                      style: TextStyle(color: Colors.grey),
-                    ),
+                    Text(formattedDate, style: TextStyle(color: Colors.grey)),
                   ],
                 ),
                 Spacer(),
               ],
             ),
             SizedBox(height: 20),
+
+            // ✅ 이미지
             if (widget.notice.imageUrl != null &&
                 widget.notice.imageUrl!.isNotEmpty)
               Container(
@@ -159,8 +232,9 @@ class _DetailMenuPageState extends State<DetailMenuPage> {
                   ),
                 ),
               ),
+
             Text(widget.notice.content),
-            SizedBox(height: 80), // 체크박스 하단 고정 간섭 방지
+            SizedBox(height: 80),/// ✅ 하단 체크박스 침범 방지
           ],
         ),
       ),

@@ -187,16 +187,18 @@ class _CreateGuidePageState extends State<CreateGuidePage> {
                 ),
                 ElevatedButton(
                   onPressed: () async {
-                    final result = await Navigator.push(
+                    final result = await Navigator.push<Map<String, String>>(
                       context,
                       MaterialPageRoute(builder: (_) => AutoCreateGuidePage()),
                     );
-                    if (result != null && result is String) {
+                    if (result != null) {
                       setState(() {
-                        _contentController.text = result;
+                        _titleController.text = result['title'] ?? '';
+                        _contentController.text = result['content'] ?? '';
                       });
                     }
                   },
+
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Color(0xFF006FFD),
                   ),
