@@ -191,8 +191,8 @@ class _ScreenSubPageState extends State<ScreenSubPage> {
           );
         },
       ),
-      floatingActionButton: (userRole == '사장님')
-          ? FloatingActionButton.extended(
+      floatingActionButton:
+          FloatingActionButton.extended(
         backgroundColor: Color(0xFF006FFD),
         onPressed: () async {
           final created = await Navigator.push(
@@ -204,7 +204,7 @@ class _ScreenSubPageState extends State<ScreenSubPage> {
         label: Text('CREATE', style: TextStyle(color: Colors.white)),
         icon: Icon(Icons.add, color: Colors.white),
       )
-          : null,
+
     );
   }
 }
