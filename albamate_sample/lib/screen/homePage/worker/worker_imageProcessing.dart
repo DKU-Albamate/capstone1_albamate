@@ -10,10 +10,10 @@ import 'dart:async'; // ✅ TimeoutException을 사용
 
 
 class Schedule {
-  final DateTime date;
-  final TimeOfDay start;
-  final TimeOfDay end;
-  final String title;
+  DateTime date;
+  TimeOfDay start;
+  TimeOfDay end;
+  String title;
 
   Schedule({
     required this.date,
@@ -21,6 +21,15 @@ class Schedule {
     required this.end,
     required this.title,
   });
+
+   Schedule copy() {
+    return Schedule(
+      date: DateTime.fromMillisecondsSinceEpoch(date.millisecondsSinceEpoch),
+      start: TimeOfDay(hour: start.hour, minute: start.minute),
+      end: TimeOfDay(hour: end.hour, minute: end.minute),
+      title: title,
+    );
+  }
 
   factory Schedule.fromJson(Map<String, dynamic> j) {
     TimeOfDay _t(String? t) {
@@ -36,6 +45,16 @@ class Schedule {
       start: _t(j['start']),
       end: _t(j['end']),
       title: j['title'] ?? j['position'] ?? j['name'] ?? '근무',
+    );
+  }
+
+  factory Schedule.empty() {
+    final now = DateTime.now();
+    return Schedule(
+      title: '',
+      date: now,
+      start: const TimeOfDay(hour: 9, minute: 0),
+      end: const TimeOfDay(hour: 15, minute: 0),
     );
   }
 
