@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
 import 'package:firebase_auth/firebase_auth.dart';
+import '../../../config/api.dart';
 import 'package:albamate_sample/screen/groupPage/schedule/schdule_confirm_detail.dart';
 
 class ScheduleConfirmNav extends StatefulWidget {
@@ -34,8 +35,7 @@ class _ScheduleConfirmNavState extends State<ScheduleConfirmNav> {
     }
 
     final response = await http.get(
-      Uri.parse(
-          'https://backend-schedule-vs8b.onrender.com/api/schedules/confirmed?groupId=${widget.groupId}'),
+      Uri.parse('$BACKEND_SCHEDULE_BASE/api/schedules/confirmed?groupId=${widget.groupId}'),
       headers: {'Authorization': 'Bearer $idToken'},
     );
 

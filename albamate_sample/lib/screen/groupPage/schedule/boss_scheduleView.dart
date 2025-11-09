@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:http/http.dart' as http;
+import '../../../config/api.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'dart:convert';
 
@@ -44,7 +45,7 @@ class _BossScheduleViewPageState extends State<BossScheduleViewPage> {
       final idToken = await user?.getIdToken();
 
       final response = await http.get(
-        Uri.parse('https://backend-schedule-vs8b.onrender.com/api/schedules/${widget.scheduleId}/unavailable/all'),
+        Uri.parse('$BACKEND_SCHEDULE_BASE/api/schedules/${widget.scheduleId}/unavailable/all'),
         headers: {'Authorization': 'Bearer $idToken'},
       );
 

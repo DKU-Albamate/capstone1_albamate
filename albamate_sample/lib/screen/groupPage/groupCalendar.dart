@@ -3,6 +3,7 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import '../../config/api.dart';
 import 'package:albamate_sample/screen/groupPage/group_imageUpload.dart';
 
 // "알바생"이면 수정 불가
@@ -39,7 +40,7 @@ class _GroupCalendarPageState extends State<GroupCalendarPage> {
       final token = await FirebaseAuth.instance.currentUser?.getIdToken();
       
       final response = await http.get(
-        Uri.parse('https://backend-schedule-vs8b.onrender.com/api/schedules/confirmed?groupId=${widget.groupId}'),
+        Uri.parse('$BACKEND_SCHEDULE_BASE/api/schedules/confirmed?groupId=${widget.groupId}'),
         headers: {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
@@ -70,7 +71,7 @@ class _GroupCalendarPageState extends State<GroupCalendarPage> {
                 endTime: date.add(Duration(hours: 1)),
                 subject: '근무: $workerNames',
                 color: Colors.blue,
-                notes: schedule['_id'],
+                notes: schedule['id'] ?? schedule['_id'],
               );
 
               if (!_events.containsKey(dateKey)) {

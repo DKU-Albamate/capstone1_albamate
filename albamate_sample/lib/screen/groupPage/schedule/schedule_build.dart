@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:albamate_sample/screen/groupPage/schedule/schedule_confirm_nav.dart';
+import '../../../config/api.dart';
 
 class ScheduleBuildPage extends StatefulWidget {
   final Map<String, List<String>> unavailableMap;
@@ -120,7 +121,7 @@ class _ScheduleBuildPageState extends State<ScheduleBuildPage> {
     final idToken = await user?.getIdToken();
 
     final response = await http.patch(
-      Uri.parse('https://backend-schedule-vs8b.onrender.com/api/schedules/${widget.scheduleId}/confirm'),
+      Uri.parse('$BACKEND_SCHEDULE_BASE/api/schedules/${widget.scheduleId}/confirm'),
       headers: {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer $idToken',
