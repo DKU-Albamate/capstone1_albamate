@@ -5,6 +5,7 @@ import 'package:albamate_sample/screen/groupPage/schedule/worker_scheduleView.da
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../../../config/api.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'dart:convert';
 
@@ -37,7 +38,7 @@ Future<void> fetchSchedulePosts() async {
     final idToken = await FirebaseAuth.instance.currentUser?.getIdToken(); // Firebase 사용 중이므로 이 토큰 사용
 
     final response = await http.get(
-      Uri.parse('https://backend-schedule-vs8b.onrender.com/api/schedules?groupId=${widget.groupId}'),
+      Uri.parse('$BACKEND_SCHEDULE_BASE/api/schedules?groupId=${widget.groupId}'),
       headers: {
         'Authorization': 'Bearer $idToken',
       },
@@ -48,12 +49,12 @@ Future<void> fetchSchedulePosts() async {
       setState(() {
         schedulePosts = data.map<Map<String, dynamic>>((item) {
           return {
-            'id': item['_id'],
+            'id': item['id'] ?? item['_id'],
             'title': item['title'],
             'description': item['description'],
             'year': item['year'],
             'month': item['month'],
-            'createdAt': item['createdAt'],
+            'createdAt': item['created_at'] ?? item['createdAt'],
           };
         }).toList();
       });

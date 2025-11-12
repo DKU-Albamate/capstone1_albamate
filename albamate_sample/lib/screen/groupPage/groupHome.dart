@@ -5,6 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:albamate_sample/screen/homePage/boss/boss_homeCalendar.dart';
 import 'package:http/http.dart' as http;
+import '../../config/api.dart';
 import 'dart:convert';
 
 class GroupHomePage extends StatefulWidget {
@@ -93,7 +94,7 @@ class _GroupHomePageState extends State<GroupHomePage> {
       final today = DateFormat('yyyy-MM-dd').format(DateTime.now());
       
       final response = await http.get(
-        Uri.parse('https://backend-schedule-vs8b.onrender.com/api/schedules/group/${widget.groupId}/today'),
+        Uri.parse('$BACKEND_SCHEDULE_BASE/api/schedules/group/${widget.groupId}/today'),
         headers: {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',

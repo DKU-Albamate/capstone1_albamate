@@ -1,8 +1,8 @@
 // This is a generated file; do not edit or check into version control.
-FLUTTER_ROOT=/opt/homebrew/Caskroom/flutter/3.29.1/flutter
-FLUTTER_APPLICATION_PATH=/Users/imminji/Desktop/git/capstone1_albamate/albamate_sample
+FLUTTER_ROOT=/Users/jcm0314/flutter
+FLUTTER_APPLICATION_PATH=/Users/jcm0314/Desktop/albamate/capstone1_albamate/albamate_sample
 COCOAPODS_PARALLEL_CODE_SIGN=true
-FLUTTER_TARGET=/Users/imminji/Desktop/git/capstone1_albamate/albamate_sample/lib/main.dart
+FLUTTER_TARGET=lib/main.dart
 FLUTTER_BUILD_DIR=build
 FLUTTER_BUILD_NAME=1.0.0
 FLUTTER_BUILD_NUMBER=1
@@ -11,4 +11,4 @@ EXCLUDED_ARCHS[sdk=iphoneos*]=armv7
 DART_OBFUSCATION=false
 TRACK_WIDGET_CREATION=true
 TREE_SHAKE_ICONS=false
-PACKAGE_CONFIG=/Users/imminji/Desktop/git/capstone1_albamate/albamate_sample/.dart_tool/package_config.json
+PACKAGE_CONFIG=.dart_tool/package_config.json

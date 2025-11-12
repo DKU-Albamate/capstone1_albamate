@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../../../config/api.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 
@@ -103,7 +104,7 @@ class _CreateSchedulePostPageState extends State<CreateSchedulePostPage> {
                         final user = FirebaseAuth.instance.currentUser;
                         final idToken = await user?.getIdToken();
                         final response = await http.post(
-                          Uri.parse('https://backend-schedule-vs8b.onrender.com/api/schedules/create'),
+                          Uri.parse('$BACKEND_SCHEDULE_BASE/api/schedules/create'),
                           headers: {
                             'Authorization': 'Bearer $idToken',
                             'Content-Type': 'application/json',

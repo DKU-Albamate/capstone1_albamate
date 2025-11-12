@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:firebase_auth/firebase_auth.dart';
+import '../../../config/api.dart';
 
 class WorkerScheduleViewPage extends StatefulWidget {
   final String scheduleId;
@@ -36,9 +37,7 @@ class _WorkerScheduleViewPageState extends State<WorkerScheduleViewPage> {
   Future<void> fetchUnavailableDates() async {
     try {
       final idToken = await FirebaseAuth.instance.currentUser?.getIdToken();
-      final url = Uri.parse(
-        'https://backend-schedule-vs8b.onrender.com/api/schedules/${widget.scheduleId}/unavailable',
-      );
+      final url = Uri.parse('$BACKEND_SCHEDULE_BASE/api/schedules/${widget.scheduleId}/unavailable');
 
       final response = await http.get(
         url,
@@ -80,9 +79,7 @@ class _WorkerScheduleViewPageState extends State<WorkerScheduleViewPage> {
 
     try {
       final idToken = await FirebaseAuth.instance.currentUser?.getIdToken();
-      final url = Uri.parse(
-        'https://backend-schedule-vs8b.onrender.com/api/schedules/${widget.scheduleId}/unavailable',
-      );
+      final url = Uri.parse('$BACKEND_SCHEDULE_BASE/api/schedules/${widget.scheduleId}/unavailable');
 
       final response = await http.put(
         url,
