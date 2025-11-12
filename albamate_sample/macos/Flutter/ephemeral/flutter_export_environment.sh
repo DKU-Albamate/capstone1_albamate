@@ -1,7 +1,7 @@
 #!/bin/sh
 # This is a generated file; do not edit or check into version control.
-export "FLUTTER_ROOT=/opt/homebrew/Caskroom/flutter/3.29.1/flutter"
-export "FLUTTER_APPLICATION_PATH=/Users/imminji/Desktop/git/capstone1_albamate/albamate_sample"
+export "FLUTTER_ROOT=/Users/jcm0314/flutter"
+export "FLUTTER_APPLICATION_PATH=/Users/jcm0314/Desktop/albamate/capstone1_albamate/albamate_sample"
 export "COCOAPODS_PARALLEL_CODE_SIGN=true"
 export "FLUTTER_BUILD_DIR=build"
 export "FLUTTER_BUILD_NAME=1.0.0"
