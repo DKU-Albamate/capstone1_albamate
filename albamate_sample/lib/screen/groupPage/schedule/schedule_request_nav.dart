@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:albamate_sample/screen/groupPage/schedule/create_schedule.dart';
 import 'package:albamate_sample/screen/groupPage/schedule/schedule_card.dart';
 import 'package:albamate_sample/screen/groupPage/schedule/worker_scheduleView.dart'; // ✅ 추가
-import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../config/api.dart';
